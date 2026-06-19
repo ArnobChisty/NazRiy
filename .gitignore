@@ -1,0 +1,22 @@
+# Dependencies and generated output
+node_modules/
+dist/
+
+# Environment and secrets
+.env
+.env.*
+!.env.example
+venv/
+.venv/
+__pycache__/
+*.py[cod]
+
+# Editors and operating systems
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
+
+# Local agent metadata
+.agents/
+.codex/
