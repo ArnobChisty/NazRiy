@@ -1,0 +1,24 @@
+/* Keep the catalogue controls directly below the persistent navigation. */
+.navbar {
+  position: sticky;
+  top: 0;
+}
+
+.catalog-toolbar {
+  top: 82px;
+  min-height: 64px;
+  padding-top: 0;
+  padding-bottom: 0;
+}
+
+.catalog-toolbar label { gap: 12px; }
+.catalog-toolbar select {
+  min-width: 210px;
+  height: 46px;
+  padding-inline: 16px 42px;
+}
+
+@media (max-width: 620px) {
+  .catalog-toolbar { top: 128px; min-height: 60px; }
+  .catalog-toolbar select { min-width: 150px; height: 42px; }
+}

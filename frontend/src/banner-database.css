@@ -1,0 +1,14 @@
+.editorial-slide > picture,
+.editorial-slide > picture img {
+  width: 100%;
+  height: 100%;
+  display: block;
+}
+.editorial-slide > picture img {
+  object-fit: cover;
+  filter: saturate(.9) contrast(1.02);
+}
+.editorial-slide.theme-burgundy .primary-button { background: #76172e; }
+.editorial-slide.theme-burgundy .primary-button:hover { background: #5d1024; }
+.editorial-slide.theme-sage .primary-button { background: #566b55; }
+.editorial-slide.theme-neutral .primary-button { background: #574d43; }
