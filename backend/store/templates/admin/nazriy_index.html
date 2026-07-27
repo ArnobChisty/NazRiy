@@ -1,0 +1,92 @@
+{% extends "admin/base_site.html" %}
+{% load i18n static dashboard_tags %}
+
+{% block extrastyle %}
+  {{ block.super }}
+  <link rel="stylesheet" href="{% static 'admin/css/nazriy_dashboard.css' %}?v=3">
+{% endblock %}
+
+{% block bodyclass %}{{ block.super }} nazriy-dashboard-page{% endblock %}
+{% block breadcrumbs %}{% endblock %}
+{% block content_title %}{% endblock %}
+
+{% block content %}
+{% nazriy_dashboard as dashboard %}
+<div class="nz-admin-shell">
+  <aside class="nz-sidebar">
+    <a class="nz-sidebar-brand" href="{% url 'admin:index' %}"><span>N</span><strong>NazRiy</strong></a>
+    <nav>
+      <small>Dashboard</small>
+      <a class="active" href="{% url 'admin:index' %}"><i>▦</i> Overview</a>
+      <a href="{% url 'admin:index' %}#analytics"><i>⌁</i> Analytics</a>
+      <small>Commerce</small>
+      <a href="{% url 'admin:store_order_changelist' %}"><i>▱</i> Orders <b>{{ dashboard.attention_count }}</b></a>
+      <a href="{% url 'admin:auth_user_changelist' %}"><i>◎</i> Customers</a>
+      <a href="{% url 'admin:store_product_changelist' %}"><i>◇</i> Products</a>
+      <a href="{% url 'admin:store_category_changelist' %}"><i>⌗</i> Categories</a>
+      <small>Content</small>
+      <a href="{% url 'admin:store_banner_changelist' %}"><i>▣</i> Hero banners</a>
+      <a href="{% url 'admin:store_topproduct_changelist' %}"><i>☆</i> Top products</a>
+      <a href="{% url 'admin:store_navigationlink_changelist' %}"><i>≡</i> Navigation</a>
+    </nav>
+    <div class="nz-sidebar-user"><span>{{ request.user.username|slice:":1"|upper }}</span><div><strong>{{ request.user.get_full_name|default:request.user.username }}</strong><small>Administrator</small></div><a href="{% url 'admin:password_change' %}" title="Account settings">↗</a></div>
+  </aside>
+
+  <div class="nz-workspace">
+    <header class="nz-topbar">
+      <div class="nz-search">⌕ <span>Search orders, products and customers...</span><kbd>⌘ K</kbd></div>
+      <div class="nz-top-actions"><span class="nz-online"><i></i> Store online</span><a href="/" target="_blank">View storefront ↗</a><span class="nz-avatar">{{ request.user.username|slice:":1"|upper }}</span></div>
+    </header>
+
+    <div class="nz-dashboard">
+      <header class="nz-dashboard-header">
+        <div><h1>Dashboard</h1><span>Welcome back, {{ request.user.first_name|default:request.user.username }}. Here’s what’s happening with NazRiy.</span></div>
+        <div class="nz-header-actions"><a class="nz-secondary-action" href="{% url 'admin:store_product_add' %}">Add product</a><a class="nz-primary-action" href="{% url 'admin:store_order_changelist' %}">Manage orders</a></div>
+      </header>
+
+      <section class="nz-kpis" aria-label="Key performance indicators">
+        <article><div class="nz-kpi-top"><small>Total revenue</small><span class="green">৳</span></div><strong>৳{{ dashboard.revenue|floatformat:0 }}</strong><em class="{% if dashboard.growth >= 0 %}positive{% else %}negative{% endif %}">↗ {% if dashboard.growth >= 0 %}+{% endif %}{{ dashboard.growth|floatformat:1 }}% from last month</em><svg viewBox="0 0 120 25" preserveAspectRatio="none"><polyline points="0,20 18,17 35,19 52,12 70,13 90,7 120,9"/></svg></article>
+        <article><div class="nz-kpi-top"><small>Customers</small><span class="teal">◎</span></div><strong>{{ dashboard.customer_count }}</strong><em class="positive">↗ Registered purchasers</em><svg class="teal-line" viewBox="0 0 120 25" preserveAspectRatio="none"><polyline points="0,21 22,18 38,17 58,14 80,15 100,11 120,8"/></svg></article>
+        <article><div class="nz-kpi-top"><small>Orders</small><span class="purple">▱</span></div><strong>{{ dashboard.order_count }}</strong><em class="positive">↗ {{ dashboard.orders_today }} placed today</em><svg class="purple-line" viewBox="0 0 120 25" preserveAspectRatio="none"><polyline points="0,19 16,16 32,18 50,13 69,14 90,9 105,11 120,6"/></svg></article>
+        <article><div class="nz-kpi-top"><small>Average order</small><span class="orange">⌁</span></div><strong>৳{{ dashboard.average_order|floatformat:0 }}</strong><em>Across active orders</em><svg class="orange-line" viewBox="0 0 120 25" preserveAspectRatio="none"><polyline points="0,20 19,14 37,16 55,11 75,13 94,6 107,10 120,5"/></svg></article>
+      </section>
+
+      <section class="nz-chart-grid" id="analytics">
+        <article class="nz-panel nz-revenue-panel">
+          <div class="nz-panel-heading"><div><h2>Revenue</h2><small>Gross revenue over the last six months</small></div><div class="nz-range"><button>30d</button><button class="active">6m</button><button>1y</button></div></div>
+          <div class="nz-line-chart">
+            <div class="nz-y-labels"><span>৳{{ dashboard.month_revenue|floatformat:0 }}</span><span>৳{{ dashboard.average_order|floatformat:0 }}</span><span>৳0</span></div>
+            <svg viewBox="0 0 100 100" preserveAspectRatio="none" aria-label="Six month revenue trend"><defs><linearGradient id="nz-area" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#20a164" stop-opacity=".22"/><stop offset="100%" stop-color="#20a164" stop-opacity="0"/></linearGradient></defs><polygon points="0,100 {{ dashboard.chart_points }} 100,100" fill="url(#nz-area)"/><polyline points="{{ dashboard.chart_points }}" fill="none" stroke="#20a164" stroke-width="2" vector-effect="non-scaling-stroke"/></svg>
+            <div class="nz-x-labels">{% for month in dashboard.monthly_sales %}<span><strong>{{ month.label }}</strong><small>{{ month.orders }} order{{ month.orders|pluralize }}</small></span>{% endfor %}</div>
+          </div>
+        </article>
+
+        <article class="nz-panel nz-status-panel">
+          <div class="nz-panel-heading"><div><h2>Order status</h2><small>Current fulfilment pipeline</small></div><a href="{% url 'admin:store_order_changelist' %}">View all</a></div>
+          <div class="nz-donut-wrap"><div class="nz-donut" style="background:conic-gradient({{ dashboard.status_gradient }})"><span><strong>{{ dashboard.order_count }}</strong><small>Total</small></span></div><ul>{% for item in dashboard.status_data %}<li><i style="background:{{ item.color }}"></i><span>{{ item.label }}</span><strong>{{ item.count }}</strong><small>{{ item.share }}%</small></li>{% endfor %}</ul></div>
+          <div class="nz-goals"><h3>Store health</h3><div><span>Inventory available <b>{{ dashboard.stock_units }} units</b></span><i><em style="width:{% widthratio dashboard.stock_units 100 100 %}%"></em></i></div><div><span>Low-stock products <b>{{ dashboard.low_stock_count }}/{{ dashboard.product_count }}</b></span><i class="warning"><em style="width:{% widthratio dashboard.low_stock_count dashboard.product_count 100 %}%"></em></i></div></div>
+        </article>
+      </section>
+
+      <section class="nz-lower-grid">
+        <article class="nz-panel nz-products-panel">
+          <div class="nz-panel-heading"><div><h2>Top products</h2><small>Ranked by sales revenue</small></div><a href="{% url 'admin:store_product_changelist' %}">Inventory</a></div>
+          {% if dashboard.top_products %}<ol class="nz-product-ranking">{% for product in dashboard.top_products %}<li><span class="nz-rank">0{{ forloop.counter }}</span><div><strong>{{ product.product_name }}</strong><span class="nz-progress"><i style="width:{{ product.width }}%"></i></span><small>{{ product.units }} sold</small></div><b>৳{{ product.revenue|floatformat:0 }}</b></li>{% endfor %}</ol>{% else %}<div class="nz-empty">Sales will appear here after the first completed order.</div>{% endif %}
+        </article>
+        <article class="nz-panel nz-inventory-panel">
+          <div class="nz-panel-heading"><div><h2>Stock alerts</h2><small>Products that need attention</small></div><span class="nz-alert-count">{{ dashboard.low_stock_count }}</span></div>
+          <div class="nz-stock-summary"><div><strong>{{ dashboard.product_count }}</strong><span>Products</span></div><div><strong>{{ dashboard.stock_units }}</strong><span>Units available</span></div></div>
+          {% if dashboard.low_stock %}<ul class="nz-stock-list">{% for product in dashboard.low_stock %}<li><a href="{% url 'admin:store_product_change' product.id %}">{{ product.name }}</a><span class="{% if product.stock_quantity == 0 %}out{% endif %}">{{ product.stock_quantity }} left</span></li>{% endfor %}</ul>{% else %}<div class="nz-empty">All products have healthy stock levels.</div>{% endif %}
+        </article>
+      </section>
+
+      <section class="nz-panel nz-orders-table">
+        <div class="nz-panel-heading"><div><h2>Recent orders</h2><small>Latest customer activity</small></div><a href="{% url 'admin:store_order_changelist' %}">All orders →</a></div>
+        {% if dashboard.recent_orders %}<div class="nz-table-scroll"><table><thead><tr><th>Order</th><th>Customer</th><th>Date</th><th>Items</th><th>Total</th><th>Status</th><th></th></tr></thead><tbody>{% for order in dashboard.recent_orders %}<tr><td><strong>#{{ order.id|stringformat:"04d" }}</strong></td><td><span>{{ order.name }}</span><small>{{ order.email }}</small></td><td>{{ order.created_at|date:"d M Y" }}</td><td>{{ order.items.count }}</td><td><strong>৳{{ order.total|floatformat:0 }}</strong></td><td><span class="nz-status nz-status-{{ order.status }}">{{ order.get_status_display }}</span></td><td><a href="{% url 'admin:store_order_change' order.id %}">Open</a></td></tr>{% endfor %}</tbody></table></div>{% else %}<div class="nz-empty">New customer orders will appear here.</div>{% endif %}
+      </section>
+
+      <section class="nz-admin-modules"><div class="nz-section-label"><h2>Store management</h2><span>All Django administration modules</span></div>{% include "admin/app_list.html" with app_list=app_list show_changelinks=True %}</section>
+    </div>
+  </div>
+</div>
+{% endblock %}

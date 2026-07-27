@@ -1,25 +1,34 @@
+import { useEffect, useState } from 'react'
+import { getFeaturedProducts } from '../api'
+import type { Product } from '../types'
 import ProductCard from './ProductCard'
 
-const products = [
-  { name: 'The Solace Vase', category: 'Ceramics', price: '48Tk', tone: 'sand', shape: 'vase-shape' },
-  { name: 'Linen Carryall', category: 'Textiles', price: '36Tk', tone: 'clay', shape: 'bag-shape' },
-  { name: 'Quiet Morning Cup', category: 'Tableware', price: '24Tk', tone: 'cream', shape: 'cup-shape' },
-  { name: 'Amber Glow Candle', category: 'Home fragrance', price: '29Tk', tone: 'sage', shape: 'candle-shape' },
-]
+const FeaturedProducts = () => {
+  const [products, setProducts] = useState<Product[]>([])
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState(false)
 
-const FeaturedProducts = () => (
-  <section className="featured" id="featured">
-    <div className="section-heading">
-      <div>
-        <p className="eyebrow">Selected for you</p>
-        <h2>Featured pieces</h2>
+  useEffect(() => {
+    getFeaturedProducts()
+      .then((data) => setProducts(data.slice(0, 4)))
+      .catch(() => setError(true))
+      .finally(() => setLoading(false))
+  }, [])
+
+  return (
+    <section className="featured" id="featured">
+      <div className="section-heading">
+        <div>
+          <p className="eyebrow">Selected for you</p>
+          <h2>Featured pieces</h2>
+        </div>
+        <a href="/products">View all products <span>→</span></a>
       </div>
-      <a href="#featured">View all products <span>→</span></a>
-    </div>
-    <div className="product-grid">
-      {products.map((product) => <ProductCard key={product.name} {...product} />)}
-    </div>
-  </section>
-)
+      {loading && <div className="product-grid" aria-label="Loading featured products">{[1, 2, 3, 4].map((item) => <div className="product-skeleton" key={item} />)}</div>}
+      {error && <div className="inline-state">Start the Django server to see live featured products. <a href="/products">Open the catalogue</a></div>}
+      {!loading && !error && <div className="product-grid">{products.map((product) => <ProductCard key={product.id} product={product} />)}</div>}
+    </section>
+  )
+}
 
 export default FeaturedProducts

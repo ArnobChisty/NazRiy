@@ -1,0 +1,4 @@
+@media (max-width: 620px) {
+  .nav-actions .nav-account { display: inline-flex; font-size: 12px; }
+  .nav-actions .nav-orders, .nav-actions .nav-logout { display: none; }
+}
