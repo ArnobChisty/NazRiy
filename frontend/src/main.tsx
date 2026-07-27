@@ -8,5 +8,6 @@ import './banner-database.css'
 import './pages/Sprint4.css'
 import './pages/Sprint4Mobile.css'
 import './rise-inspired.css'
+import './nazriy-noir.css'
 import App from './App.tsx'
 createRoot(document.getElementById('root')!).render(<StrictMode><App /></StrictMode>)

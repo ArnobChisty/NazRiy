@@ -124,4 +124,5 @@ class BannerAdmin(admin.ModelAdmin):
 admin.site.site_header = 'NazRiy administration'
 admin.site.site_title = 'NazRiy admin'
 admin.site.index_title = 'Orders, inventory and content'
+admin.site.index_template = 'admin/nazriy_index.html'
 admin.site.register([Cart, CartItem])
