@@ -1,0 +1,17 @@
+{% extends "admin/change_list.html" %}
+
+{% block content_title %}
+  <div class="nz-payment-heading">
+    <div>
+      <p>Sales workspace</p>
+      <h1>Payment operations</h1>
+      <span>Review checkout payments, verify bKash references, and identify transactions that need attention.</span>
+    </div>
+  </div>
+  <section class="nz-payment-stats" aria-label="Payment summary">
+    <article><span>Total records</span><strong>{{ payment_stats.total }}</strong><small>All checkout payments</small></article>
+    <article class="paid"><span>Collected</span><strong>{{ payment_stats.paid_amount }}</strong><small>{{ payment_stats.paid }} completed payment{{ payment_stats.paid|pluralize }}</small></article>
+    <article class="pending"><span>Pending review</span><strong>{{ payment_stats.pending }}</strong><small>Awaiting completion or verification</small></article>
+    <article class="attention"><span>Needs attention</span><strong>{{ payment_stats.attention }}</strong><small>Failed or cancelled payments</small></article>
+  </section>
+{% endblock %}

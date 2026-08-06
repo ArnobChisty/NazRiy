@@ -1,0 +1,12 @@
+{% load i18n %}
+<nav class="nz-page-sidebar" id="nav-sidebar" aria-label="{% translate 'Sidebar' %}">
+  <div class="nz-page-sidebar-head">
+    <span>Store workspace</span>
+    <a href="{% url 'admin:store_product_add' %}" title="Add a product">+</a>
+  </div>
+  {% include "admin/nazriy_sidebar_links.html" %}
+  <div class="nz-page-sidebar-footer">
+    <span>{{ request.user.username|slice:":1"|upper }}</span>
+    <div><strong>{{ request.user.get_full_name|default:request.user.username }}</strong><small>Administrator</small></div>
+  </div>
+</nav>
