@@ -11,10 +11,10 @@ const AccountIcon = () => <svg aria-hidden="true" viewBox="0 0 24 24"><circle cx
 const BagIcon = () => <svg aria-hidden="true" viewBox="0 0 24 24"><path d="M6.5 8.5h11l-1 12h-9z"/><path d="M9 9V6.5a3 3 0 0 1 6 0V9"/></svg>
 
 const defaultLinks: NavigationLink[] = [
-  { id: -1, label: 'The vision', url: '/#about', sort_order: 1, open_in_new_tab: false },
-  { id: -2, label: 'Apparel collection', url: '/products', sort_order: 2, open_in_new_tab: false },
-  { id: -3, label: 'New arrivals', url: '/products?ordering=newest', sort_order: 3, open_in_new_tab: false },
-  { id: -4, label: 'Shop', url: '/products', sort_order: 4, open_in_new_tab: false },
+  { id: -1, label: 'Shop all', url: '/products', sort_order: 1, open_in_new_tab: false },
+  { id: -2, label: 'New arrivals', url: '/products?ordering=newest', sort_order: 2, open_in_new_tab: false },
+  { id: -3, label: 'Women', url: '/products?category=womens-clothing', sort_order: 3, open_in_new_tab: false },
+  { id: -4, label: 'Our story', url: '/#about', sort_order: 4, open_in_new_tab: false },
 ]
 
 const Navbar = ({ activePage = 'home' }: NavbarProps) => {
@@ -24,6 +24,16 @@ const Navbar = ({ activePage = 'home' }: NavbarProps) => {
   const [menuOpen, setMenuOpen] = useState(false)
   const [search, setSearch] = useState('')
   const [navigationLinks, setNavigationLinks] = useState<NavigationLink[]>(defaultLinks)
+
+  const isActiveLink = (link: NavigationLink) => {
+    if (activePage !== 'products') return false
+    const target = new URL(link.url, window.location.origin)
+    if (target.pathname !== window.location.pathname) return false
+    const currentEntries = Array.from(new URLSearchParams(window.location.search).entries())
+    const targetEntries = Array.from(target.searchParams.entries())
+    return currentEntries.length === targetEntries.length
+      && targetEntries.every(([key, value]) => currentEntries.some(([currentKey, currentValue]) => currentKey === key && currentValue === value))
+  }
 
   useEffect(() => { getNavigationLinks().then(setNavigationLinks).catch(() => undefined) }, [])
 
@@ -35,9 +45,9 @@ const Navbar = ({ activePage = 'home' }: NavbarProps) => {
   return <>
     <a className="skip-link" href="#main-content">Skip to main content</a>
     <header className="navbar noir-navbar">
-      <a className="noir-wordmark" href="/" aria-label="NazRiy home">NAZRIY</a>
+      <a className="noir-wordmark" href="/" aria-label="NazRiy home"><img src="/brand/nazriy-logo.jpeg" alt="NazRiy — Luxury in Budget" /></a>
       <nav className={menuOpen ? 'noir-primary-nav open' : 'noir-primary-nav'} aria-label="Primary navigation">
-        {navigationLinks.map(link => <a className={activePage === 'products' && link.url === '/products' ? 'active' : ''} href={link.url} target={link.open_in_new_tab ? '_blank' : undefined} rel={link.open_in_new_tab ? 'noreferrer' : undefined} key={link.id}>{link.label}</a>)}
+        {navigationLinks.map(link => <a className={isActiveLink(link) ? 'active' : ''} href={link.url} target={link.open_in_new_tab ? '_blank' : undefined} rel={link.open_in_new_tab ? 'noreferrer' : undefined} key={link.id}>{link.label}</a>)}
       </nav>
       <div className="nav-actions noir-actions">
         <button className="noir-icon-button desktop-search-toggle" aria-label="Search products" aria-expanded={searchOpen} onClick={() => setSearchOpen(value => !value)}><SearchIcon /></button>

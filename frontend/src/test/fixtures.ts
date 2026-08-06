@@ -1,0 +1,60 @@
+import type { AccountUser, CustomerOrder, Product } from '../types'
+
+export const user: AccountUser = {
+  id: 1,
+  username: 'buyer',
+  email: 'buyer@example.com',
+  first_name: 'Test',
+  last_name: 'Buyer',
+  full_name: 'Test Buyer',
+}
+
+export const product: Product = {
+  id: 10,
+  name: 'Test Set',
+  slug: 'test-set',
+  category: { id: 2, name: 'Clothing', slug: 'clothing', description: '', product_count: 1, image: '', image_alt: '', featured: true, sort_order: 0 },
+  short_description: 'Test product',
+  description: 'Testing fixture',
+  price: '1000.00',
+  primary_image: '',
+  additional_images: [],
+  available_sizes: ['M'],
+  available_colors: ['Red'],
+  stock_quantity: 4,
+  in_stock: true,
+  featured: true,
+  tone: 'red',
+  shape: 'set',
+  created_at: '2026-07-29T00:00:00Z',
+}
+
+export const order: CustomerOrder = {
+  id: 5,
+  name: 'Test Buyer',
+  email: user.email,
+  phone: '+8801712345678',
+  address: '12 Test Road',
+  city: 'Dhaka',
+  postal_code: '1205',
+  subtotal: '2000.00',
+  delivery_charge: '0.00',
+  total: '2000.00',
+  status: 'confirmed',
+  status_label: 'Confirmed',
+  created_at: '2026-07-29T00:00:00Z',
+  updated_at: '2026-07-29T00:00:00Z',
+  items: [{ product_name: product.name, product_slug: product.slug, product_image: '', size: 'M', color: 'Red', unit_price: '1000.00', quantity: 2, line_total: '2000.00' }],
+  payment: {
+    method: 'bkash',
+    method_label: 'bKash',
+    amount: '2000.00',
+    status: 'pending',
+    status_label: 'Pending',
+    provider_reference: '',
+    failure_reason: '',
+    attempts: 0,
+    created_at: '2026-07-29T00:00:00Z',
+    updated_at: '2026-07-29T00:00:00Z',
+  },
+}
