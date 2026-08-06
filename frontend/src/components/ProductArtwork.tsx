@@ -1,3 +1,4 @@
+import { useState } from 'react'
 import type { Product } from '../types'
 
 interface ProductArtworkProps {
@@ -7,8 +8,11 @@ interface ProductArtworkProps {
 }
 
 const ProductArtwork = ({ product, imageUrl, compact = false }: ProductArtworkProps) => {
-  if (imageUrl || product.primary_image) {
-    return <img className="product-photo" src={imageUrl || product.primary_image} alt={product.name} />
+  const source = imageUrl || product.primary_image
+  const [failedSource, setFailedSource] = useState('')
+
+  if (source && source !== failedSource) {
+    return <img className="product-photo" src={source} alt={product.name} onError={() => setFailedSource(source)} />
   }
 
   return (

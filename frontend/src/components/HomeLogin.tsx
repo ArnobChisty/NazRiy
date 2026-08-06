@@ -38,7 +38,7 @@ export default function HomeLogin() {
     }
   }
 
-  return <section className="home-login" data-reveal>
+  return <section className="home-login">
     <div className="home-login-image"><img src="/banners/nazriy-look-1.jpeg" alt="NazRiy apparel campaign"/><span>PRIVATE ACCESS · NAZRIY</span></div>
     <div className="home-login-panel">
       <p className="eyebrow">Private account</p>
@@ -49,7 +49,13 @@ export default function HomeLogin() {
             <label>Username<input autoComplete="username" value={form.username} onChange={event => setForm({ ...form, username: event.target.value })} required/></label>
             <label>Password<input type="password" autoComplete="current-password" value={form.password} onChange={event => setForm({ ...form, password: event.target.value })} required/></label>
             {message && <p className="home-login-message" role="status">{message}</p>}
-            <div className="home-login-options"><span>Secure customer access</span><a href="/register">Create account</a></div>
+            <div className="home-login-options">
+              <span>Secure customer access</span>
+              <div className="home-login-account-links">
+                <a className="home-login-forgot" href="/forgot-password">Forgot password?</a>
+                <a href="/register">Create account</a>
+              </div>
+            </div>
             <button type="submit" disabled={loading}>{loading ? 'Please wait…' : 'Log in'} <span>→</span></button>
           </form>}
     </div>

@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import type { ReactNode } from 'react'
+import { getProduct } from '../api'
 import { CartContext } from '../cart-context'
 import { cartItemKey, clampQuantity } from '../cart'
 import type { CartItem } from '../cart'
@@ -21,6 +22,33 @@ const loadStoredCart = (): CartItem[] => {
 
 const CartProvider = ({ children }: { children: ReactNode }) => {
   const [items, setItems] = useState<CartItem[]>(loadStoredCart)
+
+  useEffect(() => {
+    let cancelled = false
+    const storedItems = loadStoredCart()
+    if (!storedItems.length) return () => { cancelled = true }
+
+    const refreshProducts = async () => {
+      const refreshed = await Promise.all(storedItems.map(async (item) => {
+        try {
+          const product = await getProduct(item.product.slug)
+          return {
+            ...item,
+            product,
+            quantity: clampQuantity(item.quantity, product.stock_quantity),
+          }
+        } catch {
+          return item
+        }
+      }))
+      if (cancelled) return
+      const byKey = new Map(refreshed.map((item) => [item.key, item]))
+      setItems((current) => current.map((item) => byKey.get(item.key) || item))
+    }
+
+    void refreshProducts()
+    return () => { cancelled = true }
+  }, [])
 
   useEffect(() => {
     window.localStorage.setItem(STORAGE_KEY, JSON.stringify(items))

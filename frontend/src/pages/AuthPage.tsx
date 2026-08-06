@@ -41,6 +41,7 @@ export default function AuthPage({ mode }: { mode: 'login' | 'register' }) {
     <label>Username *<input autoComplete="username" required value={form.username} onChange={event => setForm({...form, username: event.target.value})}/></label>
     {mode === 'register' && <label>Email *<input type="email" autoComplete="email" required value={form.email} onChange={event => setForm({...form, email: event.target.value})}/></label>}
     <label>Password *<input type="password" autoComplete={mode === 'login' ? 'current-password' : 'new-password'} required value={form.password} onChange={event => setForm({...form, password: event.target.value})}/></label>
+    {mode === 'login' && <a className="auth-forgot-link" href="/forgot-password">Forgot your password?</a>}
     {mode === 'register' && <label>Confirm password *<input type="password" autoComplete="new-password" required value={form.confirm} onChange={event => setForm({...form, confirm: event.target.value})}/></label>}
     {error && <p className="auth-error" role="alert">{error}</p>}{success && <p className="auth-success" role="status">{success}</p>}
     <button className="auth-submit" disabled={loading}>{loading ? 'Please wait…' : mode === 'login' ? 'Log in' : 'Register'}</button>
