@@ -1,6 +1,7 @@
 from rest_framework import serializers
 
 from .models import Order, OrderItem
+from .sprint5_serializers import PaymentSerializer
 
 
 class OrderDetailItemSerializer(serializers.ModelSerializer):
@@ -21,11 +22,12 @@ class OrderDetailItemSerializer(serializers.ModelSerializer):
 class CustomerOrderSerializer(serializers.ModelSerializer):
     items = OrderDetailItemSerializer(many=True, read_only=True)
     status_label = serializers.CharField(source='get_status_display', read_only=True)
+    payment = PaymentSerializer(read_only=True)
 
     class Meta:
         model = Order
         fields = [
             'id', 'name', 'email', 'phone', 'address', 'city', 'postal_code',
             'subtotal', 'delivery_charge', 'total', 'status', 'status_label',
-            'created_at', 'updated_at', 'items',
+            'created_at', 'updated_at', 'items', 'payment',
         ]

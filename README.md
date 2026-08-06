@@ -4,17 +4,18 @@ NazRiy is a full-stack clothing e-commerce application developed for a Software 
 
 ## Current status
 
-Sprint 1 through Sprint 4 functionality is implemented and integrated into `main`.
+Sprint 1 through Sprint 6 functionality is implemented in the current working branch. The included production blueprint is ready for deployment after authorized hosting domains and secrets are supplied.
 
 - Responsive clothing storefront and animated hero banners
 - Product catalogue, search, sorting, filtering, and product details
 - Product image galleries, sizes, colours, stock status, and featured products
-- Registration, login, logout, profile management, and protected customer pages
+- Registration, login, logout, secure email password recovery, profile management, and protected customer pages
 - Persistent shopping cart, checkout, inventory updates, and order history
 - Customer order details and order-status tracking
 - Database-managed banners, navigation links, top products, categories, and products
 - Professional Django admin dashboard with revenue, order, sales, and inventory information
-- Automated backend tests plus frontend build and lint verification
+- Idempotent manual bKash transaction submission, cash on delivery, cancellation feedback, and administrator verification
+- Automated Django and React tests, coverage enforcement, dependency auditing, CI, deployment checks, backups, and rollback documentation
 
 ## Technology stack
 
@@ -23,10 +24,10 @@ Sprint 1 through Sprint 4 functionality is implemented and integrated into `main
 | Frontend | React 19, TypeScript, Vite 8 |
 | Backend | Django 6, Django REST Framework |
 | Authentication | Expiring Django-signed API tokens |
-| Database | SQLite for local development; PostgreSQL supported for deployment |
-| Images | Django media uploads with file metadata and paths stored in the database |
+| Database | PostgreSQL in development, testing, CI, and production |
+| Images | Supabase-compatible persistent object storage with file metadata stored in PostgreSQL |
 | Styling | Responsive custom CSS |
-| Testing | Django TestCase, TypeScript compiler, Vite build, ESLint |
+| Testing | Django TestCase, Vitest, React Testing Library, jsdom, V8 coverage, TypeScript, ESLint |
 
 ## Project structure
 
@@ -51,9 +52,10 @@ NazRiy/
 
 ### Prerequisites
 
-- Python 3.12 or newer
+- Python 3.13 or newer
 - Node.js 20 or newer
 - npm
+- PostgreSQL 14 or newer
 
 ### 1. Start the backend
 
@@ -71,7 +73,7 @@ python manage.py runserver
 
 The API will run at `http://127.0.0.1:8000/api/` and the administration site at `http://127.0.0.1:8000/admin/`.
 
-Local development uses SQLite automatically. Environment variables are optional locally. For deployment, copy `backend/.env.example` to `backend/.env`, replace every placeholder, and configure PostgreSQL and the production host values.
+PostgreSQL is required in every environment. Copy `backend/.env.example` to `backend/.env`, configure the local PostgreSQL database, and replace every production placeholder before deployment.
 
 ### 2. Start the frontend
 
@@ -84,6 +86,8 @@ npm run dev
 ```
 
 The storefront will normally run at `http://127.0.0.1:5173/`. It uses `http://127.0.0.1:8000/api` by default. Set `VITE_API_URL` when the backend is hosted elsewhere.
+
+Copy `frontend/.env.example` to `frontend/.env` and set `VITE_BKASH_MERCHANT_NUMBER` to the approved NazRiy bKash number. The bKash option remains disabled when this value is missing, preventing customers from seeing or paying an unconfigured number.
 
 ### Optional demonstration data
 
@@ -105,6 +109,8 @@ python manage.py seed_products
 | `/cart` | Shopping cart |
 | `/checkout` | Protected checkout |
 | `/login` and `/register` | Customer authentication |
+| `/forgot-password` | Enumeration-safe password-reset request |
+| `/reset-password` | Secure one-time password-reset confirmation |
 | `/account` | Protected customer profile |
 | `/orders` | Protected order history |
 | `/orders/<id>` | Protected order details |
@@ -119,8 +125,11 @@ python manage.py seed_products
 | `/api/top-products/` | Homepage top products |
 | `/api/navigation-links/` | Storefront navigation |
 | `/api/auth/` | Registration, login, profile, and password endpoints |
+| `/api/auth/password/reset/` | Rate-limited password-reset email request |
+| `/api/auth/password/reset/confirm/` | Reset-link validation and password confirmation |
 | `/api/cart/` | Cart operations |
 | `/api/orders/` | Checkout and customer orders |
+| `/api/orders/<id>/payment/` | Ownership-protected bKash transaction submission and cancellation |
 | `/admin/` | Administration dashboard |
 
 ## Verification
@@ -132,6 +141,7 @@ cd backend
 .\venv\Scripts\Activate.ps1
 python manage.py check
 python manage.py test store
+python manage.py check --deploy
 ```
 
 Run the frontend validation:
@@ -140,16 +150,18 @@ Run the frontend validation:
 cd frontend
 npm run build
 npm run lint
+npm run test:coverage
+npm audit
 ```
 
-The current store suite contains 20 passing Django tests. The production frontend build and ESLint checks also pass.
+The verified suite includes 40 passing Django tests and 25 passing frontend tests. The production frontend build, ESLint, migration drift check, deployment check, PostgreSQL restore rehearsal, and dependency audit pass.
 
 ## Administration
 
 After creating a superuser, sign in at `/admin/`. Administrators can manage:
 
 - Products, galleries, prices, sizes, colours, and stock
-- Orders and fulfilment status
+- Orders, fulfilment status, and bKash/COD payment status
 - Homepage top products
 - Hero and promotional banners
 - Storefront navigation links
@@ -161,13 +173,15 @@ After creating a superuser, sign in at `/admin/`. Administrators can manage:
 - Secrets and production settings are read from environment variables.
 - Production mode enables secure cookies, HTTPS redirection, HSTS, content-type protection, and referrer policy controls.
 - CORS, CSRF trusted origins, allowed hosts, database credentials, and token lifetime are configurable.
+- Password recovery uses enumeration-safe responses, IP throttling, expiring one-time Django tokens, password validation, and HTML/plain-text email alternatives.
+- Development may print reset emails to the console. Production must configure authenticated SMTP settings and an HTTPS `FRONTEND_URL`.
 - Never commit `backend/.env`, development databases, uploaded media, virtual environments, or frontend build output.
 
-See [Sprint4-Deployment.md](docs/Sprint4-Deployment.md) for the deployment checklist.
+See [Deployment-and-Operations-Guide.md](docs/Deployment-and-Operations-Guide.md) for deployment, backup, restoration, monitoring, and rollback steps. The repository includes `render.yaml` for the backend, PostgreSQL database, and frontend static site.
 
 ## Project documentation
 
-The `docs/` directory contains the architecture diagram, use-case diagram, user stories, implementation checklists, review notes, and sprint plans.
+The `docs/` directory contains architecture and use-case diagrams, user stories, testing strategy, UAT/user guide, release checklist, technical review notes, and sprint plans.
 
 ## Git workflow
 

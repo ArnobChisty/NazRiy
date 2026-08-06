@@ -1,10 +1,11 @@
 from decimal import Decimal
 
+from django.contrib import admin
 from django.contrib.auth import get_user_model
 from django.test import TestCase
 from django.urls import reverse
 
-from .models import Category, Order, OrderItem, Product
+from .models import Cart, CartItem, Category, Order, OrderItem, Payment, Product
 
 
 class AdminDashboardTests(TestCase):
@@ -28,7 +29,7 @@ class AdminDashboardTests(TestCase):
             price=Decimal('5000.00'),
             stock_quantity=3,
         )
-        order = Order.objects.create(
+        self.order = Order.objects.create(
             user=customer,
             name='Test Customer',
             email='customer@example.com',
@@ -41,12 +42,17 @@ class AdminDashboardTests(TestCase):
             total=Decimal('5080.00'),
         )
         OrderItem.objects.create(
-            order=order,
+            order=self.order,
             product=product,
             product_name=product.name,
             unit_price=product.price,
             quantity=1,
             line_total=product.price,
+        )
+        self.payment = Payment.objects.create(
+            order=self.order,
+            method='cash_on_delivery',
+            amount=self.order.total,
         )
 
     def test_admin_index_renders_business_dashboard(self):
@@ -71,3 +77,29 @@ class AdminDashboardTests(TestCase):
         response = self.client.get(reverse('admin:index'))
 
         self.assertContains(response, f'{reverse("admin:index")}#analytics')
+
+    def test_cart_models_are_hidden_from_admin(self):
+        self.client.force_login(self.admin_user)
+        response = self.client.get(reverse('admin:index'))
+
+        self.assertNotIn(Cart, admin.site._registry)
+        self.assertNotIn(CartItem, admin.site._registry)
+        self.assertNotContains(response, 'Customer carts')
+
+    def test_payment_changelist_is_an_operations_view(self):
+        self.client.force_login(self.admin_user)
+        response = self.client.get(reverse('admin:store_payment_changelist'))
+
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, 'Payment operations')
+        self.assertContains(response, 'Order #')
+        self.assertContains(response, 'Test Customer')
+        self.assertContains(response, 'Cash on delivery')
+        self.assertContains(response, '৳5,080.00')
+        self.assertContains(response, 'Pending')
+        self.assertNotContains(response, 'ADD PAYMENT')
+
+    def test_payment_records_cannot_be_manually_created_or_deleted(self):
+        self.client.force_login(self.admin_user)
+
+        self.assertEqual(self.client.get(reverse('admin:store_payment_add')).status_code, 403)
