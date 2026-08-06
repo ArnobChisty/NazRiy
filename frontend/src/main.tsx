@@ -1,10 +1,13 @@
 import { StrictMode } from 'react'
 import { createRoot } from 'react-dom/client'
 import './index.css'
+import './professional.css'
+import './catalog-sticky-fix.css'
+import './editorial-theme.css'
+import './banner-database.css'
+import './pages/Sprint4.css'
+import './pages/Sprint4Mobile.css'
+import './rise-inspired.css'
+import './nazriy-noir.css'
 import App from './App.tsx'
-
-createRoot(document.getElementById('root')!).render(
-  <StrictMode>
-    <App />
-  </StrictMode>,
-)
+createRoot(document.getElementById('root')!).render(<StrictMode><App /></StrictMode>)

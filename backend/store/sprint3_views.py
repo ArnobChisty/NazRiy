@@ -1,0 +1,37 @@
+from decimal import Decimal
+from django.db import transaction
+from django.shortcuts import get_object_or_404
+from rest_framework import permissions,status
+from rest_framework.response import Response
+from rest_framework.views import APIView
+from .authentication import SignedTokenAuthentication
+from .models import Cart,CartItem,Order,OrderItem,Product
+from .sprint3_serializers import CartItemSerializer,CheckoutSerializer,OrderSerializer
+
+class ProtectedView(APIView):
+    authentication_classes=[SignedTokenAuthentication];permission_classes=[permissions.IsAuthenticated]
+class CartView(ProtectedView):
+    def cart(self,user):return Cart.objects.get_or_create(user=user)[0]
+    def get(self,request):return Response(CartItemSerializer(self.cart(request.user).items.select_related('product'),many=True).data)
+    def post(self,request):
+        serializer=CartItemSerializer(data=request.data);serializer.is_valid(raise_exception=True);data=serializer.validated_data;cart=self.cart(request.user);item,created=CartItem.objects.update_or_create(cart=cart,product=data['product'],size=data.get('size',''),color=data.get('color',''),defaults={'quantity':data['quantity']});return Response(CartItemSerializer(item).data,status=201 if created else 200)
+class CartItemView(ProtectedView):
+    def patch(self,request,pk):
+        item=get_object_or_404(CartItem,pk=pk,cart__user=request.user);serializer=CartItemSerializer(item,data=request.data,partial=True);serializer.is_valid(raise_exception=True);serializer.save();return Response(serializer.data)
+    def delete(self,request,pk):get_object_or_404(CartItem,pk=pk,cart__user=request.user).delete();return Response(status=204)
+class CheckoutView(ProtectedView):
+    @transaction.atomic
+    def post(self,request):
+        serializer=CheckoutSerializer(data=request.data);serializer.is_valid(raise_exception=True);data=serializer.validated_data;items=data.pop('items');lines=[];subtotal=Decimal('0')
+        for entry in items:
+            product=get_object_or_404(Product.objects.select_for_update(),pk=entry.get('product_id'));quantity=int(entry.get('quantity',0));size=entry.get('size','');color=entry.get('color','')
+            if quantity<1 or quantity>product.stock_quantity:return Response({'detail':f'Insufficient stock for {product.name}.'},status=400)
+            if size and size not in product.available_sizes:return Response({'detail':f'Invalid size for {product.name}.'},status=400)
+            if color and color not in product.available_colors:return Response({'detail':f'Invalid colour for {product.name}.'},status=400)
+            subtotal+=product.price*quantity;lines.append((product,quantity,size,color))
+        delivery=Decimal('0') if subtotal>=Decimal('2000') else Decimal('80');order=Order.objects.create(user=request.user,subtotal=subtotal,delivery_charge=delivery,total=subtotal+delivery,**data)
+        for product,quantity,size,color in lines:
+            OrderItem.objects.create(order=order,product=product,product_name=product.name,size=size,color=color,unit_price=product.price,quantity=quantity,line_total=product.price*quantity);product.stock_quantity-=quantity;product.save(update_fields=['stock_quantity'])
+        Cart.objects.filter(user=request.user).delete();return Response(OrderSerializer(order).data,status=status.HTTP_201_CREATED)
+class OrderListView(ProtectedView):
+    def get(self,request):return Response(OrderSerializer(Order.objects.filter(user=request.user).prefetch_related('items'),many=True).data)
