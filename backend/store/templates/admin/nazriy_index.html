@@ -3,7 +3,7 @@
 
 {% block extrastyle %}
   {{ block.super }}
-  <link rel="stylesheet" href="{% static 'admin/css/nazriy_dashboard.css' %}?v=3">
+  <link rel="stylesheet" href="{% static 'admin/css/nazriy_dashboard.css' %}?v=5">
 {% endblock %}
 
 {% block bodyclass %}{{ block.super }} nazriy-dashboard-page{% endblock %}
@@ -15,19 +15,8 @@
 <div class="nz-admin-shell">
   <aside class="nz-sidebar">
     <a class="nz-sidebar-brand" href="{% url 'admin:index' %}"><span>N</span><strong>NazRiy</strong></a>
-    <nav>
-      <small>Dashboard</small>
-      <a class="active" href="{% url 'admin:index' %}"><i>▦</i> Overview</a>
-      <a href="{% url 'admin:index' %}#analytics"><i>⌁</i> Analytics</a>
-      <small>Commerce</small>
-      <a href="{% url 'admin:store_order_changelist' %}"><i>▱</i> Orders <b>{{ dashboard.attention_count }}</b></a>
-      <a href="{% url 'admin:auth_user_changelist' %}"><i>◎</i> Customers</a>
-      <a href="{% url 'admin:store_product_changelist' %}"><i>◇</i> Products</a>
-      <a href="{% url 'admin:store_category_changelist' %}"><i>⌗</i> Categories</a>
-      <small>Content</small>
-      <a href="{% url 'admin:store_banner_changelist' %}"><i>▣</i> Hero banners</a>
-      <a href="{% url 'admin:store_topproduct_changelist' %}"><i>☆</i> Top products</a>
-      <a href="{% url 'admin:store_navigationlink_changelist' %}"><i>≡</i> Navigation</a>
+    <nav aria-label="Admin navigation">
+      {% include "admin/nazriy_sidebar_links.html" %}
     </nav>
     <div class="nz-sidebar-user"><span>{{ request.user.username|slice:":1"|upper }}</span><div><strong>{{ request.user.get_full_name|default:request.user.username }}</strong><small>Administrator</small></div><a href="{% url 'admin:password_change' %}" title="Account settings">↗</a></div>
   </aside>

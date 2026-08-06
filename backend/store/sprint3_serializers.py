@@ -1,5 +1,8 @@
+import uuid
+
 from rest_framework import serializers
-from .models import CartItem,Order,OrderItem,Product
+from .models import CartItem,Order,OrderItem,Payment,Product
+from .sprint5_serializers import PaymentSerializer
 
 class CartProductSerializer(serializers.ModelSerializer):
     class Meta:model=Product;fields=['id','name','slug','price','stock_quantity']
@@ -17,6 +20,9 @@ class OrderItemSerializer(serializers.ModelSerializer):
     class Meta:model=OrderItem;fields=['product_name','size','color','unit_price','quantity','line_total']
 class OrderSerializer(serializers.ModelSerializer):
     items=OrderItemSerializer(many=True,read_only=True)
-    class Meta:model=Order;fields=['id','name','email','phone','address','city','postal_code','subtotal','delivery_charge','total','status','created_at','items']
+    payment=PaymentSerializer(read_only=True)
+    class Meta:model=Order;fields=['id','name','email','phone','address','city','postal_code','subtotal','delivery_charge','total','status','created_at','items','payment']
 class CheckoutSerializer(serializers.Serializer):
     name=serializers.CharField();email=serializers.EmailField();phone=serializers.RegexField(r'^[+\d][\d\s-]{7,}$');address=serializers.CharField();city=serializers.CharField();postal_code=serializers.CharField();items=serializers.ListField(child=serializers.DictField(),allow_empty=False)
+    payment_method=serializers.ChoiceField(choices=Payment.METHOD_CHOICES,default='bkash')
+    idempotency_key=serializers.UUIDField(required=False,default=uuid.uuid4)

@@ -1,10 +1,35 @@
+from django.conf import settings
+from django.db import connection
 from rest_framework import status
+from rest_framework.permissions import AllowAny
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
 from .repositories import CategoryRepository, ProductRepository
 from .models import NavigationLink, TopProduct
 from .serializers import CategorySerializer, NavigationLinkSerializer, ProductSerializer, TopProductSerializer
+
+
+class HealthCheckView(APIView):
+    authentication_classes = []
+    permission_classes = [AllowAny]
+
+    def get(self, request):
+        try:
+            with connection.cursor() as cursor:
+                cursor.execute('SELECT 1')
+                cursor.fetchone()
+        except Exception:
+            return Response(
+                {'status': 'unavailable', 'database': 'unavailable'},
+                status=status.HTTP_503_SERVICE_UNAVAILABLE,
+            )
+
+        return Response({
+            'status': 'ok',
+            'database': connection.vendor,
+            'media_storage': 'supabase' if settings.USE_SUPABASE_STORAGE else 'local',
+        })
 
 
 class CategoryListView(APIView):
@@ -27,7 +52,7 @@ class FeaturedProductListView(APIView):
 
 class TopProductListView(APIView):
     def get(self, request):
-        placements = TopProduct.objects.filter(active=True).select_related("product__category").prefetch_related("product__images")
+        placements = TopProduct.objects.filter(active=True, product__active=True).select_related("product__category").prefetch_related("product__images")
         return Response(TopProductSerializer(placements, many=True, context={"request": request}).data)
 
 
