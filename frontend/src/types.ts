@@ -92,4 +92,18 @@ export interface CustomerOrder {
   created_at: string
   updated_at: string
   items: OrderItem[]
+  payment: PaymentInfo
+}
+
+export interface PaymentInfo {
+  method: 'bkash' | 'cash_on_delivery'
+  method_label: string
+  amount: string
+  status: 'pending' | 'paid' | 'failed' | 'cancelled'
+  status_label: string
+  provider_reference: string
+  failure_reason: string
+  attempts: number
+  created_at: string
+  updated_at: string
 }

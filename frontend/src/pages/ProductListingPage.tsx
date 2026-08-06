@@ -12,6 +12,14 @@ const initialFilters = (): ProductFilters => {
   }
 }
 
+const navigationFilters = (): ProductFilters => {
+  const params = new URLSearchParams(window.location.search)
+  return {
+    search: '', category: params.get('category') || '',
+    min_price: '', max_price: '', size: '', color: '', ordering: params.get('ordering') || 'newest',
+  }
+}
+
 const ProductListingPage = () => {
   const [filters, setFilters] = useState<ProductFilters>(initialFilters)
   const [appliedFilters, setAppliedFilters] = useState<ProductFilters>(initialFilters)
@@ -21,6 +29,14 @@ const ProductListingPage = () => {
   const [error, setError] = useState('')
   const [filtersOpen, setFiltersOpen] = useState(false)
   const [retryKey, setRetryKey] = useState(0)
+  const pageParams = new URLSearchParams(window.location.search)
+  const isWomenView = pageParams.get('category') === 'womens-clothing'
+  const isNewArrivalsView = !isWomenView && pageParams.has('ordering') && pageParams.get('ordering') === 'newest'
+  const catalogueIntro = isWomenView
+    ? { eyebrow: "Women's collection", title: 'Designed for her.', description: 'Explore the complete NazRiy womenswear edit, from expressive prints to considered everyday silhouettes.' }
+    : isNewArrivalsView
+      ? { eyebrow: 'New arrivals', title: 'The latest from NazRiy.', description: 'Discover the newest pieces to join the collection, presented with the latest additions first.' }
+      : { eyebrow: 'Shop all', title: 'The complete collection.', description: 'Explore every available NazRiy piece in one place, with filters to help you find your preferred style.' }
 
   useEffect(() => {
     let active = true
@@ -41,7 +57,7 @@ const ProductListingPage = () => {
   }
 
   const resetFilters = () => {
-    const reset = { search: '', category: '', min_price: '', max_price: '', size: '', color: '', ordering: 'newest' }
+    const reset = navigationFilters()
     setLoading(true); setError('')
     setFilters(reset)
     setAppliedFilters(reset)
@@ -55,8 +71,8 @@ const ProductListingPage = () => {
       <Navbar activePage="products" />
       <main id="main-content" className="catalog-page">
         <header className="page-banner">
-          <div><p className="eyebrow">The NazRiy collection</p><h1>Pieces for slower living.</h1></div>
-          <p>Explore useful forms, natural textures, and warm details chosen for everyday spaces.</p>
+          <div><p className="eyebrow">{catalogueIntro.eyebrow}</p><h1>{catalogueIntro.title}</h1></div>
+          <p>{catalogueIntro.description}</p>
         </header>
         <div className="catalog-toolbar">
           <button className="filter-toggle" type="button" onClick={() => setFiltersOpen((value) => !value)}>Filters</button>
