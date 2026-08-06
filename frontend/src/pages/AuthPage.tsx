@@ -36,11 +36,12 @@ export default function AuthPage({ mode }: { mode: 'login' | 'register' }) {
     finally { setLoading(false) }
   }
 
-  return <main id="main-content" className="auth-page"><a className="auth-brand" href="/">NazRiy</a><form className="auth-card" onSubmit={submit} noValidate>
-    <p className="auth-eyebrow">NazRiy account</p><h1>{mode === 'login' ? 'Welcome back' : 'Create an account'}</h1>
+  return <main id="main-content" className="auth-page noir-auth-page"><a className="auth-brand" href="/">NAZRIY</a><div className="auth-visual" aria-hidden="true"><img src="/banners/nazriy-look-1.jpeg" alt=""/><span>NAZRIY · APPAREL</span></div><form className="auth-card" onSubmit={submit} noValidate>
+    <p className="auth-eyebrow">Private account</p><h1>{mode === 'login' ? 'Login' : 'Register'}</h1>
     <label>Username *<input autoComplete="username" required value={form.username} onChange={event => setForm({...form, username: event.target.value})}/></label>
     {mode === 'register' && <label>Email *<input type="email" autoComplete="email" required value={form.email} onChange={event => setForm({...form, email: event.target.value})}/></label>}
     <label>Password *<input type="password" autoComplete={mode === 'login' ? 'current-password' : 'new-password'} required value={form.password} onChange={event => setForm({...form, password: event.target.value})}/></label>
+    {mode === 'login' && <a className="auth-forgot-link" href="/forgot-password">Forgot your password?</a>}
     {mode === 'register' && <label>Confirm password *<input type="password" autoComplete="new-password" required value={form.confirm} onChange={event => setForm({...form, confirm: event.target.value})}/></label>}
     {error && <p className="auth-error" role="alert">{error}</p>}{success && <p className="auth-success" role="status">{success}</p>}
     <button className="auth-submit" disabled={loading}>{loading ? 'Please wait…' : mode === 'login' ? 'Log in' : 'Register'}</button>

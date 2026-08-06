@@ -1,0 +1,322 @@
+:root,
+html[data-theme="light"],
+html[data-theme="dark"] {
+  color-scheme: light;
+  --primary: #087443;
+  --secondary: #0a8a50;
+  --accent: #d7a838;
+  --primary-fg: #fff;
+  --body-fg: #17211d;
+  --body-bg: #f5f7f6;
+  --body-quiet-color: #66736d;
+  --body-loud-color: #101713;
+  --header-color: #17211d;
+  --header-branding-color: #17211d;
+  --header-bg: #fff;
+  --header-link-color: #34413b;
+  --breadcrumbs-fg: #52615a;
+  --breadcrumbs-link-fg: #087443;
+  --breadcrumbs-bg: #eef3f0;
+  --link-fg: #087443;
+  --link-hover-color: #075f38;
+  --link-selected-fg: #075f38;
+  --hairline-color: #e3e9e6;
+  --border-color: #dce4df;
+  --darkened-bg: #eff3f1;
+  --selected-bg: #e7f5ed;
+  --selected-row: #edf8f2;
+  --button-fg: #fff;
+  --button-bg: #087443;
+  --button-hover-bg: #075f38;
+  --default-button-bg: #087443;
+  --default-button-hover-bg: #075f38;
+}
+
+body:not(.nazriy-dashboard-page) {
+  background: #f5f7f6;
+  color: #17211d;
+  font-family: Inter, "Segoe UI", Arial, sans-serif;
+}
+
+body:not(.nazriy-dashboard-page) .theme-toggle {
+  display: none;
+}
+
+body:not(.nazriy-dashboard-page) #header {
+  align-items: center;
+  background: #fff;
+  border-bottom: 1px solid #e3e9e6;
+  box-shadow: 0 1px 8px rgba(16, 39, 27, .05);
+  color: #17211d;
+  min-height: 68px;
+  padding: 0 28px;
+}
+
+body:not(.nazriy-dashboard-page) #branding {
+  min-width: 250px;
+}
+
+body:not(.nazriy-dashboard-page) #site-name {
+  font-size: 21px;
+  font-weight: 700;
+}
+
+body:not(.nazriy-dashboard-page) #site-name a {
+  align-items: center;
+  color: #17211d;
+  display: inline-flex;
+  gap: 10px;
+}
+
+body:not(.nazriy-dashboard-page) #site-name small {
+  color: #6d7973;
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: .08em;
+  text-transform: uppercase;
+}
+
+.nazriy-admin-mark {
+  align-items: center;
+  background: linear-gradient(145deg, #0a8a50, #075f38);
+  border-radius: 9px;
+  box-shadow: 0 5px 13px rgba(8, 116, 67, .22);
+  color: #fff;
+  display: inline-flex;
+  font-family: Georgia, serif;
+  font-size: 18px;
+  height: 34px;
+  justify-content: center;
+  width: 34px;
+}
+
+body:not(.nazriy-dashboard-page) #user-tools {
+  color: #6a756f;
+  font-size: 12px;
+}
+
+body:not(.nazriy-dashboard-page) #user-tools a {
+  border-bottom: 0;
+  color: #087443;
+  font-weight: 600;
+}
+
+body:not(.nazriy-dashboard-page) div.breadcrumbs {
+  background: #eef3f0;
+  border-bottom: 1px solid #dfe7e2;
+  color: #66736d;
+  padding: 12px 28px;
+}
+
+body:not(.nazriy-dashboard-page) div.breadcrumbs a {
+  color: #087443;
+}
+
+body:not(.nazriy-dashboard-page) #nav-sidebar {
+  background: #092c20;
+  border-right: 0;
+  color: #d9e8e0;
+  min-width: 250px;
+}
+
+body:not(.nazriy-dashboard-page) #nav-sidebar .module {
+  background: transparent;
+  border: 0;
+  border-radius: 0;
+  box-shadow: none;
+  margin-bottom: 8px;
+}
+
+body:not(.nazriy-dashboard-page) #nav-sidebar .module caption {
+  background: transparent;
+  border-top: 1px solid rgba(255, 255, 255, .08);
+  color: #88bca2 !important;
+  font-size: 11px;
+  letter-spacing: .11em;
+  padding: 18px 18px 8px;
+  text-transform: uppercase;
+}
+
+body:not(.nazriy-dashboard-page) #nav-sidebar .module tr {
+  background: transparent !important;
+}
+
+body:not(.nazriy-dashboard-page) #nav-sidebar .module th,
+body:not(.nazriy-dashboard-page) #nav-sidebar .module td {
+  background: transparent;
+  border: 0;
+  padding: 0;
+}
+
+body:not(.nazriy-dashboard-page) #nav-sidebar a {
+  color: #d9e8e0 !important;
+  display: block;
+  padding: 10px 18px;
+}
+
+body:not(.nazriy-dashboard-page) #nav-sidebar a:hover {
+  background: rgba(255, 255, 255, .08);
+  color: #fff !important;
+}
+
+body:not(.nazriy-dashboard-page) #nav-sidebar .current-model {
+  background: #0b7a4b !important;
+  box-shadow: inset 4px 0 0 #d7a838;
+}
+
+body:not(.nazriy-dashboard-page) #nav-sidebar .current-model a {
+  color: #fff !important;
+  font-weight: 700;
+}
+
+body:not(.nazriy-dashboard-page) #nav-filter {
+  background: rgba(255, 255, 255, .08);
+  border: 1px solid rgba(255, 255, 255, .12);
+  border-radius: 7px;
+  color: #fff;
+  margin: 15px;
+  width: calc(100% - 30px);
+}
+
+body:not(.nazriy-dashboard-page) #nav-filter::placeholder {
+  color: #a8c0b4;
+}
+
+body:not(.nazriy-dashboard-page) #toggle-nav-sidebar {
+  display: none;
+}
+
+body:not(.nazriy-dashboard-page) #content {
+  padding: 30px;
+}
+
+body:not(.nazriy-dashboard-page) #content h1 {
+  color: #17211d;
+  font-size: 25px;
+  font-weight: 700;
+  margin: 0 0 24px;
+}
+
+body:not(.nazriy-dashboard-page) .object-tools a,
+body:not(.nazriy-dashboard-page) input[type="submit"],
+body:not(.nazriy-dashboard-page) .button {
+  background: #087443;
+  border: 0;
+  border-radius: 7px;
+  box-shadow: none;
+  color: #fff;
+  font-weight: 600;
+  padding: 10px 16px;
+}
+
+body:not(.nazriy-dashboard-page) .object-tools a:hover,
+body:not(.nazriy-dashboard-page) input[type="submit"]:hover,
+body:not(.nazriy-dashboard-page) .button:hover {
+  background: #075f38;
+}
+
+body:not(.nazriy-dashboard-page) #changelist .changelist-form-container,
+body:not(.nazriy-dashboard-page) #changelist-filter,
+body:not(.nazriy-dashboard-page) .module,
+body:not(.nazriy-dashboard-page) .inline-group {
+  background: #fff;
+  border: 1px solid #e3e9e6;
+  border-radius: 10px;
+  box-shadow: 0 4px 14px rgba(24, 55, 39, .05);
+  overflow: hidden;
+}
+
+body:not(.nazriy-dashboard-page) #changelist .actions,
+body:not(.nazriy-dashboard-page) #toolbar,
+body:not(.nazriy-dashboard-page) .paginator {
+  background: #fff;
+  border-color: #e7ece9;
+}
+
+body:not(.nazriy-dashboard-page) #toolbar {
+  border-radius: 9px;
+  margin-bottom: 14px;
+  padding: 12px;
+}
+
+body:not(.nazriy-dashboard-page) #toolbar input[type="text"],
+body:not(.nazriy-dashboard-page) input[type="text"],
+body:not(.nazriy-dashboard-page) input[type="email"],
+body:not(.nazriy-dashboard-page) input[type="number"],
+body:not(.nazriy-dashboard-page) input[type="password"],
+body:not(.nazriy-dashboard-page) select,
+body:not(.nazriy-dashboard-page) textarea {
+  background: #fff;
+  border: 1px solid #d8e1dc;
+  border-radius: 7px;
+  color: #17211d;
+  padding: 9px 11px;
+}
+
+body:not(.nazriy-dashboard-page) #result_list thead th {
+  background: #f3f6f4;
+  border-color: #e3e9e6;
+  color: #52615a;
+  font-size: 11px;
+  letter-spacing: .04em;
+  text-transform: uppercase;
+}
+
+body:not(.nazriy-dashboard-page) #result_list tbody tr {
+  background: #fff;
+}
+
+body:not(.nazriy-dashboard-page) #result_list tbody tr:hover {
+  background: #f1f8f4;
+}
+
+body:not(.nazriy-dashboard-page) #result_list td,
+body:not(.nazriy-dashboard-page) #result_list th {
+  border-color: #edf1ef;
+  padding-bottom: 12px;
+  padding-top: 12px;
+}
+
+body:not(.nazriy-dashboard-page) #changelist-filter {
+  margin-left: 18px;
+}
+
+body:not(.nazriy-dashboard-page) #changelist-filter h2 {
+  background: #092c20;
+  color: #fff;
+  font-size: 12px;
+  letter-spacing: .08em;
+  padding: 14px 16px;
+  text-transform: uppercase;
+}
+
+body:not(.nazriy-dashboard-page) #changelist-filter h3 {
+  color: #52615a;
+  font-size: 12px;
+  font-weight: 700;
+}
+
+body:not(.nazriy-dashboard-page) #changelist-filter li.selected a {
+  color: #087443;
+  font-weight: 700;
+}
+
+body:not(.nazriy-dashboard-page) .submit-row {
+  background: #fff;
+  border: 1px solid #e3e9e6;
+  border-radius: 9px;
+}
+
+@media (max-width: 900px) {
+  body:not(.nazriy-dashboard-page) #header {
+    padding: 10px 16px;
+  }
+
+  body:not(.nazriy-dashboard-page) #branding {
+    min-width: 0;
+  }
+
+  body:not(.nazriy-dashboard-page) #content {
+    padding: 20px 14px;
+  }
+}
