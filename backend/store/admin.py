@@ -1,6 +1,9 @@
 from django.contrib import admin
+from django.db.models import Count, Q, Sum
+from django.urls import reverse
+from django.utils.html import format_html
 
-from .models import Banner, Cart, CartItem, Category, NavigationLink, Order, OrderItem, Product, ProductImage, TopProduct
+from .models import Banner, Category, NavigationLink, Order, OrderItem, Payment, Product, ProductImage, TopProduct
 
 
 class ProductImageInline(admin.TabularInline):
@@ -39,11 +42,11 @@ class StockLevelFilter(admin.SimpleListFilter):
 
 @admin.register(Product)
 class ProductAdmin(admin.ModelAdmin):
-    list_display = ('name', 'category', 'price', 'stock_quantity', 'stock_state', 'featured', 'updated_at')
-    list_filter = ('category', StockLevelFilter, 'featured')
+    list_display = ('name', 'category', 'price', 'stock_quantity', 'stock_state', 'active', 'featured', 'updated_at')
+    list_filter = ('category', StockLevelFilter, 'active', 'featured')
     search_fields = ('name', 'description')
     prepopulated_fields = {'slug': ('name',)}
-    list_editable = ('stock_quantity', 'featured')
+    list_editable = ('stock_quantity', 'active', 'featured')
     inlines = [ProductImageInline]
 
     @admin.display(description='Stock status', ordering='stock_quantity')
@@ -81,10 +84,20 @@ class OrderItemInline(admin.TabularInline):
     readonly_fields = ('product', 'product_name', 'size', 'color', 'unit_price', 'quantity', 'line_total')
 
 
+class PaymentInline(admin.StackedInline):
+    model = Payment
+    extra = 0
+    can_delete = False
+    readonly_fields = (
+        'method', 'amount', 'status', 'idempotency_key', 'provider_reference',
+        'failure_reason', 'attempts', 'created_at', 'updated_at',
+    )
+
+
 @admin.register(Order)
 class OrderAdmin(admin.ModelAdmin):
-    list_display = ('id', 'customer', 'email', 'city', 'total', 'status', 'created_at')
-    list_filter = ('status', 'city', 'created_at')
+    list_display = ('id', 'customer', 'email', 'city', 'total', 'payment_status', 'status', 'created_at')
+    list_filter = ('status', 'payment__status', 'payment__method', 'city', 'created_at')
     search_fields = ('=id', 'name', 'email', 'phone', 'address')
     date_hierarchy = 'created_at'
     list_editable = ('status',)
@@ -98,11 +111,172 @@ class OrderAdmin(admin.ModelAdmin):
         ('Payment summary', {'fields': ('subtotal', 'delivery_charge', 'total')}),
         ('Audit', {'fields': ('inventory_restored', 'created_at', 'updated_at')}),
     )
-    inlines = [OrderItemInline]
+    inlines = [OrderItemInline, PaymentInline]
 
     @admin.display(description='Customer', ordering='name')
     def customer(self, order):
         return order.name
+
+    @admin.display(description='Payment', ordering='payment__status')
+    def payment_status(self, order):
+        try:
+            return order.payment.get_status_display()
+        except Payment.DoesNotExist:
+            return 'Not created'
+
+
+@admin.register(Payment)
+class PaymentAdmin(admin.ModelAdmin):
+    change_list_template = 'admin/store/payment/change_list.html'
+    list_display = (
+        'payment_order', 'customer_details', 'method_badge', 'amount_display',
+        'status_badge', 'reference_display', 'updated_display',
+    )
+    list_display_links = ('payment_order',)
+    list_filter = ('method', 'status', 'created_at')
+    search_fields = ('=order__id', 'order__email', 'provider_reference', 'idempotency_key')
+    search_help_text = 'Search by order number, customer email, transaction ID, or idempotency key.'
+    date_hierarchy = 'created_at'
+    ordering = ('-created_at',)
+    list_per_page = 25
+    readonly_fields = (
+        'order_summary', 'customer_summary', 'method_display', 'amount_display',
+        'idempotency_key', 'last_request_id',
+        'provider_reference', 'failure_reason', 'attempts', 'created_at', 'updated_at',
+    )
+    fieldsets = (
+        ('Payment overview', {'fields': ('order_summary', 'customer_summary', 'method_display', 'amount_display', 'status')}),
+        ('Provider verification', {'fields': ('provider_reference', 'failure_reason', 'attempts')}),
+        ('System audit', {
+            'fields': ('idempotency_key', 'last_request_id', 'created_at', 'updated_at'),
+            'classes': ('collapse',),
+        }),
+    )
+    actions = ('mark_bkash_verified', 'mark_bkash_rejected')
+
+    def get_queryset(self, request):
+        return super().get_queryset(request).select_related('order')
+
+    def has_add_permission(self, request):
+        return False
+
+    def has_delete_permission(self, request, obj=None):
+        return False
+
+    def changelist_view(self, request, extra_context=None):
+        totals = self.get_queryset(request).aggregate(
+            total=Count('id'),
+            paid=Count('id', filter=Q(status='paid')),
+            pending=Count('id', filter=Q(status='pending')),
+            attention=Count('id', filter=Q(status__in=('failed', 'cancelled'))),
+            paid_amount=Sum('amount', filter=Q(status='paid')),
+        )
+        extra_context = {
+            **(extra_context or {}),
+            'payment_stats': {
+                **totals,
+                'paid_amount': f"৳{(totals['paid_amount'] or 0):,.2f}",
+            },
+        }
+        return super().changelist_view(request, extra_context=extra_context)
+
+    @admin.display(description='Order', ordering='order__id')
+    def payment_order(self, payment):
+        return format_html(
+            '<span class="nz-payment-order">Order #{}</span><small>{}</small>',
+            payment.order_id,
+            payment.order.name,
+        )
+
+    @admin.display(description='Customer', ordering='order__email')
+    def customer_details(self, payment):
+        return format_html(
+            '<span class="nz-payment-customer">{}</span><small>{}</small>',
+            payment.order.email,
+            payment.order.phone,
+        )
+
+    @admin.display(description='Method', ordering='method')
+    def method_badge(self, payment):
+        return format_html(
+            '<span class="nz-payment-method nz-payment-method--{}">{}</span>',
+            payment.method,
+            payment.get_method_display(),
+        )
+
+    @admin.display(description='Amount', ordering='amount')
+    def amount_display(self, payment):
+        return format_html('<strong class="nz-payment-amount">{}</strong>', f'৳{payment.amount:,.2f}')
+
+    @admin.display(description='Status', ordering='status')
+    def status_badge(self, payment):
+        return format_html(
+            '<span class="nz-payment-status nz-payment-status--{}"><i></i>{}</span>',
+            payment.status,
+            payment.get_status_display(),
+        )
+
+    @admin.display(description='Transaction')
+    def reference_display(self, payment):
+        if payment.method == 'cash_on_delivery':
+            return format_html('<span class="nz-payment-reference muted">{}</span>', 'Not required')
+        if payment.provider_reference:
+            return format_html(
+                '<code class="nz-payment-reference">{}</code><small>{} verification attempt{}</small>',
+                payment.provider_reference,
+                payment.attempts,
+                '' if payment.attempts == 1 else 's',
+            )
+        return format_html('<span class="nz-payment-reference waiting">{}</span>', 'Awaiting transaction ID')
+
+    @admin.display(description='Updated', ordering='updated_at')
+    def updated_display(self, payment):
+        return format_html(
+            '<time datetime="{}">{}</time><small>{}</small>',
+            payment.updated_at.isoformat(),
+            payment.updated_at.strftime('%d %b %Y'),
+            payment.updated_at.strftime('%I:%M %p'),
+        )
+
+    @admin.display(description='Order')
+    def order_summary(self, payment):
+        url = reverse('admin:store_order_change', args=(payment.order_id,))
+        return format_html('<a class="nz-payment-summary-link" href="{}">Order #{} — {}</a>', url, payment.order_id, payment.order.name)
+
+    @admin.display(description='Customer')
+    def customer_summary(self, payment):
+        return format_html('{}<br><a href="mailto:{}">{}</a><br>{}', payment.order.name, payment.order.email, payment.order.email, payment.order.phone)
+
+    @admin.display(description='Payment method')
+    def method_display(self, payment):
+        return payment.get_method_display()
+
+    @admin.action(description='Verify selected bKash payments')
+    def mark_bkash_verified(self, request, queryset):
+        updated = 0
+        for payment in queryset.select_related('order'):
+            if (
+                payment.method == 'bkash'
+                and payment.provider_reference
+                and payment.status in {'pending', 'failed'}
+                and payment.order.status != 'cancelled'
+            ):
+                payment.status = 'paid'
+                payment.failure_reason = ''
+                payment.save()
+                updated += 1
+        self.message_user(request, f'{updated} bKash payment(s) verified.')
+
+    @admin.action(description='Reject selected bKash payments')
+    def mark_bkash_rejected(self, request, queryset):
+        updated = 0
+        for payment in queryset:
+            if payment.method == 'bkash' and payment.status == 'pending':
+                payment.status = 'failed'
+                payment.failure_reason = 'The submitted bKash transaction could not be verified.'
+                payment.save()
+                updated += 1
+        self.message_user(request, f'{updated} bKash payment(s) rejected.')
 
 
 @admin.register(Banner)
@@ -125,4 +299,3 @@ admin.site.site_header = 'NazRiy administration'
 admin.site.site_title = 'NazRiy admin'
 admin.site.index_title = 'Orders, inventory and content'
 admin.site.index_template = 'admin/nazriy_index.html'
-admin.site.register([Cart, CartItem])

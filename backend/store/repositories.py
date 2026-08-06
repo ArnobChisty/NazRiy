@@ -20,7 +20,7 @@ class ProductRepository:
     @classmethod
     def list_products(cls, params=None) -> QuerySet[Product]:
         params = params or {}
-        products = Product.objects.select_related("category").prefetch_related("images").all()
+        products = Product.objects.select_related("category").prefetch_related("images").filter(active=True)
 
         search = params.get("search", "").strip()
         if search:
@@ -54,8 +54,8 @@ class ProductRepository:
 
     @staticmethod
     def featured_products() -> QuerySet[Product]:
-        return Product.objects.select_related("category").prefetch_related("images").filter(featured=True).order_by("-created_at")
+        return Product.objects.select_related("category").prefetch_related("images").filter(active=True, featured=True).order_by("-created_at")
 
     @staticmethod
     def get_by_slug(slug: str):
-        return Product.objects.select_related("category").prefetch_related("images").filter(slug=slug).first()
+        return Product.objects.select_related("category").prefetch_related("images").filter(active=True, slug=slug).first()

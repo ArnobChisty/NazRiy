@@ -1,0 +1,317 @@
+[
+{
+  "model": "auth.user",
+  "fields": {
+    "password": "pbkdf2_sha256$1200000$r0PhIx9qblXHa2fcL8kn3l$0rD4wjbmqikYnxu6tBQIFABw5YNHTmTz/vnQKIsPwmU=",
+    "last_login": "2026-06-27T08:54:33.245Z",
+    "is_superuser": true,
+    "username": "arnob",
+    "first_name": "",
+    "last_name": "",
+    "email": "arnobchisty@gmail.com",
+    "is_staff": true,
+    "is_active": true,
+    "date_joined": "2026-06-27T08:54:20.088Z",
+    "groups": [],
+    "user_permissions": []
+  }
+},
+{
+  "model": "store.category",
+  "pk": 1,
+  "fields": {
+    "name": "Ceramics",
+    "slug": "ceramics",
+    "description": ""
+  }
+},
+{
+  "model": "store.category",
+  "pk": 2,
+  "fields": {
+    "name": "Textiles",
+    "slug": "textiles",
+    "description": ""
+  }
+},
+{
+  "model": "store.category",
+  "pk": 3,
+  "fields": {
+    "name": "Tableware",
+    "slug": "tableware",
+    "description": ""
+  }
+},
+{
+  "model": "store.category",
+  "pk": 4,
+  "fields": {
+    "name": "Home Fragrance",
+    "slug": "home-fragrance",
+    "description": ""
+  }
+},
+{
+  "model": "store.category",
+  "pk": 5,
+  "fields": {
+    "name": "Womens Clothing",
+    "slug": "womens-clothing",
+    "description": ""
+  }
+},
+{
+  "model": "store.product",
+  "pk": 1,
+  "fields": {
+    "category": 1,
+    "name": "The Solace Vase",
+    "slug": "the-solace-vase",
+    "short_description": "A soft neutral vase for shelves, desks, and quiet corners.",
+    "description": "A soft neutral vase for shelves, desks, and quiet corners. Thoughtfully selected by NazRiy for useful, beautiful everyday living.",
+    "price": "480.00",
+    "primary_image": "",
+    "available_sizes": [
+      "Small",
+      "Medium",
+      "Large"
+    ],
+    "available_colors": [
+      "Sand",
+      "Clay"
+    ],
+    "stock_quantity": 12,
+    "featured": true,
+    "tone": "sand",
+    "shape": "vase-shape",
+    "created_at": "2026-06-27T08:33:49.184Z",
+    "updated_at": "2026-06-27T08:33:49.184Z"
+  }
+},
+{
+  "model": "store.product",
+  "pk": 2,
+  "fields": {
+    "category": 2,
+    "name": "Linen Carryall",
+    "slug": "linen-carryall",
+    "short_description": "A relaxed everyday carryall with a structured handmade feel.",
+    "description": "A relaxed everyday carryall with a structured handmade feel. Thoughtfully selected by NazRiy for useful, beautiful everyday living.",
+    "price": "760.00",
+    "primary_image": "",
+    "available_sizes": [
+      "One Size"
+    ],
+    "available_colors": [
+      "Clay",
+      "Olive"
+    ],
+    "stock_quantity": 12,
+    "featured": true,
+    "tone": "clay",
+    "shape": "bag-shape",
+    "created_at": "2026-06-27T08:33:49.192Z",
+    "updated_at": "2026-06-27T08:33:49.192Z"
+  }
+},
+{
+  "model": "store.product",
+  "pk": 3,
+  "fields": {
+    "category": 3,
+    "name": "Quiet Morning Cup",
+    "slug": "quiet-morning-cup",
+    "short_description": "A warm ceramic cup made for tea, coffee, and slow mornings.",
+    "description": "A warm ceramic cup made for tea, coffee, and slow mornings. Thoughtfully selected by NazRiy for useful, beautiful everyday living.",
+    "price": "340.00",
+    "primary_image": "",
+    "available_sizes": [
+      "250 ml",
+      "350 ml"
+    ],
+    "available_colors": [
+      "Cream",
+      "Sand"
+    ],
+    "stock_quantity": 12,
+    "featured": true,
+    "tone": "cream",
+    "shape": "cup-shape",
+    "created_at": "2026-06-27T08:33:49.201Z",
+    "updated_at": "2026-06-27T08:33:49.201Z"
+  }
+},
+{
+  "model": "store.product",
+  "pk": 4,
+  "fields": {
+    "category": 4,
+    "name": "Amber Glow Candle",
+    "slug": "amber-glow-candle",
+    "short_description": "A gentle amber candle for cosy rooms and evening resets.",
+    "description": "A gentle amber candle for cosy rooms and evening resets. Thoughtfully selected by NazRiy for useful, beautiful everyday living.",
+    "price": "590.00",
+    "primary_image": "",
+    "available_sizes": [
+      "Small",
+      "Large"
+    ],
+    "available_colors": [
+      "Amber",
+      "Sage"
+    ],
+    "stock_quantity": 12,
+    "featured": true,
+    "tone": "sage",
+    "shape": "candle-shape",
+    "created_at": "2026-06-27T08:33:49.210Z",
+    "updated_at": "2026-06-27T08:33:49.210Z"
+  }
+},
+{
+  "model": "store.product",
+  "pk": 5,
+  "fields": {
+    "category": 1,
+    "name": "Earthline Planter",
+    "slug": "earthline-planter",
+    "short_description": "An earthy planter that brings a little softness to windows and desks.",
+    "description": "An earthy planter that brings a little softness to windows and desks. Thoughtfully selected by NazRiy for useful, beautiful everyday living.",
+    "price": "650.00",
+    "primary_image": "",
+    "available_sizes": [
+      "Small",
+      "Medium"
+    ],
+    "available_colors": [
+      "Terracotta",
+      "Cream"
+    ],
+    "stock_quantity": 12,
+    "featured": false,
+    "tone": "clay",
+    "shape": "planter-shape",
+    "created_at": "2026-06-27T08:33:49.215Z",
+    "updated_at": "2026-06-27T08:33:49.215Z"
+  }
+},
+{
+  "model": "store.product",
+  "pk": 6,
+  "fields": {
+    "category": 2,
+    "name": "Woven Rest Cushion",
+    "slug": "woven-rest-cushion",
+    "short_description": "A tactile woven cushion cover made for relaxed corners.",
+    "description": "A tactile woven cushion cover made for relaxed corners. Thoughtfully selected by NazRiy for useful, beautiful everyday living.",
+    "price": "890.00",
+    "primary_image": "",
+    "available_sizes": [
+      "40 cm",
+      "50 cm"
+    ],
+    "available_colors": [
+      "Oat",
+      "Olive",
+      "Rust"
+    ],
+    "stock_quantity": 12,
+    "featured": false,
+    "tone": "sand",
+    "shape": "cushion-shape",
+    "created_at": "2026-06-27T08:33:49.219Z",
+    "updated_at": "2026-06-27T08:33:49.219Z"
+  }
+},
+{
+  "model": "store.product",
+  "pk": 7,
+  "fields": {
+    "category": 3,
+    "name": "Gather Serving Bowl",
+    "slug": "gather-serving-bowl",
+    "short_description": "A generous serving bowl with an organic hand-finished rim.",
+    "description": "A generous serving bowl with an organic hand-finished rim. Thoughtfully selected by NazRiy for useful, beautiful everyday living.",
+    "price": "980.00",
+    "primary_image": "",
+    "available_sizes": [
+      "Medium",
+      "Large"
+    ],
+    "available_colors": [
+      "Cream",
+      "Sage"
+    ],
+    "stock_quantity": 12,
+    "featured": false,
+    "tone": "sage",
+    "shape": "bowl-shape",
+    "created_at": "2026-06-27T08:33:49.224Z",
+    "updated_at": "2026-06-27T08:33:49.224Z"
+  }
+},
+{
+  "model": "store.product",
+  "pk": 8,
+  "fields": {
+    "category": 4,
+    "name": "Forest Quiet Diffuser",
+    "slug": "forest-quiet-diffuser",
+    "short_description": "A grounding blend of cedar, moss, and soft citrus.",
+    "description": "A grounding blend of cedar, moss, and soft citrus. Thoughtfully selected by NazRiy for useful, beautiful everyday living.",
+    "price": "720.00",
+    "primary_image": "",
+    "available_sizes": [
+      "100 ml"
+    ],
+    "available_colors": [
+      "Forest",
+      "Amber"
+    ],
+    "stock_quantity": 12,
+    "featured": false,
+    "tone": "cream",
+    "shape": "diffuser-shape",
+    "created_at": "2026-06-27T08:33:49.228Z",
+    "updated_at": "2026-06-27T08:33:49.228Z"
+  }
+},
+{
+  "model": "store.product",
+  "pk": 10,
+  "fields": {
+    "category": 5,
+    "name": "nazz dress",
+    "slug": "nazz-dress",
+    "short_description": "dsf",
+    "description": "sdf",
+    "price": "5000.00",
+    "primary_image": "products/primary/WhatsApp_Image_2026-06-27_at_2.58.13_PM_1.jpeg",
+    "available_sizes": [
+      "Medium",
+      "Large"
+    ],
+    "available_colors": [
+      "Medium",
+      "Large"
+    ],
+    "stock_quantity": 5,
+    "featured": false,
+    "tone": "sand",
+    "shape": "vase-shape",
+    "created_at": "2026-06-27T09:18:23.386Z",
+    "updated_at": "2026-06-27T09:20:12.244Z"
+  }
+},
+{
+  "model": "store.productimage",
+  "pk": 3,
+  "fields": {
+    "product": 10,
+    "image": "products/gallery/WhatsApp_Image_2026-06-27_at_3_cAWcK72.15.37_PM.jpeg",
+    "alt_text": "",
+    "position": 0
+  }
+}
+]

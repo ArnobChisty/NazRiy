@@ -1,0 +1,90 @@
+databases:
+  - name: nazriy-postgres
+    plan: free
+    databaseName: nazriy
+    user: nazriy
+
+services:
+  - type: web
+    name: nazriy-api
+    runtime: python
+    plan: free
+    buildCommand: pip install -r backend/requirements.txt && python backend/manage.py collectstatic --noinput && python backend/manage.py migrate --noinput
+    startCommand: gunicorn --chdir backend backend.wsgi:application --workers 2 --threads 4 --timeout 120
+    healthCheckPath: /api/health/
+    envVars:
+      - key: PYTHON_VERSION
+        value: 3.13.5
+      - key: DJANGO_DEBUG
+        value: 'false'
+      - key: DJANGO_SECRET_KEY
+        generateValue: true
+      - key: DJANGO_ALLOWED_HOSTS
+        sync: false
+      - key: CORS_ALLOWED_ORIGINS
+        sync: false
+      - key: CSRF_TRUSTED_ORIGINS
+        sync: false
+      - key: FRONTEND_URL
+        sync: false
+      - key: PASSWORD_RESET_TIMEOUT
+        value: '3600'
+      - key: PASSWORD_RESET_THROTTLE_RATE
+        value: 5/hour
+      - key: EMAIL_BACKEND
+        value: django.core.mail.backends.smtp.EmailBackend
+      - key: EMAIL_HOST
+        sync: false
+      - key: EMAIL_PORT
+        value: '587'
+      - key: EMAIL_HOST_USER
+        sync: false
+      - key: EMAIL_HOST_PASSWORD
+        sync: false
+      - key: EMAIL_USE_TLS
+        value: 'true'
+      - key: DEFAULT_FROM_EMAIL
+        sync: false
+      - key: BKASH_MERCHANT_NUMBER
+        sync: false
+      - key: DB_ENGINE
+        value: postgres
+      - key: DB_NAME
+        fromDatabase: { name: nazriy-postgres, property: database }
+      - key: DB_USER
+        fromDatabase: { name: nazriy-postgres, property: user }
+      - key: DB_PASSWORD
+        fromDatabase: { name: nazriy-postgres, property: password }
+      - key: DB_HOST
+        fromDatabase: { name: nazriy-postgres, property: host }
+      - key: DB_PORT
+        fromDatabase: { name: nazriy-postgres, property: port }
+      - key: DB_SSLMODE
+        value: require
+      - key: USE_SUPABASE_STORAGE
+        value: 'true'
+      - key: SUPABASE_STORAGE_BUCKET
+        sync: false
+      - key: SUPABASE_STORAGE_ENDPOINT_URL
+        sync: false
+      - key: SUPABASE_STORAGE_REGION
+        sync: false
+      - key: SUPABASE_STORAGE_ACCESS_KEY
+        sync: false
+      - key: SUPABASE_STORAGE_SECRET_KEY
+        sync: false
+
+  - type: web
+    name: nazriy-storefront
+    runtime: static
+    buildCommand: cd frontend && npm ci && npm run build
+    staticPublishPath: frontend/dist
+    routes:
+      - type: rewrite
+        source: /*
+        destination: /index.html
+    envVars:
+      - key: VITE_API_URL
+        sync: false
+      - key: VITE_BKASH_MERCHANT_NUMBER
+        sync: false

@@ -1,13 +1,39 @@
+import logging
+
+from django.conf import settings
 from django.contrib.auth import authenticate, get_user_model
+from django.contrib.auth.tokens import default_token_generator
 from django.contrib.auth.password_validation import validate_password
 from django.core.exceptions import ValidationError
+from django.core.mail import EmailMultiAlternatives
+from django.template.loader import render_to_string
+from django.utils.encoding import force_bytes, force_str
+from django.utils.http import urlsafe_base64_decode, urlsafe_base64_encode
 from rest_framework import permissions, status
 from rest_framework.response import Response
+from rest_framework.throttling import AnonRateThrottle
 from rest_framework.views import APIView
 
 from .authentication import SignedTokenAuthentication, make_token
 
 User = get_user_model()
+logger = logging.getLogger(__name__)
+
+PASSWORD_RESET_RESPONSE = {
+    'detail': 'If an active account uses that email address, password reset instructions have been sent.'
+}
+
+
+class PasswordResetRateThrottle(AnonRateThrottle):
+    scope = 'password_reset'
+
+
+def password_reset_user(uid):
+    try:
+        user_id = force_str(urlsafe_base64_decode(uid))
+        return User.objects.get(pk=user_id, is_active=True)
+    except (TypeError, ValueError, OverflowError, User.DoesNotExist):
+        return None
 
 
 def user_data(user):
@@ -104,3 +130,70 @@ class PasswordChangeView(ProtectedAuthView):
         user.set_password(new)
         user.save(update_fields=['password'])
         return Response({'detail': 'Password changed successfully.', 'token': make_token(user)})
+
+
+class PasswordResetRequestView(APIView):
+    permission_classes = [permissions.AllowAny]
+    throttle_classes = [PasswordResetRateThrottle]
+
+    def post(self, request):
+        email = (request.data.get('email') or '').strip().lower()
+        user = User.objects.filter(email__iexact=email, is_active=True).order_by('pk').first() if email else None
+
+        if user and user.has_usable_password():
+            uid = urlsafe_base64_encode(force_bytes(user.pk))
+            token = default_token_generator.make_token(user)
+            reset_url = f"{settings.FRONTEND_URL.rstrip('/')}/reset-password?uid={uid}&token={token}"
+            context = {
+                'user': user,
+                'reset_url': reset_url,
+                'timeout_minutes': max(1, settings.PASSWORD_RESET_TIMEOUT // 60),
+            }
+            subject = 'Reset your NazRiy password'
+            message = EmailMultiAlternatives(
+                subject=subject,
+                body=render_to_string('email/password_reset.txt', context),
+                from_email=settings.DEFAULT_FROM_EMAIL,
+                to=[user.email],
+            )
+            message.attach_alternative(render_to_string('email/password_reset.html', context), 'text/html')
+            try:
+                message.send(fail_silently=False)
+            except Exception:
+                # Do not reveal whether an account exists or whether delivery failed.
+                logger.exception('Password reset email delivery failed.')
+
+        return Response(PASSWORD_RESET_RESPONSE)
+
+
+class PasswordResetConfirmView(APIView):
+    permission_classes = [permissions.AllowAny]
+
+    @staticmethod
+    def valid_user(uid, token):
+        user = password_reset_user(uid)
+        return user if user and token and default_token_generator.check_token(user, token) else None
+
+    def get(self, request):
+        user = self.valid_user(request.query_params.get('uid', ''), request.query_params.get('token', ''))
+        if not user:
+            return Response({'valid': False, 'detail': 'This reset link is invalid or has expired.'}, status=400)
+        return Response({'valid': True})
+
+    def post(self, request):
+        user = self.valid_user(request.data.get('uid', ''), request.data.get('token', ''))
+        if not user:
+            return Response({'detail': 'This reset link is invalid or has expired.'}, status=400)
+
+        new_password = request.data.get('new_password') or ''
+        confirm_password = request.data.get('confirm_password') or ''
+        if new_password != confirm_password:
+            return Response({'confirm_password': ['The new passwords do not match.']}, status=400)
+        try:
+            validate_password(new_password, user=user)
+        except ValidationError as error:
+            return Response({'new_password': error.messages}, status=400)
+
+        user.set_password(new_password)
+        user.save(update_fields=['password'])
+        return Response({'detail': 'Your password has been reset successfully. You can now log in.'})

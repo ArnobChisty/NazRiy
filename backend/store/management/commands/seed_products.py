@@ -1,39 +1,68 @@
+from decimal import Decimal
+
 from django.core.management.base import BaseCommand
 
-from store.models import Category, Product
+from store.models import Category, NavigationLink, Product
 
 
 PRODUCTS = [
-    ("Ceramics", "The Solace Vase", "A soft neutral vase for shelves, desks, and quiet corners.", 480, ["Small", "Medium", "Large"], ["Sand", "Clay"], "sand", "vase-shape", True),
-    ("Textiles", "Linen Carryall", "A relaxed everyday carryall with a structured handmade feel.", 760, ["One Size"], ["Clay", "Olive"], "clay", "bag-shape", True),
-    ("Tableware", "Quiet Morning Cup", "A warm ceramic cup made for tea, coffee, and slow mornings.", 340, ["250 ml", "350 ml"], ["Cream", "Sand"], "cream", "cup-shape", True),
-    ("Home Fragrance", "Amber Glow Candle", "A gentle amber candle for cosy rooms and evening resets.", 590, ["Small", "Large"], ["Amber", "Sage"], "sage", "candle-shape", True),
-    ("Ceramics", "Earthline Planter", "An earthy planter that brings a little softness to windows and desks.", 650, ["Small", "Medium"], ["Terracotta", "Cream"], "clay", "planter-shape", False),
-    ("Textiles", "Woven Rest Cushion", "A tactile woven cushion cover made for relaxed corners.", 890, ["40 cm", "50 cm"], ["Oat", "Olive", "Rust"], "sand", "cushion-shape", False),
-    ("Tableware", "Gather Serving Bowl", "A generous serving bowl with an organic hand-finished rim.", 980, ["Medium", "Large"], ["Cream", "Sage"], "sage", "bowl-shape", False),
-    ("Home Fragrance", "Forest Quiet Diffuser", "A grounding blend of cedar, moss, and soft citrus.", 720, ["100 ml"], ["Forest", "Amber"], "cream", "diffuser-shape", False),
+    {
+        'name': "Women's Ethnic Top Set (Red)",
+        'short_description': 'A three-piece floral set finished with deep maroon lace and gold-tone buttons.',
+        'description': 'A coordinated printed top, wide-leg trouser and lightweight dupatta designed for festive gatherings and polished everyday wear.',
+        'price': Decimal('5000.00'),
+        'sizes': ['Medium', 'Large'],
+        'colors': ['Red', 'Maroon'],
+        'tone': 'burgundy',
+    },
+    {
+        'name': "Women’s Ethnic Top Set (Yellow)",
+        'short_description': 'A soft floral three-piece set in warm yellow, blush pink and powder blue.',
+        'description': 'A breathable printed top and trouser pairing with a flowing pink dupatta, detailed borders and delicate lace finishing.',
+        'price': Decimal('5000.00'),
+        'sizes': ['Medium', 'Large'],
+        'colors': ['Yellow', 'Blush Pink'],
+        'tone': 'sand',
+    },
 ]
 
 
 class Command(BaseCommand):
-    help = "Create the demonstration categories and products used by the NazRiy frontend."
+    help = 'Create or refresh the clothing-only NazRiy demonstration catalogue.'
 
     def handle(self, *args, **options):
-        for category_name, name, short, price, sizes, colors, tone, shape, featured in PRODUCTS:
-            category, _ = Category.objects.get_or_create(name=category_name)
-            Product.objects.update_or_create(
-                name=name,
-                defaults={
-                    "category": category,
-                    "short_description": short,
-                    "description": f"{short} Thoughtfully selected by NazRiy for useful, beautiful everyday living.",
-                    "price": price,
-                    "available_sizes": sizes,
-                    "available_colors": colors,
-                    "stock_quantity": 12,
-                    "featured": featured,
-                    "tone": tone,
-                    "shape": shape,
-                },
-            )
-        self.stdout.write(self.style.SUCCESS(f"Seeded {len(PRODUCTS)} NazRiy products."))
+        category, _ = Category.objects.update_or_create(
+            slug='womens-clothing',
+            defaults={
+                'name': 'Womens Clothing',
+                'description': 'Printed ethnic top sets and coordinated clothing by NazRiy.',
+                'image_alt': 'NazRiy women’s clothing collection',
+                'featured': True,
+                'sort_order': 1,
+            },
+        )
+        for index, item in enumerate(PRODUCTS):
+            product, _ = Product.objects.get_or_create(name=item['name'], defaults={'category': category, 'description': item['description'], 'price': item['price']})
+            product.category = category
+            product.short_description = item['short_description']
+            product.description = item['description']
+            product.price = item['price']
+            product.available_sizes = item['sizes']
+            product.available_colors = item['colors']
+            product.tone = item['tone']
+            product.shape = 'apparel'
+            product.active = True
+            product.featured = True
+            if not product.stock_quantity:
+                product.stock_quantity = 8
+            product.save()
+
+        links = [
+            ('Shop all', '/products'),
+            ('New arrivals', '/products?ordering=newest'),
+            ('Women', '/products?category=womens-clothing'),
+            ('Our story', '/#about'),
+        ]
+        for position, (label, url) in enumerate(links, start=1):
+            NavigationLink.objects.update_or_create(label=label, defaults={'url': url, 'sort_order': position, 'active': True})
+        self.stdout.write(self.style.SUCCESS(f'Refreshed {len(PRODUCTS)} clothing products and {len(links)} navigation links.'))
