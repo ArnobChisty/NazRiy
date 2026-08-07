@@ -633,9 +633,13 @@ body:not(.nazriy-dashboard-page) .related-widget-wrapper {
 body:not(.nazriy-dashboard-page) .related-widget-wrapper select {
   box-sizing: border-box;
   flex: 1 1 280px;
-  height: 42px;
+  font-size: 14px;
+  height: 44px;
+  line-height: normal;
   margin: 0;
-  min-width: 190px;
+  min-height: 44px;
+  min-width: 210px;
+  padding: 0 38px 0 12px;
   width: min(100%, 420px);
 }
 
@@ -646,14 +650,27 @@ body:not(.nazriy-dashboard-page) .related-widget-wrapper-link {
   border-radius: 7px;
   box-sizing: border-box;
   display: inline-flex;
-  flex: 0 0 36px;
-  height: 36px;
+  flex: 0 0 40px;
+  height: 40px;
   justify-content: center;
   margin: 0;
   overflow: hidden;
   padding: 0 !important;
   transition: background .15s ease, border-color .15s ease, box-shadow .15s ease;
-  width: 36px;
+  width: 40px;
+}
+
+/* Final related-field alignment layer: category, product and customer
+   selectors share these controls throughout the administration site. */
+body:not(.nazriy-dashboard-page) .related-widget-wrapper select,
+body:not(.nazriy-dashboard-page) .related-widget-wrapper-link {
+  vertical-align: middle;
+}
+
+body:not(.nazriy-dashboard-page) .form-row label,
+body:not(.nazriy-dashboard-page) .form-row .readonly {
+  color: #42554b;
+  font-weight: 600;
 }
 
 body:not(.nazriy-dashboard-page) .related-widget-wrapper-link:hover,

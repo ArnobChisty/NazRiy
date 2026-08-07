@@ -13,7 +13,7 @@ const BagIcon = () => <svg aria-hidden="true" viewBox="0 0 24 24"><path d="M6.5 
 const defaultLinks: NavigationLink[] = [
   { id: -1, label: 'Shop all', url: '/products', sort_order: 1, open_in_new_tab: false },
   { id: -2, label: 'New arrivals', url: '/products?ordering=newest', sort_order: 2, open_in_new_tab: false },
-  { id: -3, label: 'Women', url: '/products?category=womens-clothing', sort_order: 3, open_in_new_tab: false },
+  { id: -3, label: 'Women', url: '/products?view=women', sort_order: 3, open_in_new_tab: false },
   { id: -4, label: 'Our story', url: '/#about', sort_order: 4, open_in_new_tab: false },
 ]
 

@@ -24,13 +24,14 @@ const ProductListingPage = () => {
   const [filters, setFilters] = useState<ProductFilters>(initialFilters)
   const [appliedFilters, setAppliedFilters] = useState<ProductFilters>(initialFilters)
   const [products, setProducts] = useState<Product[]>([])
+  const [filterProducts, setFilterProducts] = useState<Product[]>([])
   const [categories, setCategories] = useState<Category[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
   const [filtersOpen, setFiltersOpen] = useState(false)
   const [retryKey, setRetryKey] = useState(0)
   const pageParams = new URLSearchParams(window.location.search)
-  const isWomenView = pageParams.get('category') === 'womens-clothing'
+  const isWomenView = pageParams.get('view') === 'women'
   const isNewArrivalsView = !isWomenView && pageParams.has('ordering') && pageParams.get('ordering') === 'newest'
   const catalogueIntro = isWomenView
     ? { eyebrow: "Women's collection", title: 'Designed for her.', description: 'Explore the complete NazRiy womenswear edit, from expressive prints to considered everyday silhouettes.' }
@@ -48,6 +49,14 @@ const ProductListingPage = () => {
   }, [appliedFilters, retryKey])
 
   useEffect(() => { getCategories().then(setCategories).catch(() => undefined) }, [])
+  useEffect(() => {
+    getProducts({ search: '', category: '', min_price: '', max_price: '', size: '', color: '', ordering: 'newest' })
+      .then(setFilterProducts)
+      .catch(() => undefined)
+  }, [])
+
+  const sizeOptions = Array.from(new Set(filterProducts.flatMap((product) => product.available_sizes).filter(Boolean))).sort()
+  const colorOptions = Array.from(new Set(filterProducts.flatMap((product) => product.available_colors).filter(Boolean))).sort()
 
   const applyFilters = (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault()
@@ -90,8 +99,8 @@ const ProductListingPage = () => {
               <label>Search<input type="search" value={filters.search} onChange={(event) => update('search', event.target.value)} placeholder="Product name" /></label>
               <label>Category<select value={filters.category} onChange={(event) => update('category', event.target.value)}><option value="">All categories</option>{categories.map((category) => <option key={category.id} value={category.slug}>{category.name} ({category.product_count})</option>)}</select></label>
               <fieldset><legend>Price range</legend><div className="price-inputs"><input type="number" min="0" placeholder="Min" value={filters.min_price} onChange={(event) => update('min_price', event.target.value)} /><input type="number" min="0" placeholder="Max" value={filters.max_price} onChange={(event) => update('max_price', event.target.value)} /></div></fieldset>
-              <label>Size<select value={filters.size} onChange={(event) => update('size', event.target.value)}><option value="">All sizes</option>{['Small', 'Medium', 'Large', 'One Size', '250 ml', '350 ml'].map((size) => <option key={size}>{size}</option>)}</select></label>
-              <label>Color<select value={filters.color} onChange={(event) => update('color', event.target.value)}><option value="">All colors</option>{['Sand', 'Clay', 'Cream', 'Sage', 'Olive', 'Amber'].map((color) => <option key={color}>{color}</option>)}</select></label>
+              <label>Size<select value={filters.size} onChange={(event) => update('size', event.target.value)}><option value="">All sizes</option>{sizeOptions.map((size) => <option key={size}>{size}</option>)}</select></label>
+              <label>Colour<select value={filters.color} onChange={(event) => update('color', event.target.value)}><option value="">All colours</option>{colorOptions.map((color) => <option key={color}>{color}</option>)}</select></label>
               <button className="apply-button" type="submit">Apply filters</button>
             </form>
           </aside>
