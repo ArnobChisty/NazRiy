@@ -6,6 +6,11 @@
 {% block extrastyle %}
   {{ block.super }}
   <link rel="stylesheet" href="{% url 'admin-theme-css' %}?v=11">
+  {# Vercel Web Analytics initialization #}
+  <script>
+    window.va = window.va || function () { (window.vaq = window.vaq || []).push(arguments); };
+  </script>
+  <script defer src="/_vercel/insights/script.js"></script>
 {% endblock %}
 
 {% block branding %}
