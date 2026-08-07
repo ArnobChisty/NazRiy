@@ -14,6 +14,36 @@ img {
   max-width: 100%;
 }
 
+/* The order and payment pages intentionally use a light surface. Override the
+   global noir heading colour so every confirmation and order-detail label
+   remains readable on that surface. */
+.s5-payment-page,
+.s4-page {
+  color: #26352e;
+}
+
+.s5-payment-result h1,
+.s5-payment-result h2,
+.s5-payment-result h3,
+.s4-page h1,
+.s4-page h2,
+.s4-page h3,
+.s4-page .s4-items h3 a,
+.s4-page .s4-items article > strong {
+  color: #1c2b24;
+}
+
+.s5-payment-result > p:not(.eyebrow) {
+  color: #4f6257;
+}
+
+.s4-page .s4-heading .eyebrow,
+.s4-page .s4-items p,
+.s4-page .s4-items small,
+.s4-page .s4-card-heading p {
+  color: #5b6d62;
+}
+
 @media (prefers-reduced-motion: reduce) {
   html { scroll-behavior: auto !important; }
   *, *::before, *::after {
