@@ -258,19 +258,50 @@ body:not(.nazriy-dashboard-page) textarea {
    selected value to be cut off in list-edit rows and change forms. */
 body:not(.nazriy-dashboard-page) select:not([multiple]) {
   box-sizing: border-box;
-  height: 42px;
-  line-height: 1.25;
-  min-height: 42px;
-  padding: 8px 34px 8px 11px;
+  font-size: 14px;
+  height: 44px;
+  line-height: normal;
+  min-height: 44px;
+  padding: 0 38px 0 12px;
   vertical-align: middle;
 }
 
 body:not(.nazriy-dashboard-page) #changelist select:not([multiple]),
 body:not(.nazriy-dashboard-page) #changelist .actions select {
-  height: 38px;
-  min-height: 38px;
-  padding-bottom: 6px;
-  padding-top: 6px;
+  height: 40px;
+  min-height: 40px;
+  padding-bottom: 0;
+  padding-top: 0;
+}
+
+/* Use native control metrics instead of padding-driven sizing. This prevents
+   text from being vertically clipped in every Django-admin change form,
+   filter and bulk-edit row across Chromium, Edge, and Firefox. */
+body:not(.nazriy-dashboard-page) input[type="text"],
+body:not(.nazriy-dashboard-page) input[type="email"],
+body:not(.nazriy-dashboard-page) input[type="number"],
+body:not(.nazriy-dashboard-page) input[type="password"],
+body:not(.nazriy-dashboard-page) input[type="url"],
+body:not(.nazriy-dashboard-page) input[type="search"],
+body:not(.nazriy-dashboard-page) input[type="date"],
+body:not(.nazriy-dashboard-page) input[type="datetime-local"],
+body:not(.nazriy-dashboard-page) textarea,
+body:not(.nazriy-dashboard-page) select {
+  box-sizing: border-box;
+  font-family: Inter, "Segoe UI", Arial, sans-serif;
+  font-size: 14px;
+  line-height: 1.45;
+}
+
+body:not(.nazriy-dashboard-page) input[type="text"],
+body:not(.nazriy-dashboard-page) input[type="email"],
+body:not(.nazriy-dashboard-page) input[type="number"],
+body:not(.nazriy-dashboard-page) input[type="password"],
+body:not(.nazriy-dashboard-page) input[type="url"],
+body:not(.nazriy-dashboard-page) input[type="search"],
+body:not(.nazriy-dashboard-page) input[type="date"],
+body:not(.nazriy-dashboard-page) input[type="datetime-local"] {
+  min-height: 42px;
 }
 
 body:not(.nazriy-dashboard-page) #result_list thead th {
