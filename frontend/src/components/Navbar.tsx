@@ -35,7 +35,19 @@ const Navbar = ({ activePage = 'home' }: NavbarProps) => {
       && targetEntries.every(([key, value]) => currentEntries.some(([currentKey, currentValue]) => currentKey === key && currentValue === value))
   }
 
-  useEffect(() => { getNavigationLinks().then(setNavigationLinks).catch(() => undefined) }, [])
+  useEffect(() => {
+    getNavigationLinks()
+      .then((links) => setNavigationLinks(links.map((link) => {
+        // Older database records used a category text value that is not a
+        // category slug. Keep the client working while the navigation is
+        // managed from Django admin.
+        if (link.label.trim().toLowerCase() === 'women' && /[?&]category=womens?(%20|\+|\s|-)?clothing/i.test(link.url)) {
+          return { ...link, url: '/products?view=women' }
+        }
+        return link
+      })))
+      .catch(() => undefined)
+  }, [])
 
   const handleSearch = (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault()
