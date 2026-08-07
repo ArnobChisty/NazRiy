@@ -70,7 +70,7 @@ class AdminDashboardTests(TestCase):
         response = self.client.get(reverse('admin:store_order_changelist'))
 
         self.assertEqual(response.status_code, 200)
-        self.assertContains(response, 'admin/css/nazriy_admin_global.css')
+        self.assertContains(response, reverse('admin-theme-css'))
 
     def test_analytics_navigation_targets_dashboard_section(self):
         self.client.force_login(self.admin_user)
