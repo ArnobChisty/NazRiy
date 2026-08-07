@@ -10,4 +10,15 @@
 .noir-auth-page .auth-card input:focus{border-color:#d6ad55;box-shadow:none}
 .noir-auth-page .auth-submit{border-radius:0;background:#d6ad55;color:#0d0c0b;text-transform:uppercase;letter-spacing:.16em;font-size:9px}
 .noir-auth-page .auth-switch{color:#a6a09a}
+.noir-auth-page .auth-forgot-link{display:block;width:max-content;margin:-8px 0 22px auto;color:#d8d2cc;border-bottom:1px solid #5d5650;font-size:11px;text-decoration:none}
+.noir-auth-page .auth-forgot-link:hover{color:#fff;border-color:#d6ad55}
+.noir-auth-page .recovery-card h1{font-size:clamp(58px,6vw,88px);line-height:.92}
+.auth-recovery-copy{max-width:460px;margin:-22px 0 30px;color:#c8c2bc;font-size:14px;line-height:1.7}
+.auth-recovery-status{margin:0 0 24px;padding:14px 16px;border:1px solid #335746;background:#14231c;color:#dff4e8;font-size:13px;line-height:1.6}
+.auth-recovery-invalid{border-color:#74443d;background:#281714;color:#f4d8d3}
+.auth-password-help{display:grid;gap:5px;margin:-5px 0 22px;color:#a6a09a;font-size:11px;line-height:1.5}
+.auth-password-help span::before{content:'•';margin-right:7px;color:#d6ad55}
+.auth-recovery-actions{display:grid;gap:12px}
+.auth-secondary-action{display:block;padding:13px;border:1px solid #514b45;color:#f3f0eb;text-align:center;text-transform:uppercase;letter-spacing:.15em;font-size:9px;text-decoration:none}
+.auth-secondary-action:hover{border-color:#d6ad55;color:#fff}
 @media(max-width:700px){.auth-page.noir-auth-page{padding:0;grid-template-columns:1fr}.noir-auth-page .auth-card{width:88%;padding:90px 0 50px}.noir-auth-page .auth-card h1{font-size:72px}}

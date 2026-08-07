@@ -1,4 +1,5 @@
 from decimal import Decimal
+import uuid
 from django.conf import settings
 from django.core.exceptions import ValidationError
 from django.db import models
@@ -14,7 +15,7 @@ class Category(models.Model):
     def __str__(self):return self.name
 
 class Product(models.Model):
-    category=models.ForeignKey(Category,related_name='products',on_delete=models.PROTECT); name=models.CharField(max_length=160); slug=models.SlugField(max_length=180,unique=True,blank=True); short_description=models.CharField(max_length=240,blank=True); description=models.TextField(); price=models.DecimalField(max_digits=10,decimal_places=2); primary_image=models.FileField(upload_to='products/primary/',blank=True); available_sizes=models.JSONField(default=list,blank=True); available_colors=models.JSONField(default=list,blank=True); stock_quantity=models.PositiveIntegerField(default=0); featured=models.BooleanField(default=False); tone=models.CharField(max_length=30,default='sand'); shape=models.CharField(max_length=40,default='vase-shape'); created_at=models.DateTimeField(auto_now_add=True); updated_at=models.DateTimeField(auto_now=True)
+    category=models.ForeignKey(Category,related_name='products',on_delete=models.PROTECT); name=models.CharField(max_length=160); slug=models.SlugField(max_length=180,unique=True,blank=True); short_description=models.CharField(max_length=240,blank=True); description=models.TextField(); price=models.DecimalField(max_digits=10,decimal_places=2); primary_image=models.FileField(upload_to='products/primary/',blank=True); available_sizes=models.JSONField(default=list,blank=True); available_colors=models.JSONField(default=list,blank=True); stock_quantity=models.PositiveIntegerField(default=0); active=models.BooleanField(default=True); featured=models.BooleanField(default=False); tone=models.CharField(max_length=30,default='sand'); shape=models.CharField(max_length=40,default='vase-shape'); created_at=models.DateTimeField(auto_now_add=True); updated_at=models.DateTimeField(auto_now=True)
     class Meta: ordering=['-created_at']
     def save(self,*args,**kwargs):
         if not self.slug:
@@ -76,3 +77,51 @@ class Order(models.Model):
 
 class OrderItem(models.Model):
     order=models.ForeignKey(Order,on_delete=models.CASCADE,related_name='items'); product=models.ForeignKey(Product,on_delete=models.PROTECT); product_name=models.CharField(max_length=160); size=models.CharField(max_length=60,blank=True); color=models.CharField(max_length=60,blank=True); unit_price=models.DecimalField(max_digits=10,decimal_places=2); quantity=models.PositiveIntegerField(); line_total=models.DecimalField(max_digits=10,decimal_places=2)
+
+
+class Payment(models.Model):
+    METHOD_CHOICES = [
+        ('bkash', 'bKash'),
+        ('cash_on_delivery', 'Cash on delivery'),
+    ]
+    STATUS_CHOICES = [
+        ('pending', 'Pending'),
+        ('paid', 'Paid'),
+        ('failed', 'Failed'),
+        ('cancelled', 'Cancelled'),
+    ]
+
+    order = models.OneToOneField(Order, on_delete=models.CASCADE, related_name='payment')
+    method = models.CharField(max_length=24, choices=METHOD_CHOICES, default='bkash')
+    amount = models.DecimalField(max_digits=10, decimal_places=2)
+    status = models.CharField(max_length=16, choices=STATUS_CHOICES, default='pending')
+    idempotency_key = models.UUIDField(default=uuid.uuid4, unique=True, editable=False)
+    last_request_id = models.UUIDField(blank=True, null=True, editable=False)
+    provider_reference = models.CharField(max_length=80, blank=True, editable=False)
+    failure_reason = models.CharField(max_length=240, blank=True, editable=False)
+    attempts = models.PositiveSmallIntegerField(default=0, editable=False)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        ordering = ['-created_at']
+        constraints = [
+            models.UniqueConstraint(
+                fields=['provider_reference'],
+                condition=models.Q(method='bkash') & ~models.Q(provider_reference=''),
+                name='unique_bkash_transaction_reference',
+            ),
+        ]
+
+    def clean(self):
+        if self.order_id and self.amount != self.order.total:
+            raise ValidationError({'amount': 'Payment amount must match the order total.'})
+        if self.order_id and self.order.status == 'cancelled' and self.status == 'paid':
+            raise ValidationError({'status': 'A cancelled order cannot be marked as paid.'})
+
+    def save(self, *args, **kwargs):
+        self.full_clean()
+        super().save(*args, **kwargs)
+
+    def __str__(self):
+        return f'Payment for order #{self.order_id}: {self.get_status_display()}'

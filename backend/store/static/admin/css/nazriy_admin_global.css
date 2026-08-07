@@ -253,6 +253,26 @@ body:not(.nazriy-dashboard-page) textarea {
   padding: 9px 11px;
 }
 
+/* Django gives compact selects a 30px intrinsic height. The shared 9px
+   padding above then leaves too little room for the option text, causing the
+   selected value to be cut off in list-edit rows and change forms. */
+body:not(.nazriy-dashboard-page) select:not([multiple]) {
+  box-sizing: border-box;
+  height: 42px;
+  line-height: 1.25;
+  min-height: 42px;
+  padding: 8px 34px 8px 11px;
+  vertical-align: middle;
+}
+
+body:not(.nazriy-dashboard-page) #changelist select:not([multiple]),
+body:not(.nazriy-dashboard-page) #changelist .actions select {
+  height: 38px;
+  min-height: 38px;
+  padding-bottom: 6px;
+  padding-top: 6px;
+}
+
 body:not(.nazriy-dashboard-page) #result_list thead th {
   background: #f3f6f4;
   border-color: #e3e9e6;
@@ -319,4 +339,427 @@ body:not(.nazriy-dashboard-page) .submit-row {
   body:not(.nazriy-dashboard-page) #content {
     padding: 20px 14px;
   }
+}
+
+/* Professional shared administration shell */
+body:not(.nazriy-dashboard-page):not(.login) #header {
+  position: sticky;
+  top: 0;
+  z-index: 80;
+}
+
+body:not(.nazriy-dashboard-page):not(.login) div.breadcrumbs {
+  margin-left: 260px;
+  padding-left: 30px;
+}
+
+body:not(.nazriy-dashboard-page):not(.login) #main > .content {
+  box-sizing: border-box;
+  margin-left: 260px;
+  min-width: 0;
+  width: calc(100% - 260px);
+}
+
+body:not(.nazriy-dashboard-page) #nav-sidebar.nz-page-sidebar {
+  background: #06140f;
+  border: 0;
+  bottom: 0;
+  box-shadow: 8px 0 26px rgba(5, 24, 16, .08);
+  box-sizing: border-box;
+  color: #d8e5df;
+  display: flex;
+  flex-direction: column;
+  left: 0;
+  margin-left: 0 !important;
+  min-width: 260px;
+  overflow: hidden;
+  position: fixed;
+  top: 68px;
+  width: 260px;
+  z-index: 70;
+  visibility: visible;
+}
+
+.nz-page-sidebar-head {
+  align-items: center;
+  border-bottom: 1px solid rgba(255,255,255,.08);
+  color: #6f8b7f;
+  display: flex;
+  flex: 0 0 auto;
+  font-size: 10px;
+  font-weight: 700;
+  justify-content: space-between;
+  letter-spacing: .12em;
+  min-height: 57px;
+  padding: 0 17px 0 21px;
+  text-transform: uppercase;
+}
+
+body:not(.nazriy-dashboard-page) #nav-sidebar .nz-page-sidebar-head a {
+  align-items: center;
+  background: #d9ad42;
+  border-radius: 8px;
+  color: #10231a !important;
+  display: flex;
+  font-size: 20px;
+  font-weight: 500;
+  height: 31px;
+  justify-content: center;
+  padding: 0;
+  width: 31px;
+}
+
+.nz-sidebar-menu {
+  display: flex;
+  flex: 1 1 auto;
+  flex-direction: column;
+  gap: 5px;
+  overflow-y: auto;
+  padding: 16px 12px;
+  scrollbar-color: #254438 transparent;
+  scrollbar-width: thin;
+}
+
+.nz-sidebar-menu a,
+.nz-menu-group summary {
+  align-items: center;
+  border-radius: 8px;
+  box-sizing: border-box;
+  color: #b6c8bf !important;
+  cursor: pointer;
+  display: flex !important;
+  font-size: 12px;
+  font-weight: 600;
+  gap: 11px;
+  line-height: 1.3;
+  min-height: 42px;
+  padding: 9px 12px !important;
+  text-decoration: none;
+  transition: background .18s ease, color .18s ease, transform .18s ease;
+}
+
+.nz-sidebar-menu a:hover,
+.nz-menu-group summary:hover {
+  background: rgba(255,255,255,.065) !important;
+  color: #fff !important;
+}
+
+.nz-sidebar-menu a.active,
+.nz-sidebar-menu .nz-menu-home.active {
+  background: linear-gradient(90deg, rgba(22,163,99,.28), rgba(22,163,99,.1)) !important;
+  box-shadow: inset 3px 0 0 #38c985;
+  color: #fff !important;
+}
+
+.nz-menu-home {
+  margin-bottom: 5px;
+}
+
+.nz-menu-icon {
+  color: #71a78d;
+  display: inline-grid;
+  flex: 0 0 20px;
+  font-size: 16px;
+  font-weight: 400;
+  place-items: center;
+}
+
+.nz-sidebar-menu a.active .nz-menu-icon {
+  color: #70dfa9;
+}
+
+.nz-menu-group {
+  border-top: 1px solid rgba(255,255,255,.055);
+  padding-top: 5px;
+}
+
+.nz-menu-group summary {
+  color: #789084 !important;
+  font-size: 9px;
+  letter-spacing: .13em;
+  list-style: none;
+  min-height: 35px;
+  text-transform: uppercase;
+}
+
+.nz-menu-group summary::-webkit-details-marker { display: none; }
+.nz-menu-group summary i {
+  border-bottom: 1px solid currentColor;
+  border-right: 1px solid currentColor;
+  height: 6px;
+  margin-left: auto;
+  transform: rotate(45deg);
+  transition: transform .18s ease;
+  width: 6px;
+}
+.nz-menu-group[open] summary i { transform: rotate(225deg); }
+.nz-menu-group > div { display: grid; gap: 3px; padding-bottom: 5px; }
+.nz-menu-group > div a { padding-left: 15px !important; }
+
+.nz-page-sidebar-footer {
+  align-items: center;
+  border-top: 1px solid rgba(255,255,255,.08);
+  display: grid;
+  flex: 0 0 auto;
+  gap: 10px;
+  grid-template-columns: 34px 1fr;
+  padding: 15px 18px;
+}
+.nz-page-sidebar-footer > span {
+  background: linear-gradient(145deg,#178b5a,#0c6842);
+  border-radius: 50%;
+  color: #fff;
+  display: grid;
+  font-size: 12px;
+  font-weight: 700;
+  height: 34px;
+  place-items: center;
+  width: 34px;
+}
+.nz-page-sidebar-footer div { display: flex; flex-direction: column; min-width: 0; }
+.nz-page-sidebar-footer strong { color: #f1f7f4; font-size: 11px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.nz-page-sidebar-footer small { color: #6f8b7f; font-size: 9px; margin-top: 2px; }
+
+body:not(.nazriy-dashboard-page) #content {
+  margin: 0 auto;
+  max-width: 1680px;
+  padding: 32px 34px 54px;
+}
+
+body:not(.nazriy-dashboard-page) #content h1 {
+  font-size: clamp(22px, 2vw, 29px);
+  letter-spacing: -.025em;
+}
+
+body:not(.nazriy-dashboard-page) #changelist {
+  display: flex;
+  gap: 18px;
+}
+
+body:not(.nazriy-dashboard-page) #changelist .changelist-form-container {
+  flex: 1 1 auto;
+  min-width: 0;
+}
+
+body:not(.nazriy-dashboard-page) #changelist-filter {
+  align-self: flex-start;
+  flex: 0 0 265px;
+  margin: 0;
+  max-height: calc(100vh - 155px);
+  overflow-y: auto;
+  position: sticky;
+  top: 86px;
+}
+
+body:not(.nazriy-dashboard-page) #result_list {
+  border-collapse: separate;
+  border-spacing: 0;
+}
+
+body:not(.nazriy-dashboard-page) #result_list thead th {
+  padding: 13px 12px;
+  white-space: nowrap;
+}
+
+body:not(.nazriy-dashboard-page) #result_list tbody tr {
+  transition: background .14s ease;
+}
+
+body:not(.nazriy-dashboard-page) .submit-row {
+  bottom: 16px;
+  box-shadow: 0 10px 30px rgba(9,44,32,.1);
+  position: sticky;
+  z-index: 10;
+}
+
+body:not(.nazriy-dashboard-page) fieldset.module > h2,
+body:not(.nazriy-dashboard-page) .inline-group > h2 {
+  background: #0a3023;
+  color: #fff;
+  font-size: 12px;
+  letter-spacing: .06em;
+  padding: 14px 18px;
+  text-transform: uppercase;
+}
+
+body:not(.nazriy-dashboard-page) .form-row {
+  border-bottom-color: #edf1ef;
+  padding: 16px 18px;
+}
+
+/* Keep Django's foreign-key selector and its related-object actions aligned.
+   The stock admin icons otherwise inherit uneven intrinsic sizes and can make
+   fields such as Category look clipped or crowded. */
+body:not(.nazriy-dashboard-page) .related-widget-wrapper {
+  align-items: center;
+  display: inline-flex;
+  flex-wrap: nowrap;
+  gap: 7px;
+  max-width: 100%;
+  vertical-align: middle;
+}
+
+body:not(.nazriy-dashboard-page) .related-widget-wrapper select {
+  box-sizing: border-box;
+  flex: 1 1 280px;
+  height: 42px;
+  margin: 0;
+  min-width: 190px;
+  width: min(100%, 420px);
+}
+
+body:not(.nazriy-dashboard-page) .related-widget-wrapper-link {
+  align-items: center;
+  background: #fff;
+  border: 1px solid #d8e1dc;
+  border-radius: 7px;
+  box-sizing: border-box;
+  display: inline-flex;
+  flex: 0 0 36px;
+  height: 36px;
+  justify-content: center;
+  margin: 0;
+  overflow: hidden;
+  padding: 0 !important;
+  transition: background .15s ease, border-color .15s ease, box-shadow .15s ease;
+  width: 36px;
+}
+
+body:not(.nazriy-dashboard-page) .related-widget-wrapper-link:hover,
+body:not(.nazriy-dashboard-page) .related-widget-wrapper-link:focus-visible {
+  background: #eef8f3;
+  border-color: #16945b;
+  box-shadow: 0 0 0 3px rgba(22,148,91,.12);
+  outline: 0;
+}
+
+body:not(.nazriy-dashboard-page) .related-widget-wrapper-link img {
+  display: block;
+  height: 18px;
+  margin: 0;
+  object-fit: contain;
+  width: 18px;
+}
+
+@media (max-width: 600px) {
+  body:not(.nazriy-dashboard-page) .related-widget-wrapper {
+    display: flex;
+    width: 100%;
+  }
+
+  body:not(.nazriy-dashboard-page) .related-widget-wrapper select {
+    min-width: 0;
+    width: auto;
+  }
+}
+
+body:not(.nazriy-dashboard-page) .help,
+body:not(.nazriy-dashboard-page) p.help {
+  color: #75827c;
+}
+
+body:not(.nazriy-dashboard-page) input:focus,
+body:not(.nazriy-dashboard-page) select:focus,
+body:not(.nazriy-dashboard-page) textarea:focus {
+  border-color: #16945b;
+  box-shadow: 0 0 0 3px rgba(22,148,91,.12);
+  outline: 0;
+}
+
+/* Payment operations */
+.nz-payment-heading { margin: 0 0 24px; }
+.nz-payment-heading p { color: #b27a16; font-size: 11px; font-weight: 700; letter-spacing: .14em; margin: 0 0 7px; text-transform: uppercase; }
+.nz-payment-heading h1 { color: #09261c; font-size: 32px; line-height: 1.15; margin: 0 0 8px; }
+.nz-payment-heading span { color: #66756e; font-size: 14px; }
+.nz-payment-stats { display: grid; gap: 14px; grid-template-columns: repeat(4, minmax(0, 1fr)); margin: 0 0 24px; }
+.nz-payment-stats article { background: #fff; border: 1px solid #dce5e0; border-radius: 12px; box-shadow: 0 8px 24px rgba(9,44,32,.05); padding: 18px 20px; position: relative; }
+.nz-payment-stats article::before { background: #75857d; border-radius: 3px; content: ''; height: 4px; left: 20px; position: absolute; top: 0; width: 34px; }
+.nz-payment-stats article.paid::before { background: #15915a; }
+.nz-payment-stats article.pending::before { background: #d4a228; }
+.nz-payment-stats article.attention::before { background: #c95454; }
+.nz-payment-stats span, .nz-payment-stats small { color: #738078; display: block; }
+.nz-payment-stats span { font-size: 10px; font-weight: 700; letter-spacing: .1em; text-transform: uppercase; }
+.nz-payment-stats strong { color: #09261c; display: block; font-size: 24px; margin: 9px 0 4px; }
+.nz-payment-stats small { font-size: 11px; }
+#result_list .field-payment_order span, #result_list .field-payment_order small,
+#result_list .field-customer_details span, #result_list .field-customer_details small,
+#result_list .field-reference_display small, #result_list .field-updated_display small { display: block; }
+#result_list .field-payment_order .nz-payment-order, #result_list .field-customer_details .nz-payment-customer { color: #09261c; font-weight: 700; }
+#result_list .field-payment_order small, #result_list .field-customer_details small,
+#result_list .field-reference_display small, #result_list .field-updated_display small { color: #7b8781; font-size: 10px; margin-top: 4px; }
+.nz-payment-amount { color: #09261c; font-size: 14px; white-space: nowrap; }
+.nz-payment-method, .nz-payment-status { align-items: center; border-radius: 999px; display: inline-flex; font-size: 11px; font-weight: 700; padding: 6px 10px; white-space: nowrap; }
+.nz-payment-method--bkash { background: #fff0f6; color: #b3115b; }
+.nz-payment-method--cash_on_delivery { background: #edf3f0; color: #365b4c; }
+.nz-payment-status { gap: 6px; }
+.nz-payment-status i { background: currentColor; border-radius: 50%; height: 6px; width: 6px; }
+.nz-payment-status--pending { background: #fff7df; color: #986b00; }
+.nz-payment-status--paid { background: #e8f7ef; color: #087445; }
+.nz-payment-status--failed { background: #feebeb; color: #ae2e2e; }
+.nz-payment-status--cancelled { background: #eef0f1; color: #626b67; }
+.nz-payment-reference { color: #274c3d; font-size: 11px; }
+.nz-payment-reference.muted { color: #8a948f; }
+.nz-payment-reference.waiting { color: #986b00; font-weight: 600; }
+.nz-payment-summary-link { font-size: 14px; font-weight: 700; }
+
+@media (max-width: 1250px) {
+  .nz-payment-stats { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+
+@media (max-width: 600px) {
+  .nz-payment-stats { grid-template-columns: 1fr; }
+}
+
+/* Login is deliberately clean and focused, without the workspace sidebar. */
+body.login {
+  background: radial-gradient(circle at 20% 15%, #164936 0, #0b241b 34%, #06100c 76%);
+  min-height: 100vh;
+}
+body.login #container {
+  background: #fff;
+  border: 1px solid rgba(255,255,255,.18);
+  border-radius: 16px;
+  box-shadow: 0 28px 70px rgba(0,0,0,.32);
+  margin-top: 11vh;
+  min-width: 390px;
+  overflow: hidden;
+}
+body.login #header { background: #fff; justify-content: center; padding: 24px; }
+body.login #branding { display: flex; justify-content: center; }
+body.login #content { padding: 28px 32px 34px; }
+body.login .form-row { padding: 0 0 18px; }
+body.login .submit-row { padding: 2px 0 0; }
+body.login .submit-row input { width: 100%; }
+
+@media (max-width: 1100px) {
+  body:not(.nazriy-dashboard-page):not(.login) div.breadcrumbs { margin-left: 230px; }
+  body:not(.nazriy-dashboard-page):not(.login) #main > .content { margin-left: 230px; width: calc(100% - 230px); }
+  body:not(.nazriy-dashboard-page) #nav-sidebar.nz-page-sidebar { min-width: 230px; width: 230px; }
+  body:not(.nazriy-dashboard-page) #changelist { display: block; }
+  body:not(.nazriy-dashboard-page) #changelist-filter { margin-top: 18px; max-height: none; position: static; width: auto; }
+}
+
+@media (max-width: 760px) {
+  body:not(.nazriy-dashboard-page):not(.login) div.breadcrumbs { margin-left: 0; padding-left: 16px; }
+  body:not(.nazriy-dashboard-page):not(.login) #main > .content { margin-left: 0; width: 100%; }
+  body:not(.nazriy-dashboard-page) #nav-sidebar.nz-page-sidebar {
+    box-shadow: 18px 0 45px rgba(0,0,0,.28);
+    top: 68px;
+    transform: translateX(-105%);
+    transition: transform .22s ease;
+    width: 260px;
+  }
+  body:not(.nazriy-dashboard-page) #main.shifted #nav-sidebar.nz-page-sidebar { transform: translateX(0); }
+  body:not(.nazriy-dashboard-page) #toggle-nav-sidebar {
+    background: #0a3023;
+    color: #fff;
+    display: block;
+    height: 42px;
+    position: fixed;
+    top: 78px;
+    width: 34px;
+    z-index: 81;
+  }
+  body:not(.nazriy-dashboard-page) #content { padding: 24px 14px 42px; }
+  body.login #container { margin: 8vh 16px 0; min-width: 0; width: calc(100% - 32px); }
 }

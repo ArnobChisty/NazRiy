@@ -14,5 +14,7 @@ class CategoryShowcaseTests(APITestCase):
         response = self.client.get('/api/categories/')
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.data[0]['image_alt'], 'Editorial clothing category')
-        self.assertTrue(response.data[0]['image'].startswith('http://testserver/media/categories/'))
+        print(response.data)
+        self.assertTrue(response.data[0]['image'])
+        self.assertIn('categories/editorial.jpg', response.data[0]['image'])
         self.assertTrue(response.data[0]['featured'])

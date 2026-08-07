@@ -8,8 +8,10 @@ import CartPage from './pages/CartPage'
 import HomePage from './pages/HomePage'
 import OrderDetailPage from './pages/OrderDetailPage'
 import OrdersPage from './pages/OrdersPage'
+import PasswordRecoveryPage from './pages/PasswordRecoveryPage'
 import ProductDetailsPage from './pages/ProductDetailsPage'
 import ProductListingPage from './pages/ProductListingPage'
+import { trackPageView } from './analytics'
 
 function AppContent() {
   const [path, setPath] = useState(window.location.pathname.replace(/\/$/, '') || '/')
@@ -18,8 +20,11 @@ function AppContent() {
     window.addEventListener('popstate', updatePath)
     return () => window.removeEventListener('popstate', updatePath)
   }, [])
+  useEffect(() => { trackPageView(window.location.pathname) }, [path])
   if (path === '/login') return <AuthPage mode="login" />
   if (path === '/register') return <AuthPage mode="register" />
+  if (path === '/forgot-password') return <PasswordRecoveryPage mode="request" />
+  if (path === '/reset-password') return <PasswordRecoveryPage mode="confirm" />
   if (path === '/account') return <ProtectedRoute><AccountPage /></ProtectedRoute>
   if (path === '/orders') return <ProtectedRoute><OrdersPage /></ProtectedRoute>
   if (path.startsWith('/orders/')) return <ProtectedRoute><OrderDetailPage orderId={decodeURIComponent(path.split('/')[2] || '')}/></ProtectedRoute>
