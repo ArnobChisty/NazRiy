@@ -29,7 +29,9 @@ const HeroSection = () => {
   const [paused, setPaused] = useState(false)
 
   useEffect(() => {
-    fetch(`${API_BASE}/banners/?placement=hero`)
+    // Banner content is managed in the admin panel, so never reuse a stale
+    // browser/CDN response after an upload or edit.
+    fetch(`${API_BASE}/banners/?placement=hero&_=${Date.now()}`, { cache: 'no-store' })
       .then(response => response.ok ? response.json() : Promise.reject())
       .then((data: Banner[]) => { if (data.length) { setSlides(data); setActive(0) } })
       .catch(() => undefined)
