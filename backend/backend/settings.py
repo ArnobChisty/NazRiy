@@ -195,7 +195,9 @@ STORAGES = {
     'staticfiles': {
         'BACKEND': (
             'django.contrib.staticfiles.storage.StaticFilesStorage'
-            if DEBUG else 'whitenoise.storage.CompressedManifestStaticFilesStorage'
+            # Vercel packages the Django function without running collectstatic.
+            # Use stable static URLs even when no manifest is present.
+            if DEBUG else 'whitenoise.storage.CompressedStaticFilesStorage'
         ),
     },
 }
