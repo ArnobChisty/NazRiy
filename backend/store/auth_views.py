@@ -77,12 +77,26 @@ class LoginView(APIView):
     permission_classes = [permissions.AllowAny]
 
     def post(self, request):
-        user = authenticate(username=request.data.get('username'), password=request.data.get('password'))
+        login_value = (request.data.get('username') or request.data.get('email') or '').strip()
+        password = request.data.get('password') or ''
+
+        if not login_value or not password:
+            return Response({'detail': 'Username/email and password are required.'}, status=400)
+
+        username = login_value
+
+        # If user entered email, find the related username first
+        if '@' in login_value:
+            matched_user = User.objects.filter(email__iexact=login_value, is_active=True).order_by('pk').first()
+            if matched_user:
+                username = matched_user.username
+
+        user = authenticate(username=username, password=password)
+
         if user is None:
-            return Response({'detail': 'Invalid username or password.'}, status=400)
+            return Response({'detail': 'Invalid username/email or password.'}, status=400)
+
         return Response({'token': make_token(user), 'user': user_data(user)})
-
-
 class LogoutView(APIView):
     permission_classes = [permissions.AllowAny]
 
