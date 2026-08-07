@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react'
+import { Analytics } from '@vercel/analytics/react'
 import AuthProvider from './components/AuthProvider'
 import CartProvider from './components/CartProvider'
 import ProtectedRoute from './components/ProtectedRoute'
@@ -36,5 +37,12 @@ function AppContent() {
 }
 
 export default function App() {
-  return <AuthProvider><CartProvider><AppContent /></CartProvider></AuthProvider>
+  return (
+    <AuthProvider>
+      <CartProvider>
+        <AppContent />
+        <Analytics />
+      </CartProvider>
+    </AuthProvider>
+  )
 }
