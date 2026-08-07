@@ -1,12 +1,13 @@
 from django.conf import settings
 from django.db import connection
+from django.db.models import Case, IntegerField, When
 from rest_framework import status
 from rest_framework.permissions import AllowAny
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
 from .repositories import CategoryRepository, ProductRepository
-from .models import NavigationLink, TopProduct
+from .models import NavigationLink, Product, TopProduct
 from .serializers import CategorySerializer, NavigationLinkSerializer, ProductSerializer, TopProductSerializer
 
 
@@ -68,3 +69,37 @@ class ProductDetailView(APIView):
         if product is None:
             return Response({"detail": "Product not found."}, status=status.HTTP_404_NOT_FOUND)
         return Response(ProductSerializer(product, context={"request": request}).data)
+
+
+class RecommendationListView(APIView):
+    """Return explainable, rule-based recommendations from the product catalog."""
+
+    permission_classes = [AllowAny]
+
+    def get(self, request):
+        slug = request.query_params.get("product", "").strip()
+        current = ProductRepository.get_by_slug(slug) if slug else None
+        category_id = current.category_id if current else None
+        size = request.query_params.get("size", "").strip()
+        color = request.query_params.get("color", "").strip()
+        try:
+            limit = min(max(int(request.query_params.get("limit", 4)), 1), 12)
+        except (TypeError, ValueError):
+            limit = 4
+
+        products = Product.objects.select_related("category").prefetch_related("images").filter(active=True)
+        if current:
+            products = products.exclude(pk=current.pk)
+        products = products.annotate(
+            category_score=Case(When(category_id=category_id, then=4) if category_id else When(featured=True, then=2), default=0, output_field=IntegerField()),
+            size_score=Case(When(available_sizes__icontains=size, then=2) if size else When(stock_quantity__gt=0, then=1), default=0, output_field=IntegerField()),
+            color_score=Case(When(available_colors__icontains=color, then=2) if color else When(featured=True, then=1), default=0, output_field=IntegerField()),
+        ).order_by("-category_score", "-size_score", "-color_score", "-featured", "-created_at")[:limit]
+        return Response(ProductSerializer(products, many=True, context={"request": request}).data)
+
+
+class RelatedProductListView(RecommendationListView):
+    def get(self, request, slug):
+        request.query_params._mutable = True
+        request.query_params["product"] = slug
+        return super().get(request)

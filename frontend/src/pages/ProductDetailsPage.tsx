@@ -1,10 +1,12 @@
 import { useEffect, useState } from 'react'
-import { ApiError, getProduct } from '../api'
+import { ApiError, getProduct, getRelatedProducts } from '../api'
+import { trackItemEvent } from '../analytics'
 import Navbar from '../components/Navbar'
 import ProductArtwork from '../components/ProductArtwork'
 import { formatPrice } from '../format'
 import type { Product } from '../types'
 import { useCart } from '../useCart'
+import RecommendationSection from '../components/RecommendationSection'
 
 interface ProductDetailsPageProps { slug: string }
 
@@ -20,6 +22,7 @@ const ProductDetailsPage = ({ slug }: ProductDetailsPageProps) => {
   const [quantity, setQuantity] = useState(1)
   const [notice, setNotice] = useState('')
   const [retryKey, setRetryKey] = useState(0)
+  const [related, setRelated] = useState<Product[]>([])
 
   useEffect(() => {
     let active = true
@@ -27,6 +30,8 @@ const ProductDetailsPage = ({ slug }: ProductDetailsPageProps) => {
       .then((data) => {
         if (!active) return
         setProduct(data); setSelectedImage(data.primary_image); setSize(data.available_sizes[0] || ''); setColor(data.available_colors[0] || '')
+        trackItemEvent('view_item', data)
+        getRelatedProducts(data.slug).then(setRelated).catch(() => setRelated([]))
       })
       .catch((requestError: unknown) => {
         if (!active) return
@@ -42,6 +47,7 @@ const ProductDetailsPage = ({ slug }: ProductDetailsPageProps) => {
   const addSelectionToCart = (goToCart = false) => {
     if (!product) return
     addItem(product, size, color, quantity)
+    trackItemEvent('add_to_cart', product, quantity)
     setNotice(`${quantity} × ${product.name} added to your cart.`)
     window.setTimeout(() => setNotice(''), 3200)
     if (goToCart) window.location.href = '/cart'
@@ -91,6 +97,7 @@ const ProductDetailsPage = ({ slug }: ProductDetailsPageProps) => {
             </section>
           </div>
         )}
+        {!loading && product && <RecommendationSection products={related} />}
       </main>
     </div>
   )

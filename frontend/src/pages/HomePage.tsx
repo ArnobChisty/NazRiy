@@ -78,8 +78,8 @@ const HomePage = () => {
       <footer id="contact">
         <div className="footer-intro"><a className="footer-brand" href="#top" aria-label="NazRiy home"><img src="/brand/nazriy-logo.jpeg" alt="NazRiy — Luxury in Budget" /></a><p>Modern apparel. Curated style.</p></div>
         <div className="footer-column"><h3>Explore</h3><a href="#top">Home</a><a href="/products">Shop</a><a href="#about">The vision</a></div>
-        <div className="footer-column"><h3>Contact</h3><a href="mailto:hello@nazriy.com">hello@nazriy.com</a><span>Dhaka, Bangladesh</span></div>
-        <div className="footer-column"><h3>Follow</h3><a href="#contact">Instagram</a><a href="#contact">Facebook</a><a href="#contact">Pinterest</a></div>
+        <div className="footer-column"><h3>Contact</h3><a href="mailto:nazriy.bd@gmail.com">nazriy.bd@gmail.com</a><span>Dhaka, Bangladesh</span></div>
+        <div className="footer-column"><h3>Follow</h3><a href="https://www.instagram.com/nazriy.bd?igsh=MXNzNXZ4Nmc3eXVsbw==" target="_blank" rel="noreferrer">Instagram</a><a href="https://www.facebook.com/share/1JNBh2E9qk/" target="_blank" rel="noreferrer">Facebook</a></div>
         <p className="copyright">© 2026 NAZRIY · EST. 2024</p>
       </footer>
     </div>

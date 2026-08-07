@@ -8,7 +8,7 @@ from .banner_views import BannerListView
 from .sprint3_views import CartItemView, CartView, CheckoutView
 from .sprint4_views import CustomerOrderDetailView, CustomerOrderListView
 from .sprint5_views import BkashPaymentView
-from .views import CategoryListView, FeaturedProductListView, HealthCheckView, NavigationLinkListView, ProductDetailView, ProductListView, TopProductListView
+from .views import CategoryListView, FeaturedProductListView, HealthCheckView, NavigationLinkListView, ProductDetailView, ProductListView, RecommendationListView, RelatedProductListView, TopProductListView
 
 urlpatterns = [
     path('health/', HealthCheckView.as_view(), name='health-check'),
@@ -30,6 +30,8 @@ urlpatterns = [
     path('categories/', CategoryListView.as_view(), name='category-list'),
     path('products/', ProductListView.as_view(), name='product-list'),
     path('products/featured/', FeaturedProductListView.as_view(), name='featured-products'),
+    path('products/<slug:slug>/related/', RelatedProductListView.as_view(), name='related-products'),
+    path('recommendations/', RecommendationListView.as_view(), name='recommendations'),
     path('top-products/', TopProductListView.as_view(), name='top-products'),
     path('navigation-links/', NavigationLinkListView.as_view(), name='navigation-links'),
     path('products/<slug:slug>/', ProductDetailView.as_view(), name='product-detail'),
