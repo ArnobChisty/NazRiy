@@ -3,6 +3,7 @@ import { formatPrice } from '../format'
 import type { Product } from '../types'
 import { useCart } from '../useCart'
 import ProductArtwork from './ProductArtwork'
+import { trackItemEvent } from '../analytics'
 
 interface ProductCardProps { product: Product }
 
@@ -15,6 +16,7 @@ const ProductCard = ({ product }: ProductCardProps) => {
     const size = product.available_sizes[0] || 'One Size'
     const color = product.available_colors[0] || 'Default'
     addItem(product, size, color, 1)
+    trackItemEvent('add_to_cart', product)
     setAdded(true)
     window.setTimeout(() => setAdded(false), 1300)
   }

@@ -8,6 +8,7 @@ import type { CustomerOrder, PaymentInfo } from '../types'
 import { useAuth } from '../useAuth'
 import { useCart } from '../useCart'
 import './Sprint3.css'
+import { trackEvent, trackItemEvent } from '../analytics'
 
 type CheckoutState = 'idle' | 'creating' | 'processing' | 'failed' | 'complete' | 'cancelled'
 type PaymentMethod = 'bkash' | 'cash_on_delivery'
@@ -117,6 +118,7 @@ export default function CartPage() {
     }
 
     setState('creating')
+    trackEvent('begin_checkout', { currency: 'BDT', value: total, items: JSON.stringify(items.map(item => ({ item_id: String(item.product.id), item_name: item.product.name, price: Number(item.product.price), quantity: item.quantity }))) })
     try {
       const response = await authFetch('/orders/checkout/', {
         method: 'POST',
@@ -140,6 +142,7 @@ export default function CartPage() {
       const nextOrder = data as CustomerOrder
       setOrder(nextOrder)
       setPayment(nextOrder.payment)
+      trackEvent('purchase', { transaction_id: String(nextOrder.id), currency: 'BDT', value: Number(nextOrder.total), items: JSON.stringify(items.map(item => ({ item_id: String(item.product.id), item_name: item.product.name, price: Number(item.product.price), quantity: item.quantity }))) })
       clearCart()
       if (paymentMethod === 'cash_on_delivery') {
         setState('complete')
@@ -294,7 +297,7 @@ export default function CartPage() {
                     {item.size && <span>Size: {item.size}</span>}
                     {item.color && <span>Colour: {item.color}</span>}
                   </div>
-                  <button className="remove-item" onClick={() => removeItem(item.key)}>Remove</button>
+                  <button className="remove-item" onClick={() => { trackItemEvent('remove_from_cart', item.product, item.quantity); removeItem(item.key) }}>Remove</button>
                 </div>
                 <div className="cart-item-controls">
                   <div className="cart-quantity" aria-label={`Quantity for ${item.product.name}`}>

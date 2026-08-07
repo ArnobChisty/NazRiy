@@ -10,5 +10,8 @@ import './pages/Sprint4Mobile.css'
 import './rise-inspired.css'
 import './nazriy-noir.css'
 import './sprint6.css'
+import './recommendations.css'
 import App from './App.tsx'
+import { initAnalytics } from './analytics'
+initAnalytics()
 createRoot(document.getElementById('root')!).render(<StrictMode><App /></StrictMode>)
