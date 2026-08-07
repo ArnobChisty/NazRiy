@@ -30,3 +30,5 @@ Thumbs.db
 # Local agent metadata
 .agents/
 .codex/
+.vercel
+.env*
