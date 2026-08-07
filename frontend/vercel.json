@@ -2,6 +2,7 @@
   "rewrites": [
     { "source": "/admin", "destination": "https://nazriy-api.vercel.app/admin/" },
     { "source": "/admin/(.*)", "destination": "https://nazriy-api.vercel.app/admin/$1" },
+    { "source": "/admin-theme.css", "destination": "https://nazriy-api.vercel.app/admin-theme.css" },
     { "source": "/static/:path*", "destination": "https://nazriy-api.vercel.app/static/:path*" },
     { "source": "/media/:path*", "destination": "https://nazriy-api.vercel.app/media/:path*" },
     { "source": "/(.*)", "destination": "/index.html" }

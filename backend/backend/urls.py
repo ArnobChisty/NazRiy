@@ -17,9 +17,20 @@ Including another URLconf
 from django.contrib import admin
 from django.conf import settings
 from django.conf.urls.static import static
+from django.http import FileResponse
 from django.urls import include, path
 
+
+def admin_theme_css(request):
+    """Serve the project-owned admin theme without Vercel static-file caching."""
+    theme_file = settings.BASE_DIR / 'store' / 'static' / 'admin' / 'css' / 'nazriy_admin_global.css'
+    response = FileResponse(theme_file.open('rb'), content_type='text/css')
+    response['Cache-Control'] = 'no-store, no-cache, must-revalidate, max-age=0'
+    response['Pragma'] = 'no-cache'
+    return response
+
 urlpatterns = [
+    path('admin-theme.css', admin_theme_css, name='admin-theme-css'),
     path('admin/', admin.site.urls),
     path('api/', include('store.urls')),
 ]
