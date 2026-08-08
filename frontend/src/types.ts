@@ -67,6 +67,29 @@ export interface NavigationLink {
   open_in_new_tab: boolean
 }
 
+export interface Banner {
+  id: number
+  eyebrow: string
+  title: string
+  description: string
+  desktop_image: string
+  mobile_image: string
+  image_alt: string
+  primary_button_label: string
+  primary_button_link: string
+  secondary_button_label: string
+  secondary_button_link: string
+  theme: string
+  object_position: string
+}
+
+export interface HomepageData {
+  banners: Banner[]
+  top_products: TopProduct[]
+  featured_products: Product[]
+  navigation_links: NavigationLink[]
+}
+
 export interface AccountUser {
   id: number
   username: string

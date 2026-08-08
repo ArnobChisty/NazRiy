@@ -1,14 +1,39 @@
 from django.conf import settings
 from django.db import connection
 from django.db.models import Case, IntegerField, When
+from django.db.models import Q
+from django.utils import timezone
 from rest_framework import status
 from rest_framework.permissions import AllowAny
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
 from .repositories import CategoryRepository, ProductRepository
-from .models import NavigationLink, Product, TopProduct
+from .models import Banner, NavigationLink, Product, TopProduct
+from .banner_serializers import BannerSerializer
 from .serializers import CategorySerializer, NavigationLinkSerializer, ProductSerializer, TopProductSerializer
+
+
+class PublicCatalogView(APIView):
+    """Public, edge-cacheable catalogue responses.
+
+    Disabling session authentication prevents Django from adding ``Vary:
+    Cookie`` to anonymous catalogue responses, which would otherwise stop
+    Vercel from caching them at the edge.
+    """
+
+    authentication_classes = []
+    permission_classes = [AllowAny]
+    cache_seconds = 60
+
+    def finalize_response(self, request, response, *args, **kwargs):
+        response = super().finalize_response(request, response, *args, **kwargs)
+        if response.status_code == status.HTTP_200_OK:
+            response['Cache-Control'] = (
+                f'public, max-age=0, s-maxage={self.cache_seconds}, '
+                f'stale-while-revalidate={self.cache_seconds * 4}'
+            )
+        return response
 
 
 class HealthCheckView(APIView):
@@ -33,42 +58,72 @@ class HealthCheckView(APIView):
         })
 
 
-class CategoryListView(APIView):
+class CategoryListView(PublicCatalogView):
+    cache_seconds = 300
     def get(self, request):
         categories = CategoryRepository.list_categories()
         return Response(CategorySerializer(categories, many=True, context={"request": request}).data)
 
 
-class ProductListView(APIView):
+class ProductListView(PublicCatalogView):
     def get(self, request):
         products = ProductRepository.list_products(request.query_params)
         return Response(ProductSerializer(products, many=True, context={"request": request}).data)
 
 
-class FeaturedProductListView(APIView):
+class FeaturedProductListView(PublicCatalogView):
     def get(self, request):
         products = ProductRepository.featured_products()
         return Response(ProductSerializer(products, many=True, context={"request": request}).data)
 
 
-class TopProductListView(APIView):
+class TopProductListView(PublicCatalogView):
     def get(self, request):
         placements = TopProduct.objects.filter(active=True, product__active=True).select_related("product__category").prefetch_related("product__images", "product__size_chart")
         return Response(TopProductSerializer(placements, many=True, context={"request": request}).data)
 
 
-class NavigationLinkListView(APIView):
+class NavigationLinkListView(PublicCatalogView):
+    cache_seconds = 300
     def get(self, request):
         links = NavigationLink.objects.filter(active=True)
         return Response(NavigationLinkSerializer(links, many=True).data)
 
 
-class ProductDetailView(APIView):
+class ProductDetailView(PublicCatalogView):
     def get(self, request, slug):
         product = ProductRepository.get_by_slug(slug)
         if product is None:
             return Response({"detail": "Product not found."}, status=status.HTTP_404_NOT_FOUND)
         return Response(ProductSerializer(product, context={"request": request}).data)
+
+
+class HomepageView(PublicCatalogView):
+    """Return all database-managed homepage content in one serverless call."""
+
+    cache_seconds = 30
+
+    def get(self, request):
+        now = timezone.now()
+        banners = (
+            Banner.objects.filter(active=True, placement='hero')
+            .filter(Q(starts_at__isnull=True) | Q(starts_at__lte=now))
+            .filter(Q(ends_at__isnull=True) | Q(ends_at__gte=now))
+        )
+        placements = (
+            TopProduct.objects.filter(active=True, product__active=True)
+            .select_related('product__category')
+            .prefetch_related('product__images', 'product__size_chart')
+        )
+        featured = ProductRepository.featured_products()[:8]
+        links = NavigationLink.objects.filter(active=True)
+        context = {'request': request}
+        return Response({
+            'banners': BannerSerializer(banners, many=True, context=context).data,
+            'top_products': TopProductSerializer(placements, many=True, context=context).data,
+            'featured_products': ProductSerializer(featured, many=True, context=context).data,
+            'navigation_links': NavigationLinkSerializer(links, many=True).data,
+        })
 
 
 class RecommendationListView(APIView):

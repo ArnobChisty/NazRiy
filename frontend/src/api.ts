@@ -1,4 +1,4 @@
-import type { Category, NavigationLink, Product, ProductFilters, TopProduct } from './types'
+import type { Category, HomepageData, NavigationLink, Product, ProductFilters, TopProduct } from './types'
 
 const API_BASE = import.meta.env.VITE_API_URL || 'http://127.0.0.1:8000/api'
 
@@ -32,6 +32,7 @@ export const getFeaturedProducts = () => request<Product[]>('/products/featured/
 export const getTopProducts = () => request<TopProduct[]>('/top-products/')
 export const getNavigationLinks = () => request<NavigationLink[]>('/navigation-links/')
 export const getCategories = () => request<Category[]>('/categories/')
+export const getHomepageData = () => request<HomepageData>('/homepage/')
 export const getProduct = (slug: string) => request<Product>(`/products/${slug}/`)
 export const getRelatedProducts = (slug: string, limit = 4) => request<Product[]>(`/products/${encodeURIComponent(slug)}/related/?limit=${limit}`)
 export const getRecommendations = (limit = 4) => request<Product[]>(`/recommendations/?limit=${limit}`)

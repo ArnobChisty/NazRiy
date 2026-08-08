@@ -1,25 +1,27 @@
 import { useEffect, useState } from 'react'
-import { getFeaturedProducts, getProducts } from '../api'
+import { getFeaturedProducts, getHomepageData, getProducts } from '../api'
 import HeroSection from '../components/HeroSection'
 import HomeLogin from '../components/HomeLogin'
 import Navbar from '../components/Navbar'
 import ProductCard from '../components/ProductCard'
 import TopCategories from '../components/TopCategories'
-import type { Product } from '../types'
+import type { HomepageData, Product } from '../types'
 
 const HomePage = () => {
   const [email, setEmail] = useState('')
   const [subscribed, setSubscribed] = useState(false)
   const [products, setProducts] = useState<Product[]>([])
+  const [homepage, setHomepage] = useState<HomepageData | null>(null)
 
   useEffect(() => {
-    getFeaturedProducts()
-      .then(async featured => {
-        if (featured.length) return featured
+    getHomepageData()
+      .then(async data => {
+        setHomepage(data)
+        if (data.featured_products.length) return data.featured_products
         return getProducts({ search: '', category: '', min_price: '', max_price: '', size: '', color: '', ordering: 'newest' })
       })
       .then(setProducts)
-      .catch(() => undefined)
+      .catch(() => getFeaturedProducts().then(setProducts).catch(() => undefined))
   }, [])
 
   useEffect(() => {
@@ -46,10 +48,10 @@ const HomePage = () => {
 
   return (
     <div className="site-shell">
-      <Navbar />
+      <Navbar links={homepage?.navigation_links ?? []} />
       <main id="main-content">
-        <HeroSection />
-        <TopCategories />
+        <HeroSection banners={homepage?.banners ?? []} />
+        <TopCategories products={homepage?.top_products ?? []} />
         {products.length > 0 && <section className="home-collection" aria-labelledby="collection-title">
           <div className="home-collection-title" data-reveal><span/><div><p>Apparel</p><h2 id="collection-title">The NazRiy collection</h2></div><span/></div>
           <div className="home-product-grid">{products.slice(0, 8).map(product => <ProductCard product={product} key={product.id}/>)}</div>

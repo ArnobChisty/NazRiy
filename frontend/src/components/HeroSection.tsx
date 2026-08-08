@@ -1,41 +1,32 @@
 import { useEffect, useState } from 'react'
+import type { Banner } from '../types'
 
 const API_BASE = import.meta.env.VITE_API_URL || 'http://127.0.0.1:8000/api'
-
-type Banner = {
-  id: number
-  eyebrow: string
-  title: string
-  description: string
-  desktop_image: string
-  mobile_image: string
-  image_alt: string
-  primary_button_label: string
-  primary_button_link: string
-  secondary_button_label: string
-  secondary_button_link: string
-  theme: string
-  object_position: string
-}
 
 const fallback: Banner[] = [
   { id: -1, eyebrow: 'Modern apparel · curated style', title: 'Prints made to be remembered.', description: 'Expressive florals, considered details, and an effortless silhouette for celebrations and slow afternoons.', desktop_image: '/banners/nazriy-look-1.jpeg', mobile_image: '', image_alt: 'NazRiy burgundy floral outfit', primary_button_label: 'Explore collection', primary_button_link: '/products', secondary_button_label: '', secondary_button_link: '#featured', theme: 'burgundy', object_position: 'center 42%' },
   { id: -2, eyebrow: 'The NazRiy collection', title: 'A closer look at thoughtful design.', description: 'Rich colour and delicate finishing touches turn an everyday piece into something distinctly yours.', desktop_image: '/banners/nazriy-detail.jpeg', mobile_image: '', image_alt: 'Close-up of NazRiy floral details', primary_button_label: 'Shop now', primary_button_link: '/products', secondary_button_label: '', secondary_button_link: '#featured', theme: 'forest', object_position: 'center 48%' },
 ]
 
-const HeroSection = () => {
-  const [slides, setSlides] = useState<Banner[]>(fallback)
+interface HeroSectionProps { banners?: Banner[] }
+
+const HeroSection = ({ banners }: HeroSectionProps) => {
+  const [slides, setSlides] = useState<Banner[]>(banners?.length ? banners : fallback)
   const [active, setActive] = useState(0)
   const [paused, setPaused] = useState(false)
 
   useEffect(() => {
+    if (banners) {
+      if (banners.length) { setSlides(banners); setActive(0) }
+      return
+    }
     // Banner content is managed in the admin panel, so never reuse a stale
     // browser/CDN response after an upload or edit.
     fetch(`${API_BASE}/banners/?placement=hero&_=${Date.now()}`, { cache: 'no-store' })
       .then(response => response.ok ? response.json() : Promise.reject())
       .then((data: Banner[]) => { if (data.length) { setSlides(data); setActive(0) } })
       .catch(() => undefined)
-  }, [])
+  }, [banners])
 
   useEffect(() => {
     if (paused || slides.length < 2) return
@@ -49,7 +40,7 @@ const HeroSection = () => {
     <div className="editorial-slides">{slides.map((slide, index) =>
       <article className={`editorial-slide theme-${slide.theme} ${index === active ? 'active' : ''}`} aria-hidden={index !== active} key={slide.id}>
         <div className="noir-hero-brand" aria-hidden="true"><span>NAZ</span><span>RIY</span></div>
-        <picture>{slide.mobile_image && <source media="(max-width: 700px)" srcSet={slide.mobile_image}/>}<img src={slide.desktop_image} alt={slide.image_alt} style={{ objectPosition: slide.object_position }}/></picture>
+        <picture>{slide.mobile_image && <source media="(max-width: 700px)" srcSet={slide.mobile_image}/>}<img src={slide.desktop_image} alt={slide.image_alt} style={{ objectPosition: slide.object_position }} fetchPriority={index === 0 ? 'high' : 'low'} decoding="async"/></picture>
         <div className="hero-shade"/>
         <div className="editorial-copy">
           <p className="eyebrow">{slide.eyebrow || 'Modern apparel · curated style'}</p>

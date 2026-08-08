@@ -4,7 +4,10 @@ import type { NavigationLink } from '../types'
 import { useAuth } from '../useAuth'
 import { useCart } from '../useCart'
 
-interface NavbarProps { activePage?: 'home' | 'products' | 'cart' | 'account' | 'orders' }
+interface NavbarProps {
+  activePage?: 'home' | 'products' | 'cart' | 'account' | 'orders'
+  links?: NavigationLink[]
+}
 
 const SearchIcon = () => <svg aria-hidden="true" viewBox="0 0 24 24"><circle cx="10.5" cy="10.5" r="6.5"/><path d="m15.5 15.5 5 5"/></svg>
 const AccountIcon = () => <svg aria-hidden="true" viewBox="0 0 24 24"><circle cx="12" cy="7.5" r="3.5"/><path d="M4.5 21c.4-5 3-7.5 7.5-7.5s7.1 2.5 7.5 7.5"/></svg>
@@ -17,13 +20,13 @@ const defaultLinks: NavigationLink[] = [
   { id: -4, label: 'Our story', url: '/#about', sort_order: 4, open_in_new_tab: false },
 ]
 
-const Navbar = ({ activePage = 'home' }: NavbarProps) => {
+const Navbar = ({ activePage = 'home', links }: NavbarProps) => {
   const { itemCount } = useCart()
   const { user, restoring, logout } = useAuth()
   const [searchOpen, setSearchOpen] = useState(false)
   const [menuOpen, setMenuOpen] = useState(false)
   const [search, setSearch] = useState('')
-  const [navigationLinks, setNavigationLinks] = useState<NavigationLink[]>(defaultLinks)
+  const [navigationLinks, setNavigationLinks] = useState<NavigationLink[]>(links?.length ? links : defaultLinks)
 
   const isActiveLink = (link: NavigationLink) => {
     if (activePage !== 'products') return false
@@ -36,6 +39,10 @@ const Navbar = ({ activePage = 'home' }: NavbarProps) => {
   }
 
   useEffect(() => {
+    if (links) {
+      setNavigationLinks(links.length ? links : defaultLinks)
+      return
+    }
     getNavigationLinks()
       .then((links) => setNavigationLinks(links.map((link) => {
         // Older database records used a category text value that is not a
@@ -47,7 +54,7 @@ const Navbar = ({ activePage = 'home' }: NavbarProps) => {
         return link
       })))
       .catch(() => undefined)
-  }, [])
+  }, [links])
 
   const handleSearch = (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault()
