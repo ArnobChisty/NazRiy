@@ -65,6 +65,17 @@ h1, h2, h3 { color: var(--bone); }
 .noir-carousel > button { width: 34px; height: 34px; border: 0; background: transparent; }
 
 .noir-products { padding: clamp(64px, 8vh, 96px) 3.25% clamp(72px, 9vh, 110px); background: var(--noir); }
+.hero-loading { min-height: clamp(560px, 72vh, 760px); display: flex; align-items: flex-end; padding: 0 6% 11vh; background: linear-gradient(110deg, #171513 8%, #24211e 48%, #151311 90%); }
+.hero-loading::after, .home-section-loading i, .home-collection-loading i, .home-collection-loading>div:first-child { content: ''; display: block; background: linear-gradient(100deg, #211e1b 20%, #302b26 42%, #211e1b 64%); background-size: 220% 100%; animation: nazriy-skeleton 1.5s ease-in-out infinite; }
+.hero-loading::after { position: absolute; inset: 0; opacity: .48; }
+.hero-loading-copy { width: min(560px, 72vw); position: relative; z-index: 1; display: grid; gap: 15px; }
+.hero-loading-copy i { height: 12px; background: rgba(243,240,235,.14); }
+.hero-loading-copy i:nth-child(2) { width: 88%; height: 76px; }.hero-loading-copy i:nth-child(3) { width: 64%; }.hero-loading-copy i:nth-child(4) { width: 180px; height: 48px; }
+.home-section-loading .skeleton-heading div { width: min(520px, 70vw); display: grid; gap: 12px; }.home-section-loading .skeleton-heading i { width: 130px; height: 10px; }.home-section-loading .skeleton-heading div i:last-child { width: 100%; height: 62px; }
+.home-section-loading .category-showcase>i { height: clamp(360px, 54vh, 540px); }
+.home-collection-loading>div:first-child { width: min(760px, 80%); height: 92px; margin: 0 auto 70px; }
+.home-collection-loading .home-product-grid>i { min-height: 520px; }
+@keyframes nazriy-skeleton { 0% { background-position: 100% 0; } 100% { background-position: -100% 0; } }
 .noir-section-heading { margin-bottom: clamp(30px, 4vh, 44px); display: flex; align-items: end; justify-content: space-between; }
 .noir-section-heading p { margin: 0 0 14px; color: var(--gold); text-transform: uppercase; letter-spacing: .28em; font-size: 9px; }
 .noir-section-heading h2 { margin: 0; font-family: 'Instrument Serif', serif; font-size: clamp(62px, 7vw, 104px); font-weight: 400; line-height: .82; text-transform: lowercase; }

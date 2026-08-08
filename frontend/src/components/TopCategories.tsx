@@ -4,15 +4,19 @@ import type { TopProduct } from '../types'
 
 const fallbackTones = ['forest', 'clay', 'sage', 'sand']
 
-interface TopCategoriesProps { products?: TopProduct[] }
+interface TopCategoriesProps { products?: TopProduct[]; loading?: boolean }
 
-export default function TopCategories({ products }: TopCategoriesProps) {
+export default function TopCategories({ products, loading = false }: TopCategoriesProps) {
   const [fetchedTopProducts, setFetchedTopProducts] = useState<TopProduct[]>([])
   const topProducts = products ?? fetchedTopProducts
   useEffect(() => {
     if (products !== undefined) return
     getTopProducts().then(setFetchedTopProducts).catch(() => undefined)
   }, [products])
+  if (loading) return <section className="top-categories noir-products home-section-loading" aria-label="Loading top products" aria-busy="true">
+    <div className="noir-section-heading skeleton-heading" aria-hidden="true"><div><i/><i/></div><i/></div>
+    <div className="category-showcase" aria-hidden="true"><i/><i/></div>
+  </section>
   if (topProducts.length === 0) return null
 
   return <section className="top-categories noir-products" id="featured" aria-labelledby="top-products-title">

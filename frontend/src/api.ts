@@ -1,4 +1,4 @@
-import type { Category, HomepageData, NavigationLink, Product, ProductFilters, TopProduct } from './types'
+import type { Category, HomepageData, NavigationLink, Product, ProductAvailability, ProductFilters, TopProduct } from './types'
 
 const API_BASE = import.meta.env.VITE_API_URL || 'http://127.0.0.1:8000/api'
 
@@ -11,8 +11,8 @@ export class ApiError extends Error {
   }
 }
 
-const request = async <T,>(path: string): Promise<T> => {
-  const response = await fetch(`${API_BASE}${path}`)
+const request = async <T,>(path: string, init?: RequestInit): Promise<T> => {
+  const response = await fetch(`${API_BASE}${path}`, init)
   if (!response.ok) {
     throw new ApiError(response.status === 404 ? 'Product not found.' : 'The NazRiy API is unavailable.', response.status)
   }
@@ -34,5 +34,6 @@ export const getNavigationLinks = () => request<NavigationLink[]>('/navigation-l
 export const getCategories = () => request<Category[]>('/categories/')
 export const getHomepageData = () => request<HomepageData>('/homepage/')
 export const getProduct = (slug: string) => request<Product>(`/products/${slug}/`)
+export const getProductAvailability = (slug: string) => request<ProductAvailability>(`/products/${encodeURIComponent(slug)}/availability/?_=${Date.now()}`, { cache: 'no-store' })
 export const getRelatedProducts = (slug: string, limit = 4) => request<Product[]>(`/products/${encodeURIComponent(slug)}/related/?limit=${limit}`)
 export const getRecommendations = (limit = 4) => request<Product[]>(`/recommendations/?limit=${limit}`)

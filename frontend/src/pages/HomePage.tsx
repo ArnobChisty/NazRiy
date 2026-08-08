@@ -12,6 +12,7 @@ const HomePage = () => {
   const [subscribed, setSubscribed] = useState(false)
   const [products, setProducts] = useState<Product[]>([])
   const [homepage, setHomepage] = useState<HomepageData | null>(null)
+  const [homepageLoading, setHomepageLoading] = useState(true)
 
   useEffect(() => {
     getHomepageData()
@@ -22,6 +23,7 @@ const HomePage = () => {
       })
       .then(setProducts)
       .catch(() => getFeaturedProducts().then(setProducts).catch(() => undefined))
+      .finally(() => setHomepageLoading(false))
   }, [])
 
   useEffect(() => {
@@ -50,8 +52,9 @@ const HomePage = () => {
     <div className="site-shell">
       <Navbar links={homepage?.navigation_links ?? []} />
       <main id="main-content">
-        <HeroSection banners={homepage?.banners ?? []} />
-        <TopCategories products={homepage?.top_products ?? []} />
+        <HeroSection banners={homepage?.banners ?? []} loading={homepageLoading} />
+        <TopCategories products={homepage?.top_products ?? []} loading={homepageLoading} />
+        {homepageLoading && <section className="home-collection home-collection-loading" aria-label="Loading NazRiy collection" aria-busy="true"><div/><div className="home-product-grid" aria-hidden="true"><i/><i/></div></section>}
         {products.length > 0 && <section className="home-collection" aria-labelledby="collection-title">
           <div className="home-collection-title" data-reveal><span/><div><p>Apparel</p><h2 id="collection-title">The NazRiy collection</h2></div><span/></div>
           <div className="home-product-grid">{products.slice(0, 8).map(product => <ProductCard product={product} key={product.id}/>)}</div>

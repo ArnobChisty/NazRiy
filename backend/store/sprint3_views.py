@@ -32,7 +32,12 @@ class CheckoutView(ProtectedView):
         items=data.pop('items');lines=[];subtotal=Decimal('0')
         for entry in items:
             product=get_object_or_404(Product.objects.select_for_update(),pk=entry.get('product_id'));quantity=int(entry.get('quantity',0));size=entry.get('size','');color=entry.get('color','')
-            if quantity<1 or quantity>product.stock_quantity:return Response({'detail':f'Insufficient stock for {product.name}.'},status=400)
+            if quantity < 1:
+                return Response({'detail': f'Choose at least one {product.name}.'}, status=400)
+            if product.stock_quantity < 1:
+                return Response({'detail': f'{product.name} is out of stock.'}, status=400)
+            if quantity > product.stock_quantity:
+                return Response({'detail': f'Only {product.stock_quantity} of {product.name} remain in stock.'}, status=400)
             if size and size not in product.available_sizes:return Response({'detail':f'Invalid size for {product.name}.'},status=400)
             if color and color not in product.available_colors:return Response({'detail':f'Invalid colour for {product.name}.'},status=400)
             subtotal+=product.price*quantity;lines.append((product,quantity,size,color))

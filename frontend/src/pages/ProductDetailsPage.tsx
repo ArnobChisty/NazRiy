@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { ApiError, getProduct, getRelatedProducts } from '../api'
+import { ApiError, getProduct, getProductAvailability, getRelatedProducts } from '../api'
 import { trackItemEvent } from '../analytics'
 import Navbar from '../components/Navbar'
 import ProductArtwork from '../components/ProductArtwork'
@@ -25,6 +25,7 @@ const ProductDetailsPage = ({ slug }: ProductDetailsPageProps) => {
   const [notice, setNotice] = useState('')
   const [retryKey, setRetryKey] = useState(0)
   const [related, setRelated] = useState<Product[]>([])
+  const [checkingStock, setCheckingStock] = useState(false)
 
   useEffect(() => {
     let active = true
@@ -46,13 +47,33 @@ const ProductDetailsPage = ({ slug }: ProductDetailsPageProps) => {
 
   const retry = () => { setLoading(true); setError(''); setMissing(false); setRetryKey((value) => value + 1) }
 
-  const addSelectionToCart = (goToCart = false) => {
+  const addSelectionToCart = async (goToCart = false) => {
     if (!product) return
-    addItem(product, size, color, quantity)
-    trackItemEvent('add_to_cart', product, quantity)
-    setNotice(`${quantity} × ${product.name} added to your cart.`)
-    window.setTimeout(() => setNotice(''), 3200)
-    if (goToCart) window.location.href = '/cart'
+    setCheckingStock(true)
+    setNotice('')
+    try {
+      const availability = await getProductAvailability(product.slug)
+      const freshProduct = { ...product, stock_quantity: availability.stock_quantity, in_stock: availability.in_stock }
+      setProduct(freshProduct)
+      if (!availability.in_stock) {
+        setNotice(`${product.name} is currently out of stock.`)
+        return
+      }
+      if (quantity > availability.stock_quantity) {
+        setQuantity(availability.stock_quantity)
+        setNotice(`Only ${availability.stock_quantity} item${availability.stock_quantity === 1 ? '' : 's'} remain in stock.`)
+        return
+      }
+      addItem(freshProduct, size, color, quantity)
+      trackItemEvent('add_to_cart', freshProduct, quantity)
+      setNotice(`${quantity} × ${product.name} added to your cart.`)
+      window.setTimeout(() => setNotice(''), 3200)
+      if (goToCart) window.location.href = '/cart'
+    } catch {
+      setNotice('We could not confirm current stock. Please try again.')
+    } finally {
+      setCheckingStock(false)
+    }
   }
 
   const handleZoomMove = (event: React.MouseEvent<HTMLDivElement>) => {
@@ -116,7 +137,7 @@ const ProductDetailsPage = ({ slug }: ProductDetailsPageProps) => {
               )}
               {product.available_colors.length > 0 && <fieldset className="option-group color-options"><legend>Color <strong>{color}</strong></legend><div>{product.available_colors.map((item) => <button className={color === item ? 'active' : ''} type="button" key={item} onClick={() => setColor(item)}><span style={{ backgroundColor: item.toLowerCase() }} />{item}</button>)}</div></fieldset>}
               <div className="quantity-row"><span>Quantity</span><div><button type="button" onClick={() => setQuantity((value) => Math.max(1, value - 1))}>−</button><strong>{quantity}</strong><button type="button" onClick={() => setQuantity((value) => Math.min(product.stock_quantity || 1, value + 1))}>+</button></div></div>
-              <div className="purchase-actions"><button type="button" disabled={!product.in_stock} onClick={() => addSelectionToCart()}>Add to cart</button><button type="button" disabled={!product.in_stock} onClick={() => addSelectionToCart(true)}>Buy now</button></div>
+              <div className="purchase-actions"><button type="button" disabled={!product.in_stock || checkingStock} onClick={() => void addSelectionToCart()}>{checkingStock ? 'Checking stock…' : product.in_stock ? 'Add to cart' : 'Out of stock'}</button><button type="button" disabled={!product.in_stock || checkingStock} onClick={() => void addSelectionToCart(true)}>{checkingStock ? 'Checking stock…' : product.in_stock ? 'Buy now' : 'Out of stock'}</button></div>
               {notice && <p className="purchase-notice" role="status">{notice}</p>}
               <div className="detail-assurances"><span>✓ Carefully selected</span><span>✓ Easy exchange</span><span>✓ Dhaka delivery available</span></div>
             </section>

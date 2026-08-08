@@ -90,6 +90,13 @@ export interface HomepageData {
   navigation_links: NavigationLink[]
 }
 
+export interface ProductAvailability {
+  id: number
+  slug: string
+  stock_quantity: number
+  in_stock: boolean
+}
+
 export interface AccountUser {
   id: number
   username: string

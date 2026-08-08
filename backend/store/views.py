@@ -98,6 +98,27 @@ class ProductDetailView(PublicCatalogView):
         return Response(ProductSerializer(product, context={"request": request}).data)
 
 
+class ProductAvailabilityView(APIView):
+    """Return current stock without browser or edge caching."""
+
+    authentication_classes = []
+    permission_classes = [AllowAny]
+
+    def get(self, request, slug):
+        product = Product.objects.filter(slug=slug, active=True).only('id', 'slug', 'stock_quantity').first()
+        if product is None:
+            return Response({'detail': 'Product not found.'}, status=status.HTTP_404_NOT_FOUND)
+        response = Response({
+            'id': product.id,
+            'slug': product.slug,
+            'stock_quantity': product.stock_quantity,
+            'in_stock': product.stock_quantity > 0,
+        })
+        response['Cache-Control'] = 'no-store, no-cache, must-revalidate, max-age=0'
+        response['Pragma'] = 'no-cache'
+        return response
+
+
 class HomepageView(PublicCatalogView):
     """Return all database-managed homepage content in one serverless call."""
 
