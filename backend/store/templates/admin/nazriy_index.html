@@ -69,6 +69,18 @@
         </article>
       </section>
 
+      <section class="nz-management-panel" aria-label="Quick store management">
+        <div class="nz-section-label"><div><h2>Quick management</h2><span>Common client tasks in one place</span></div></div>
+        <div class="nz-management-grid">
+          <a href="{% url 'admin:store_product_changelist' %}"><i>01</i><strong>Products &amp; stock</strong><span>Add products, update photos, pricing and availability.</span></a>
+          <a href="{% url 'admin:store_banner_changelist' %}"><i>02</i><strong>Homepage banners</strong><span>Change hero images, messaging, buttons and schedules.</span></a>
+          <a href="{% url 'admin:store_navigationlink_changelist' %}"><i>03</i><strong>Navigation menu</strong><span>Control storefront links and their display order.</span></a>
+          <a href="{% url 'admin:store_order_changelist' %}"><i>04</i><strong>Orders</strong><span>Confirm, ship, deliver or cancel customer orders.</span></a>
+          <a href="{% url 'admin:store_payment_changelist' %}"><i>05</i><strong>Payments</strong><span>Verify bKash references and review payment status.</span></a>
+          <a href="{% url 'admin:store_orderemaillog_changelist' %}" class="{% if dashboard.email_failure_count %}needs-attention{% endif %}"><i>06</i><strong>Order emails</strong><span>{{ dashboard.email_sent_count }} sent &middot; {{ dashboard.email_failure_count }} need attention.</span></a>
+        </div>
+      </section>
+
       <section class="nz-panel nz-orders-table">
         <div class="nz-panel-heading"><div><h2>Recent orders</h2><small>Latest customer activity</small></div><a href="{% url 'admin:store_order_changelist' %}">All orders →</a></div>
         {% if dashboard.recent_orders %}<div class="nz-table-scroll"><table><thead><tr><th>Order</th><th>Customer</th><th>Date</th><th>Items</th><th>Total</th><th>Status</th><th></th></tr></thead><tbody>{% for order in dashboard.recent_orders %}<tr><td><strong>#{{ order.id|stringformat:"04d" }}</strong></td><td><span>{{ order.name }}</span><small>{{ order.email }}</small></td><td>{{ order.created_at|date:"d M Y" }}</td><td>{{ order.items.count }}</td><td><strong>৳{{ order.total|floatformat:0 }}</strong></td><td><span class="nz-status nz-status-{{ order.status }}">{{ order.get_status_display }}</span></td><td><a href="{% url 'admin:store_order_change' order.id %}">Open</a></td></tr>{% endfor %}</tbody></table></div>{% else %}<div class="nz-empty">New customer orders will appear here.</div>{% endif %}

@@ -1,6 +1,6 @@
 from rest_framework import serializers
 
-from .models import Category, NavigationLink, Product, TopProduct
+from .models import Category, NavigationLink, Product, ProductSizeMeasurement, TopProduct
 
 
 class CategorySerializer(serializers.ModelSerializer):
@@ -23,6 +23,12 @@ class CategorySerializer(serializers.ModelSerializer):
         fields = ("id", "name", "slug", "description", "image", "image_alt", "featured", "sort_order", "product_count")
 
 
+class ProductSizeMeasurementSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = ProductSizeMeasurement
+        fields = ('id', 'size', 'garment_bust', 'length', 'recommended_bust', 'pant_length', 'sort_order')
+
+
 class ProductSerializer(serializers.ModelSerializer):
     category = CategorySerializer(read_only=True)
     category_id = serializers.PrimaryKeyRelatedField(
@@ -31,6 +37,7 @@ class ProductSerializer(serializers.ModelSerializer):
     in_stock = serializers.BooleanField(read_only=True)
     primary_image = serializers.SerializerMethodField()
     additional_images = serializers.SerializerMethodField()
+    size_chart = ProductSizeMeasurementSerializer(many=True, read_only=True)
 
     def _absolute_url(self, file_field):
         if not file_field:
@@ -49,7 +56,7 @@ class ProductSerializer(serializers.ModelSerializer):
         fields = (
             "id", "name", "slug", "category", "category_id", "short_description",
             "description", "price", "primary_image", "additional_images",
-            "available_sizes", "available_colors", "stock_quantity", "in_stock",
+            "available_sizes", "size_chart", "available_colors", "stock_quantity", "in_stock",
             "featured", "tone", "shape", "created_at", "updated_at",
         )
 
@@ -71,6 +78,11 @@ class TopProductSerializer(serializers.ModelSerializer):
 
 
 class NavigationLinkSerializer(serializers.ModelSerializer):
+    url = serializers.SerializerMethodField()
+
+    def get_url(self, obj):
+        return NavigationLink.canonical_url(obj.label, obj.url)
+
     class Meta:
         model = NavigationLink
         fields = ("id", "label", "url", "sort_order", "open_in_new_tab")

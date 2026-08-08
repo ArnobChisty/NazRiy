@@ -6,6 +6,7 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 from .authentication import SignedTokenAuthentication
 from .models import Cart,CartItem,Order,OrderItem,Payment,Product
+from .order_emails import send_order_confirmation
 from .sprint3_serializers import CartItemSerializer,CheckoutSerializer,OrderSerializer
 
 class ProtectedView(APIView):
@@ -39,6 +40,8 @@ class CheckoutView(ProtectedView):
         for product,quantity,size,color in lines:
             OrderItem.objects.create(order=order,product=product,product_name=product.name,size=size,color=color,unit_price=product.price,quantity=quantity,line_total=product.price*quantity);product.stock_quantity-=quantity;product.save(update_fields=['stock_quantity'])
         Payment.objects.create(order=order,method=payment_method,amount=order.total,idempotency_key=idempotency_key)
-        Cart.objects.filter(user=request.user).delete();return Response(OrderSerializer(order).data,status=status.HTTP_201_CREATED)
+        Cart.objects.filter(user=request.user).delete()
+        transaction.on_commit(lambda order_id=order.id: send_order_confirmation(order_id))
+        return Response(OrderSerializer(order).data,status=status.HTTP_201_CREATED)
 class OrderListView(ProtectedView):
     def get(self,request):return Response(OrderSerializer(Order.objects.filter(user=request.user).prefetch_related('items'),many=True).data)

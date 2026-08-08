@@ -17,4 +17,5 @@ class NavigationLinkApiTests(APITestCase):
 
         self.assertEqual(response.status_code, 200)
         self.assertEqual([item['label'] for item in response.data], ['Shop all', 'Women'])
+        self.assertEqual(response.data[1]['url'], '/products?view=women')
         self.assertNotIn('active', response.data[0])

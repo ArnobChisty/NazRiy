@@ -2,7 +2,7 @@ from decimal import Decimal
 
 from django.core.management.base import BaseCommand
 
-from store.models import Category, NavigationLink, Product
+from store.models import Category, NavigationLink, Product, ProductSizeMeasurement
 
 
 PRODUCTS = [
@@ -11,7 +11,13 @@ PRODUCTS = [
         'short_description': 'A three-piece floral set finished with deep maroon lace and gold-tone buttons.',
         'description': 'A coordinated printed top, wide-leg trouser and lightweight dupatta designed for festive gatherings and polished everyday wear.',
         'price': Decimal('5000.00'),
-        'sizes': ['Medium', 'Large'],
+        'sizes': ['S', 'M', 'L', 'XL'],
+        'size_chart': [
+            ('S', '36', '30.5', '32-34', '38'),
+            ('M', '40', '32', '35-38', '38'),
+            ('L', '44', '33.5', '39-42', '40'),
+            ('XL', '48', '34', '44-46', '41'),
+        ],
         'colors': ['Red', 'Maroon'],
         'tone': 'burgundy',
     },
@@ -20,7 +26,12 @@ PRODUCTS = [
         'short_description': 'A soft floral three-piece set in warm yellow, blush pink and powder blue.',
         'description': 'A breathable printed top and trouser pairing with a flowing pink dupatta, detailed borders and delicate lace finishing.',
         'price': Decimal('5000.00'),
-        'sizes': ['Medium', 'Large'],
+        'sizes': ['S', 'M', 'L'],
+        'size_chart': [
+            ('S', '36', '30.5', '32-34', '38'),
+            ('M', '40', '32', '35-38', '38'),
+            ('L', '44', '33.5', '39-42', '40'),
+        ],
         'colors': ['Yellow', 'Blush Pink'],
         'tone': 'sand',
     },
@@ -56,11 +67,25 @@ class Command(BaseCommand):
             if not product.stock_quantity:
                 product.stock_quantity = 8
             product.save()
+            product.size_chart.all().delete()
+            ProductSizeMeasurement.objects.bulk_create([
+                ProductSizeMeasurement(
+                    product=product,
+                    size=size,
+                    garment_bust=garment_bust,
+                    length=length,
+                    recommended_bust=recommended_bust,
+                    pant_length=pant_length,
+                    sort_order=position,
+                )
+                for position, (size, garment_bust, length, recommended_bust, pant_length)
+                in enumerate(item['size_chart'], start=1)
+            ])
 
         links = [
             ('Shop all', '/products'),
             ('New arrivals', '/products?ordering=newest'),
-            ('Women', '/products?category=womens-clothing'),
+            ('Women', '/products?view=women'),
             ('Our story', '/#about'),
         ]
         for position, (label, url) in enumerate(links, start=1):

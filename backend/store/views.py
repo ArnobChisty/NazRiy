@@ -53,7 +53,7 @@ class FeaturedProductListView(APIView):
 
 class TopProductListView(APIView):
     def get(self, request):
-        placements = TopProduct.objects.filter(active=True, product__active=True).select_related("product__category").prefetch_related("product__images")
+        placements = TopProduct.objects.filter(active=True, product__active=True).select_related("product__category").prefetch_related("product__images", "product__size_chart")
         return Response(TopProductSerializer(placements, many=True, context={"request": request}).data)
 
 
@@ -87,7 +87,7 @@ class RecommendationListView(APIView):
         except (TypeError, ValueError):
             limit = 4
 
-        products = Product.objects.select_related("category").prefetch_related("images").filter(active=True)
+        products = Product.objects.select_related("category").prefetch_related("images", "size_chart").filter(active=True)
         if current:
             products = products.exclude(pk=current.pk)
         products = products.annotate(

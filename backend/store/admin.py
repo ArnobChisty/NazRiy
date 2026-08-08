@@ -3,7 +3,8 @@ from django.db.models import Count, Q, Sum
 from django.urls import reverse
 from django.utils.html import format_html
 
-from .models import Banner, Category, NavigationLink, Order, OrderItem, Payment, Product, ProductImage, TopProduct
+from .models import Banner, Category, NavigationLink, Order, OrderEmailLog, OrderItem, Payment, Product, ProductImage, ProductSizeMeasurement, TopProduct
+from .order_emails import send_order_confirmation
 
 
 class ProductImageInline(admin.TabularInline):
@@ -11,6 +12,15 @@ class ProductImageInline(admin.TabularInline):
     extra = 1
     fields = ('image', 'alt_text', 'position')
     ordering = ('position',)
+
+
+class ProductSizeMeasurementInline(admin.TabularInline):
+    model = ProductSizeMeasurement
+    extra = 0
+    fields = ('size', 'garment_bust', 'length', 'recommended_bust', 'pant_length', 'sort_order')
+    ordering = ('sort_order', 'id')
+    verbose_name = 'Size chart row'
+    verbose_name_plural = 'Size chart (all measurements in inches)'
 
 
 @admin.register(Category)
@@ -47,7 +57,7 @@ class ProductAdmin(admin.ModelAdmin):
     search_fields = ('name', 'description')
     prepopulated_fields = {'slug': ('name',)}
     list_editable = ('stock_quantity', 'active', 'featured')
-    inlines = [ProductImageInline]
+    inlines = [ProductSizeMeasurementInline, ProductImageInline]
 
     @admin.display(description='Stock status', ordering='stock_quantity')
     def stock_state(self, product):
@@ -76,6 +86,10 @@ class NavigationLinkAdmin(admin.ModelAdmin):
     ordering = ('sort_order', 'id')
     fields = ('label', 'url', 'sort_order', 'active', 'open_in_new_tab')
 
+    def save_model(self, request, obj, form, change):
+        obj.url = NavigationLink.canonical_url(obj.label, obj.url)
+        super().save_model(request, obj, form, change)
+
 
 class OrderItemInline(admin.TabularInline):
     model = OrderItem
@@ -96,7 +110,7 @@ class PaymentInline(admin.StackedInline):
 
 @admin.register(Order)
 class OrderAdmin(admin.ModelAdmin):
-    list_display = ('id', 'customer', 'email', 'city', 'total', 'payment_status', 'status', 'created_at')
+    list_display = ('id', 'customer', 'email', 'city', 'total', 'payment_status', 'confirmation_email', 'status', 'created_at')
     list_filter = ('status', 'payment__status', 'payment__method', 'city', 'created_at')
     search_fields = ('=id', 'name', 'email', 'phone', 'address')
     date_hierarchy = 'created_at'
@@ -112,6 +126,7 @@ class OrderAdmin(admin.ModelAdmin):
         ('Audit', {'fields': ('inventory_restored', 'created_at', 'updated_at')}),
     )
     inlines = [OrderItemInline, PaymentInline]
+    actions = ('resend_confirmation_email',)
 
     @admin.display(description='Customer', ordering='name')
     def customer(self, order):
@@ -123,6 +138,52 @@ class OrderAdmin(admin.ModelAdmin):
             return order.payment.get_status_display()
         except Payment.DoesNotExist:
             return 'Not created'
+
+    @admin.display(description='Email')
+    def confirmation_email(self, order):
+        latest = order.email_logs.order_by('-created_at').first()
+        return latest.get_status_display() if latest else 'Not sent'
+
+    @admin.action(description='Resend order confirmation email')
+    def resend_confirmation_email(self, request, queryset):
+        sent = sum(1 for order in queryset if send_order_confirmation(order.id))
+        failed = queryset.count() - sent
+        message = f'{sent} confirmation email(s) sent.'
+        if failed:
+            message += f' {failed} failed; see Order emails for details.'
+        self.message_user(request, message, level='warning' if failed else 'success')
+
+
+@admin.register(OrderEmailLog)
+class OrderEmailLogAdmin(admin.ModelAdmin):
+    list_display = ('order_link', 'recipient', 'status_badge', 'created_at')
+    list_filter = ('status', 'created_at')
+    search_fields = ('=order__id', 'recipient', 'subject', 'error_message')
+    readonly_fields = ('order', 'recipient', 'subject', 'status', 'error_message', 'created_at')
+    ordering = ('-created_at',)
+    list_per_page = 30
+
+    def has_add_permission(self, request):
+        return False
+
+    def has_change_permission(self, request, obj=None):
+        return True
+
+    def has_delete_permission(self, request, obj=None):
+        return False
+
+    @admin.display(description='Order', ordering='order_id')
+    def order_link(self, log):
+        url = reverse('admin:store_order_change', args=(log.order_id,))
+        return format_html('<a href="{}">Order #{}</a>', url, log.order_id)
+
+    @admin.display(description='Delivery', ordering='status')
+    def status_badge(self, log):
+        return format_html(
+            '<span class="nz-email-status nz-email-status--{}">{}</span>',
+            log.status,
+            log.get_status_display(),
+        )
 
 
 @admin.register(Payment)

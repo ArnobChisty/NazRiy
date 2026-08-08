@@ -1,5 +1,6 @@
 from decimal import Decimal
 import uuid
+from urllib.parse import unquote_plus
 from django.conf import settings
 from django.core.exceptions import ValidationError
 from django.db import models
@@ -32,6 +33,27 @@ class ProductImage(models.Model):
     class Meta: ordering=['position','id']
     def __str__(self):return f'{self.product.name} image {self.position+1}'
 
+
+class ProductSizeMeasurement(models.Model):
+    product = models.ForeignKey(Product, related_name='size_chart', on_delete=models.CASCADE)
+    size = models.CharField(max_length=12)
+    garment_bust = models.DecimalField(max_digits=5, decimal_places=1, help_text='Finished garment bust in inches.')
+    length = models.DecimalField(max_digits=5, decimal_places=1, help_text='Top length in inches.')
+    recommended_bust = models.CharField(max_length=20, help_text='Recommended body bust range in inches, for example 32-34.')
+    pant_length = models.DecimalField(max_digits=5, decimal_places=1, help_text='Pant length in inches.')
+    sort_order = models.PositiveSmallIntegerField(default=0)
+
+    class Meta:
+        ordering = ['sort_order', 'id']
+        constraints = [
+            models.UniqueConstraint(fields=['product', 'size'], name='unique_product_size_measurement'),
+        ]
+        verbose_name = 'size measurement'
+        verbose_name_plural = 'size measurements'
+
+    def __str__(self):
+        return f'{self.product.name} - {self.size}'
+
 class TopProduct(models.Model):
     product=models.OneToOneField(Product,related_name='homepage_placement',on_delete=models.CASCADE); showcase_image=models.FileField(upload_to='top-products/',blank=True,help_text='Optional homepage image. Leave blank to use the product primary image.'); image_alt=models.CharField(max_length=180,blank=True); sort_order=models.PositiveSmallIntegerField(default=0); active=models.BooleanField(default=True); created_at=models.DateTimeField(auto_now_add=True); updated_at=models.DateTimeField(auto_now=True)
     class Meta: ordering=['sort_order','id']; verbose_name='top product'; verbose_name_plural='top products'
@@ -40,6 +62,16 @@ class TopProduct(models.Model):
 class NavigationLink(models.Model):
     label=models.CharField(max_length=60); url=models.CharField(max_length=240,help_text='Use a site path such as /products or /#about.'); sort_order=models.PositiveSmallIntegerField(default=0); active=models.BooleanField(default=True); open_in_new_tab=models.BooleanField(default=False); created_at=models.DateTimeField(auto_now_add=True); updated_at=models.DateTimeField(auto_now=True)
     class Meta: ordering=['sort_order','id']; verbose_name='navigation link'; verbose_name_plural='navigation links'
+    @staticmethod
+    def canonical_url(label, url):
+        """Keep legacy Women links compatible with the product catalogue."""
+        decoded = unquote_plus((url or '').strip()).lower()
+        if (label or '').strip().casefold() == 'women' and decoded.startswith('/products') and 'category=' in decoded:
+            return '/products?view=women'
+        return url
+    def save(self,*args,**kwargs):
+        self.url=self.canonical_url(self.label,self.url)
+        super().save(*args,**kwargs)
     def __str__(self):return self.label
 
 class Banner(models.Model):
@@ -77,6 +109,25 @@ class Order(models.Model):
 
 class OrderItem(models.Model):
     order=models.ForeignKey(Order,on_delete=models.CASCADE,related_name='items'); product=models.ForeignKey(Product,on_delete=models.PROTECT); product_name=models.CharField(max_length=160); size=models.CharField(max_length=60,blank=True); color=models.CharField(max_length=60,blank=True); unit_price=models.DecimalField(max_digits=10,decimal_places=2); quantity=models.PositiveIntegerField(); line_total=models.DecimalField(max_digits=10,decimal_places=2)
+
+
+class OrderEmailLog(models.Model):
+    STATUS_CHOICES = [('sent', 'Sent'), ('failed', 'Failed')]
+
+    order = models.ForeignKey(Order, on_delete=models.CASCADE, related_name='email_logs')
+    recipient = models.EmailField()
+    subject = models.CharField(max_length=180)
+    status = models.CharField(max_length=12, choices=STATUS_CHOICES)
+    error_message = models.CharField(max_length=500, blank=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ['-created_at']
+        verbose_name = 'order email'
+        verbose_name_plural = 'order emails'
+
+    def __str__(self):
+        return f'Order #{self.order_id} confirmation: {self.get_status_display()}'
 
 
 class Payment(models.Model):

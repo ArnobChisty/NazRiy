@@ -1,0 +1,25 @@
+<!doctype html>
+<html lang="en">
+<head><meta charset="utf-8"><meta name="viewport" content="width=device-width"><title>{{ order.id }} confirmed</title></head>
+<body style="margin:0;background:#f4f0e9;color:#171612;font-family:Arial,sans-serif">
+  <table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="background:#f4f0e9;padding:32px 12px"><tr><td align="center">
+    <table role="presentation" width="620" cellspacing="0" cellpadding="0" style="max-width:620px;width:100%;background:#fff;border:1px solid #ded7cc">
+      <tr><td style="padding:30px 34px;background:#0b0b0a;color:#fff"><div style="font-family:Georgia,serif;font-size:30px">NazRiy</div><div style="margin-top:6px;color:#dcb452;font-size:11px;letter-spacing:2px;text-transform:uppercase">Order confirmed</div></td></tr>
+      <tr><td style="padding:34px">
+        <p style="margin:0 0 10px;color:#9b7624;font-size:12px;letter-spacing:2px;text-transform:uppercase">Order #{{ order.id }}</p>
+        <h1 style="margin:0 0 16px;font-family:Georgia,serif;font-size:34px;font-weight:normal">Thank you, {{ order.name }}.</h1>
+        <p style="margin:0 0 26px;color:#5e5a52;line-height:1.7">We have received your order. Our team will prepare it carefully and keep the order status updated through delivery.</p>
+        <table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="border-collapse:collapse">
+          {% for item in items %}<tr><td style="padding:14px 0;border-top:1px solid #e9e3da"><strong>{{ item.product_name }}</strong><br><span style="color:#777168;font-size:13px">{% if item.size %}Size: {{ item.size }}{% endif %}{% if item.color %} · Colour: {{ item.color }}{% endif %}</span></td><td align="right" style="padding:14px 0;border-top:1px solid #e9e3da">{{ item.quantity }} × BDT {{ item.unit_price }}</td></tr>{% endfor %}
+          <tr><td style="padding:12px 0;border-top:1px solid #e9e3da">Subtotal</td><td align="right" style="padding:12px 0;border-top:1px solid #e9e3da">BDT {{ order.subtotal }}</td></tr>
+          <tr><td style="padding:8px 0">Delivery</td><td align="right" style="padding:8px 0">BDT {{ order.delivery_charge }}</td></tr>
+          <tr><td style="padding:14px 0;border-top:2px solid #171612;font-size:18px"><strong>Total</strong></td><td align="right" style="padding:14px 0;border-top:2px solid #171612;font-size:18px"><strong>BDT {{ order.total }}</strong></td></tr>
+        </table>
+        <p style="margin:24px 0;color:#5e5a52;line-height:1.6"><strong>Delivery address</strong><br>{{ order.address }}<br>{{ order.city }} {{ order.postal_code }}</p>
+        <a href="{{ store_url }}/orders/{{ order.id }}" style="display:inline-block;padding:14px 22px;background:#dcb452;color:#111;text-decoration:none;font-weight:bold">View your order</a>
+      </td></tr>
+      <tr><td style="padding:20px 34px;background:#151513;color:#aaa49b;font-size:12px">NazRiy · Luxury in Budget</td></tr>
+    </table>
+  </td></tr></table>
+</body>
+</html>

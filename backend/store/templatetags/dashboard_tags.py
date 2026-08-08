@@ -7,7 +7,7 @@ from django.db.models.functions import TruncMonth
 from django import template
 from django.utils import timezone
 
-from store.models import Order, OrderItem, Product
+from store.models import Order, OrderEmailLog, OrderItem, Product
 
 register = template.Library()
 
@@ -106,4 +106,6 @@ def nazriy_dashboard():
         'recent_orders': Order.objects.select_related('user').prefetch_related('items')[:7],
         'generated_at': local_now,
         'greeting': greeting,
+        'email_sent_count': OrderEmailLog.objects.filter(status='sent').count(),
+        'email_failure_count': OrderEmailLog.objects.filter(status='failed').count(),
     }

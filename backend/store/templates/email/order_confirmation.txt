@@ -1,0 +1,19 @@
+NazRiy order #{{ order.id }} confirmed
+
+Hello {{ order.name }},
+
+Thank you for shopping with NazRiy. We have received your order and will keep you updated as it moves toward delivery.
+
+{% for item in items %}{{ item.product_name }}{% if item.size %} — Size: {{ item.size }}{% endif %}{% if item.color %} — Colour: {{ item.color }}{% endif %}
+{{ item.quantity }} × BDT {{ item.unit_price }} = BDT {{ item.line_total }}
+{% endfor %}
+Subtotal: BDT {{ order.subtotal }}
+Delivery: BDT {{ order.delivery_charge }}
+Total: BDT {{ order.total }}
+
+Delivery address:
+{{ order.address }}, {{ order.city }} {{ order.postal_code }}
+
+View your order: {{ store_url }}/orders/{{ order.id }}
+
+NazRiy — Luxury in Budget
