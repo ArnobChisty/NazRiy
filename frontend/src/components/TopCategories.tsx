@@ -7,10 +7,11 @@ const fallbackTones = ['forest', 'clay', 'sage', 'sand']
 interface TopCategoriesProps { products?: TopProduct[] }
 
 export default function TopCategories({ products }: TopCategoriesProps) {
-  const [topProducts, setTopProducts] = useState<TopProduct[]>(products ?? [])
+  const [fetchedTopProducts, setFetchedTopProducts] = useState<TopProduct[]>([])
+  const topProducts = products ?? fetchedTopProducts
   useEffect(() => {
-    if (products) { setTopProducts(products); return }
-    getTopProducts().then(setTopProducts).catch(() => undefined)
+    if (products !== undefined) return
+    getTopProducts().then(setFetchedTopProducts).catch(() => undefined)
   }, [products])
   if (topProducts.length === 0) return null
 

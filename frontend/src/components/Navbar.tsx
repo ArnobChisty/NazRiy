@@ -26,7 +26,8 @@ const Navbar = ({ activePage = 'home', links }: NavbarProps) => {
   const [searchOpen, setSearchOpen] = useState(false)
   const [menuOpen, setMenuOpen] = useState(false)
   const [search, setSearch] = useState('')
-  const [navigationLinks, setNavigationLinks] = useState<NavigationLink[]>(links?.length ? links : defaultLinks)
+  const [fetchedLinks, setFetchedLinks] = useState<NavigationLink[]>(defaultLinks)
+  const navigationLinks = links?.length ? links : fetchedLinks
 
   const isActiveLink = (link: NavigationLink) => {
     if (activePage !== 'products') return false
@@ -39,12 +40,9 @@ const Navbar = ({ activePage = 'home', links }: NavbarProps) => {
   }
 
   useEffect(() => {
-    if (links) {
-      setNavigationLinks(links.length ? links : defaultLinks)
-      return
-    }
+    if (links !== undefined) return
     getNavigationLinks()
-      .then((links) => setNavigationLinks(links.map((link) => {
+      .then((links) => setFetchedLinks(links.map((link) => {
         // Older database records used a category text value that is not a
         // category slug. Keep the client working while the navigation is
         // managed from Django admin.
