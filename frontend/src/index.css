@@ -291,7 +291,6 @@ footer p { margin: 0; opacity: .75; }
 .order-summary dl > div { padding: 10px 0; display: flex; justify-content: space-between; gap: 20px; color: #626d66; font-size: 12px; }
 .order-summary dd { margin: 0; color: #294437; font-weight: 600; }
 .order-summary .order-total { margin-top: 10px; padding-top: 19px; border-top: 1px solid #cec5b6; color: #294437; font-size: 16px; font-weight: 600; }
-.delivery-progress { margin: 18px 0; padding: 10px 12px; background: rgba(255,255,255,.5); color: #657069; font-size: 11px; line-height: 1.5; }
 .order-summary > button { width: 100%; margin-top: 8px; padding: 14px; border: 0; background: #385345; color: #fff; cursor: pointer; font-weight: 600; }
 .order-summary > a { margin-top: 18px; display: block; text-align: center; color: #657069; font-size: 11px; }
 .checkout-handoff { margin: 12px 0 0; padding: 11px; border: 1px solid rgba(56,83,69,.18); background: #dce6da; color: #385345; font-size: 11px; line-height: 1.5; }

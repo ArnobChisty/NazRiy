@@ -587,6 +587,38 @@ body:not(.nazriy-dashboard-page) #result_list {
   border-spacing: 0;
 }
 
+/* Changelists such as Orders contain operational columns that should remain
+   readable instead of being clipped by the rounded card. Keep the card fixed
+   to the workspace and let only the table area scroll when it genuinely needs
+   more horizontal room. */
+body:not(.nazriy-dashboard-page) #changelist .results {
+  max-width: 100%;
+  overflow-x: auto;
+  overscroll-behavior-inline: contain;
+  scrollbar-color: #93a39b #edf2ef;
+  scrollbar-width: thin;
+  -webkit-overflow-scrolling: touch;
+}
+
+body:not(.nazriy-dashboard-page) #changelist .results::-webkit-scrollbar {
+  height: 10px;
+}
+
+body:not(.nazriy-dashboard-page) #changelist .results::-webkit-scrollbar-track {
+  background: #edf2ef;
+}
+
+body:not(.nazriy-dashboard-page) #changelist .results::-webkit-scrollbar-thumb {
+  background: #93a39b;
+  border: 2px solid #edf2ef;
+  border-radius: 999px;
+}
+
+body:not(.nazriy-dashboard-page) #changelist .results #result_list {
+  min-width: 100%;
+  width: max-content;
+}
+
 body:not(.nazriy-dashboard-page) #result_list thead th {
   padding: 13px 12px;
   white-space: nowrap;
@@ -762,6 +794,25 @@ body:not(.nazriy-dashboard-page) #result_list select:not([multiple]) { min-width
 
 @media (max-width: 1250px) {
   .nz-payment-stats { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+
+/* Once the workspace becomes narrower than a typical laptop, the filter
+   sidebar consumes too much room beside an operational table. Place it below
+   the results while keeping all filters available and easy to scan. */
+@media (max-width: 1350px) {
+  body:not(.nazriy-dashboard-page) #changelist { display: block; }
+  body:not(.nazriy-dashboard-page) #changelist-filter {
+    margin: 18px 0 0;
+    max-height: none;
+    position: static;
+    width: auto;
+  }
+  body:not(.nazriy-dashboard-page) #changelist .actions {
+    align-items: center;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
 }
 
 @media (max-width: 600px) {

@@ -319,7 +319,6 @@ export default function CartPage() {
               <div><dt>Delivery</dt><dd>{delivery === 0 ? 'Free' : formatPrice(delivery)}</dd></div>
               <div className="order-total"><dt>Total</dt><dd>{formatPrice(total)}</dd></div>
             </dl>
-            {subtotal < 2000 && <p className="delivery-progress">Add {formatPrice(2000 - subtotal)} more for free delivery.</p>}
             {checkout
               ? <a className="s3-summary-action" href="/cart">← Edit cart</a>
               : <a className="s3-summary-action" href="/checkout">Continue to checkout</a>}
