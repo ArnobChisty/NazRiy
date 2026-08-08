@@ -18,6 +18,6 @@ class Sprint3Tests(APITestCase):
     def test_order_history_requires_authentication(self):self.client.credentials();self.assertEqual(self.client.get('/api/orders/').status_code,403)
     def test_checkout_normalizes_legacy_default_colour(self):
         self.product.available_colors=['Red'];self.product.save(update_fields=['available_colors'])
-        payload={'name':'Buyer','email':'buyer@example.com','phone':'+8801712345678','address':'12 Road','city':'Dhaka','postal_code':'1205','payment_method':'cash_on_delivery','idempotency_key':'legacy-default-colour','items':[{'product_id':self.product.id,'quantity':1,'color':'Default'}]}
+        payload={'name':'Buyer','email':'buyer@example.com','phone':'+8801712345678','address':'12 Road','city':'Dhaka','postal_code':'1205','payment_method':'cash_on_delivery','items':[{'product_id':self.product.id,'quantity':1,'color':'Default'}]}
         response=self.client.post('/api/orders/checkout/',payload,format='json')
         self.assertEqual(response.status_code,201);self.assertEqual(Order.objects.get().items.get().color,'Red')
