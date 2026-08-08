@@ -139,8 +139,9 @@ footer .footer-brand img { width: 224px; height: 224px; max-width: none; positio
 .page-state h1, .page-state h2 { color: var(--bone); font-family: 'Instrument Serif', serif; }
 .page-state p { color: var(--muted); }
 
-.details-page { padding: 0 5% 110px; }
+.details-page { max-width: 100%; padding: 0 5% 110px; overflow-x: clip; }
 .breadcrumbs { color: var(--muted); }
+.product-details-layout, .product-gallery, .product-information { min-width: 0; max-width: 100%; }
 .gallery-main, .gallery-thumbnails button { background: #201d1a; }
 .gallery-thumbnails button.active { border-color: var(--gold); }
 .product-information h1, .cart-page-heading h1, .cart-empty h2, .order-summary h2 { color: var(--bone); font-family: 'Instrument Serif', serif; font-weight: 400; }
@@ -150,12 +151,12 @@ footer .footer-brand img { width: 224px; height: 224px; max-width: none; positio
 .option-group button.active, .purchase-actions button, .order-summary > button { border-color: var(--gold); background: var(--gold); color: var(--noir); }
 .purchase-actions button + button { border-color: #625b54; background: transparent; color: var(--bone); }
 
-.product-size-guide { margin: 4px 0 28px; border: 1px solid var(--line); background: #151311; }
+.product-size-guide { width: 100%; min-width: 0; max-width: 100%; margin: 4px 0 28px; border: 1px solid var(--line); background: #151311; }
 .size-guide-heading { padding: 16px 18px; display: flex; align-items: end; justify-content: space-between; gap: 18px; border-bottom: 1px solid var(--line); }
 .size-guide-heading span { color: var(--gold); font-size: 9px; font-weight: 700; letter-spacing: .18em; text-transform: uppercase; }
 .size-guide-heading h2 { margin: 3px 0 0; color: var(--bone); font-family: 'Instrument Serif', serif; font-size: 28px; font-weight: 400; }
 .size-guide-heading small { color: var(--muted); font-size: 10px; letter-spacing: .04em; white-space: nowrap; }
-.size-guide-table-wrap { overflow-x: auto; }
+.size-guide-table-wrap { width: 100%; min-width: 0; max-width: 100%; display: block; overflow-x: auto; overscroll-behavior-inline: contain; -webkit-overflow-scrolling: touch; }
 .product-size-guide table { width: 100%; min-width: 590px; border-collapse: collapse; color: var(--bone); font-size: 11px; }
 .product-size-guide th, .product-size-guide td { padding: 12px 13px; border-bottom: 1px solid var(--line); text-align: center; white-space: nowrap; }
 .product-size-guide thead th { color: var(--muted); font-size: 9px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; }
@@ -342,6 +343,13 @@ footer .footer-brand img { width: 224px; height: 224px; max-width: none; positio
 }
 
 @media (max-width: 700px) {
+  .details-page { width: 100%; padding-right: 5%; padding-left: 5%; }
+  .product-details-layout { width: 100%; min-width: 0; }
+  .product-information { width: 100%; min-width: 0; overflow: hidden; }
+  .product-information h1, .detail-description { max-width: 100%; overflow-wrap: anywhere; }
+  .product-size-guide { overflow: hidden; }
+  .size-guide-heading { align-items: flex-start; flex-direction: column; gap: 7px; }
+  .size-guide-heading small { white-space: normal; line-height: 1.5; }
   .catalog-results .catalog-card-meta { min-height: 0; }
   .catalog-results .catalog-add-button { margin-top: 16px; }
   .home-collection { padding: 95px 5%; }

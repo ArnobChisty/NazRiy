@@ -2,7 +2,7 @@ from decimal import Decimal
 
 from django.contrib import admin
 from django.contrib.auth import get_user_model
-from django.test import TestCase
+from django.test import TestCase, override_settings
 from django.urls import reverse
 
 from .models import Cart, CartItem, Category, Order, OrderItem, Payment, Product
@@ -103,3 +103,11 @@ class AdminDashboardTests(TestCase):
         self.client.force_login(self.admin_user)
 
         self.assertEqual(self.client.get(reverse('admin:store_payment_add')).status_code, 403)
+
+    @override_settings(DEBUG=False, ALLOWED_HOSTS=['testserver'], SECURE_SSL_REDIRECT=False)
+    def test_admin_static_assets_are_available_without_collectstatic(self):
+        response = self.client.get('/static/admin/css/base.css')
+
+        self.assertEqual(response.status_code, 200)
+        self.assertTrue(response.headers['Content-Type'].startswith('text/css'))
+        self.assertIn('public', response.headers['Cache-Control'])
