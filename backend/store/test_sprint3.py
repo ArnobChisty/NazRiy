@@ -16,3 +16,8 @@ class Sprint3Tests(APITestCase):
         order=Order.objects.get();self.assertEqual(response.status_code,201);self.assertEqual(order.total,2000);self.product.refresh_from_db();self.assertEqual(self.product.stock_quantity,0)
         self.assertEqual(len(mail.outbox),1);self.assertIn(f'order #{order.id} confirmed',mail.outbox[0].subject.lower());self.assertEqual(mail.outbox[0].to,['buyer@example.com']);self.assertEqual(OrderEmailLog.objects.get().status,'sent')
     def test_order_history_requires_authentication(self):self.client.credentials();self.assertEqual(self.client.get('/api/orders/').status_code,403)
+    def test_checkout_normalizes_legacy_default_colour(self):
+        self.product.available_colors=['Red'];self.product.save(update_fields=['available_colors'])
+        payload={'name':'Buyer','email':'buyer@example.com','phone':'+8801712345678','address':'12 Road','city':'Dhaka','postal_code':'1205','payment_method':'cash_on_delivery','idempotency_key':'legacy-default-colour','items':[{'product_id':self.product.id,'quantity':1,'color':'Default'}]}
+        response=self.client.post('/api/orders/checkout/',payload,format='json')
+        self.assertEqual(response.status_code,201);self.assertEqual(Order.objects.get().items.get().color,'Red')

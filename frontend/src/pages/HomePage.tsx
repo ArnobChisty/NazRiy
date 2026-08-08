@@ -57,7 +57,7 @@ const HomePage = () => {
         {homepageLoading && <section className="home-collection home-collection-loading" aria-label="Loading NazRiy collection" aria-busy="true"><div/><div className="home-product-grid" aria-hidden="true"><i/><i/></div></section>}
         {products.length > 0 && <section className="home-collection" aria-labelledby="collection-title">
           <div className="home-collection-title" data-reveal><span/><div><p>Apparel</p><h2 id="collection-title">The NazRiy collection</h2></div><span/></div>
-          <div className="home-product-grid">{products.slice(0, 8).map(product => <ProductCard product={product} key={product.id}/>)}</div>
+          <div className="home-product-grid">{products.slice(0, 8).map(product => <ProductCard product={product} allowAddToCart={false} key={product.id}/>)}</div>
           <a className="home-collection-link" href="/products" data-reveal>View the full collection <span>→</span></a>
         </section>}
         <HomeLogin />

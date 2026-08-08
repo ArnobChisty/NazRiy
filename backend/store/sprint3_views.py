@@ -31,7 +31,9 @@ class CheckoutView(ProtectedView):
             return Response(OrderSerializer(existing.order).data,status=status.HTTP_200_OK)
         items=data.pop('items');lines=[];subtotal=Decimal('0')
         for entry in items:
-            product=get_object_or_404(Product.objects.select_for_update(),pk=entry.get('product_id'));quantity=int(entry.get('quantity',0));size=entry.get('size','');color=entry.get('color','')
+            product=get_object_or_404(Product.objects.select_for_update(),pk=entry.get('product_id'));quantity=int(entry.get('quantity',0));size=entry.get('size','');color=entry.get('color','').strip()
+            if color.lower() == 'default':
+                color = product.available_colors[0] if product.available_colors else ''
             if quantity < 1:
                 return Response({'detail': f'Choose at least one {product.name}.'}, status=400)
             if product.stock_quantity < 1:

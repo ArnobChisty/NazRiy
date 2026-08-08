@@ -50,4 +50,12 @@ describe('CartPage bKash checkout', () => {
     expect(screen.getByRole('alert')).toHaveTextContent(/transaction ID/)
     expect(authFetch).not.toHaveBeenCalled()
   })
+
+  it('hides the bKash verification notice for cash on delivery', async () => {
+    window.history.pushState({}, '', '/checkout')
+    const tester = userEvent.setup()
+    render(<CartPage />)
+    await tester.click(screen.getByLabelText(/Cash on delivery/))
+    expect(screen.queryByText(/Never share your bKash PIN/)).not.toBeInTheDocument()
+  })
 })

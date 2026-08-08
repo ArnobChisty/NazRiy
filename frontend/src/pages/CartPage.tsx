@@ -19,6 +19,10 @@ const validBkashTransaction = /^[A-Za-z0-9]{8,32}$/
 const bkashMerchantNumber = import.meta.env.VITE_BKASH_MERCHANT_NUMBER
   || (import.meta.env.MODE === 'test' ? '01700000000' : '')
 const bkashAvailable = Boolean(bkashMerchantNumber)
+const checkoutColor = (color: string, availableColors: string[]) => {
+  const selected = color.trim()
+  return selected.toLowerCase() === 'default' ? availableColors[0] || '' : selected
+}
 
 export default function CartPage() {
   const { items, itemCount, subtotal, updateQuantity, removeItem, clearCart } = useCart()
@@ -131,7 +135,7 @@ export default function CartPage() {
             product_id: item.product.id,
             quantity: item.quantity,
             size: item.size,
-            color: item.color,
+            color: checkoutColor(item.color, item.product.available_colors),
           })),
         }),
       })
@@ -205,7 +209,7 @@ export default function CartPage() {
         <div className="cart-layout">
           <section className={checkout ? 'delivery-form-panel' : 'cart-items'}>
             {checkout ? (
-              <form className="s3-delivery-form" onSubmit={submit} noValidate aria-describedby="bkash-notice">
+              <form className="s3-delivery-form" onSubmit={submit} noValidate aria-describedby={paymentMethod === 'bkash' ? 'bkash-notice' : undefined}>
                 <div className="s3-field-grid">
                   {([
                     ['name', 'Full name', 'text', 'name'],
@@ -273,10 +277,12 @@ export default function CartPage() {
                   </section>
                 )}
 
-                <p id="bkash-notice" className="s5-bkash-notice">
-                  Your order remains pending until NazRiy verifies the transaction ID against the merchant account.
-                  Never share your bKash PIN or verification code.
-                </p>
+                {paymentMethod === 'bkash' && (
+                  <p id="bkash-notice" className="s5-bkash-notice">
+                    Your order remains pending until NazRiy verifies the transaction ID against the merchant account.
+                    Never share your bKash PIN or verification code.
+                  </p>
+                )}
                 {message && <p className="s3-error" role="alert">{message}</p>}
                 {!user && (
                   <p className="s3-login-note">
@@ -295,7 +301,7 @@ export default function CartPage() {
                   <h2><a href={`/products/${item.product.slug}`}>{item.product.name}</a></h2>
                   <div className="cart-item-options">
                     {item.size && <span>Size: {item.size}</span>}
-                    {item.color && <span>Colour: {item.color}</span>}
+                    {checkoutColor(item.color, item.product.available_colors) && <span>Colour: {checkoutColor(item.color, item.product.available_colors)}</span>}
                   </div>
                   <button className="remove-item" onClick={() => { trackItemEvent('remove_from_cart', item.product, item.quantity); removeItem(item.key) }}>Remove</button>
                 </div>

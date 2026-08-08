@@ -8,6 +8,11 @@ import type { Product } from '../types'
 
 const STORAGE_KEY = 'nazriy-cart-v1'
 
+const normalizeColor = (color: string, product: Product) => {
+  const selected = color.trim()
+  return selected.toLowerCase() === 'default' ? product.available_colors[0] || '' : selected
+}
+
 const loadStoredCart = (): CartItem[] => {
   try {
     const parsed: unknown = JSON.parse(window.localStorage.getItem(STORAGE_KEY) || '[]')
@@ -32,9 +37,12 @@ const CartProvider = ({ children }: { children: ReactNode }) => {
       const refreshed = await Promise.all(storedItems.map(async (item) => {
         try {
           const product = await getProduct(item.product.slug)
+          const color = normalizeColor(item.color, product)
           return {
             ...item,
+            key: cartItemKey(product.id, item.size, color),
             product,
+            color,
             quantity: clampQuantity(item.quantity, product.stock_quantity),
           }
         } catch {
@@ -42,8 +50,7 @@ const CartProvider = ({ children }: { children: ReactNode }) => {
         }
       }))
       if (cancelled) return
-      const byKey = new Map(refreshed.map((item) => [item.key, item]))
-      setItems((current) => current.map((item) => byKey.get(item.key) || item))
+      setItems(refreshed)
     }
 
     void refreshProducts()
@@ -55,7 +62,8 @@ const CartProvider = ({ children }: { children: ReactNode }) => {
   }, [items])
 
   const addItem = useCallback((product: Product, size: string, color: string, quantity: number) => {
-    const key = cartItemKey(product.id, size, color)
+    const normalizedColor = normalizeColor(color, product)
+    const key = cartItemKey(product.id, size, normalizedColor)
     setItems((current) => {
       const existing = current.find((item) => item.key === key)
       if (existing) {
@@ -63,7 +71,7 @@ const CartProvider = ({ children }: { children: ReactNode }) => {
           ? { ...item, product, quantity: clampQuantity(item.quantity + quantity, product.stock_quantity) }
           : item)
       }
-      return [...current, { key, product, size, color, quantity: clampQuantity(quantity, product.stock_quantity) }]
+      return [...current, { key, product, size, color: normalizedColor, quantity: clampQuantity(quantity, product.stock_quantity) }]
     })
   }, [])
 

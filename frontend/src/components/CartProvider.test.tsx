@@ -13,6 +13,7 @@ function CartHarness() {
     <span data-testid="count">{cart.itemCount}</span>
     <span data-testid="subtotal">{cart.subtotal}</span>
     <span data-testid="image">{cart.items[0]?.product.primary_image}</span>
+    <span data-testid="color">{cart.items[0]?.color}</span>
     <button onClick={() => cart.addItem(product, 'M', 'Red', 2)}>Add</button>
     <button onClick={() => cart.updateQuantity(`${product.id}:M:Red`, 4)}>Update</button>
     <button onClick={() => cart.removeItem(`${product.id}:M:Red`)}>Remove</button>
@@ -57,5 +58,13 @@ describe('CartProvider', () => {
 
     await waitFor(() => expect(screen.getByTestId('image')).toHaveTextContent(refreshedProduct.primary_image))
     expect(getProduct).toHaveBeenCalledWith(product.slug)
+  })
+
+  it('replaces the legacy Default colour with the product default colour', async () => {
+    localStorage.setItem('nazriy-cart-v1', JSON.stringify([{ key: '10:M:Default', product, size: 'M', color: 'Default', quantity: 1 }]))
+    vi.mocked(getProduct).mockResolvedValue(product)
+    render(<CartProvider><CartHarness /></CartProvider>)
+    await waitFor(() => expect(screen.getByTestId('color')).toHaveTextContent('Red'))
+    expect(screen.getByTestId('color')).not.toHaveTextContent('Default')
   })
 })
