@@ -10,6 +10,8 @@ import RecommendationSection from '../components/RecommendationSection'
 
 interface ProductDetailsPageProps { slug: string }
 
+const displayInches = (value: string) => Number(value).toString()
+
 const ProductDetailsPage = ({ slug }: ProductDetailsPageProps) => {
   const { addItem } = useCart()
   const [product, setProduct] = useState<Product | null>(null)
@@ -89,6 +91,29 @@ const ProductDetailsPage = ({ slug }: ProductDetailsPageProps) => {
               <p className="detail-description">{product.description}</p>
               <div className={product.in_stock ? 'availability in-stock' : 'availability'}>{product.in_stock ? `${product.stock_quantity} available` : 'Currently out of stock'}</div>
               {product.available_sizes.length > 0 && <fieldset className="option-group"><legend>Size <strong>{size}</strong></legend><div>{product.available_sizes.map((item) => <button className={size === item ? 'active' : ''} type="button" key={item} onClick={() => setSize(item)}>{item}</button>)}</div></fieldset>}
+              {product.size_chart.length > 0 && (
+                <section className="product-size-guide" aria-labelledby="size-guide-title">
+                  <div className="size-guide-heading">
+                    <div><span>Measurements</span><h2 id="size-guide-title">Size guide</h2></div>
+                    <small>All measurements in inches</small>
+                  </div>
+                  <div className="size-guide-table-wrap">
+                    <table>
+                      <thead><tr><th>Size</th><th>Garment bust</th><th>Top length</th><th>Best for body bust</th><th>Pant length</th></tr></thead>
+                      <tbody>{product.size_chart.map((row) => (
+                        <tr className={size === row.size ? 'selected' : ''} key={row.id}>
+                          <th scope="row">{row.size}</th>
+                          <td>{displayInches(row.garment_bust)}</td>
+                          <td>{displayInches(row.length)}</td>
+                          <td>{row.recommended_bust}</td>
+                          <td>{displayInches(row.pant_length)}</td>
+                        </tr>
+                      ))}</tbody>
+                    </table>
+                  </div>
+                  <p>Measurements may vary by 0.5–1 inch depending on fabric and production batch. If between sizes, choose the larger size.</p>
+                </section>
+              )}
               {product.available_colors.length > 0 && <fieldset className="option-group color-options"><legend>Color <strong>{color}</strong></legend><div>{product.available_colors.map((item) => <button className={color === item ? 'active' : ''} type="button" key={item} onClick={() => setColor(item)}><span style={{ backgroundColor: item.toLowerCase() }} />{item}</button>)}</div></fieldset>}
               <div className="quantity-row"><span>Quantity</span><div><button type="button" onClick={() => setQuantity((value) => Math.max(1, value - 1))}>−</button><strong>{quantity}</strong><button type="button" onClick={() => setQuantity((value) => Math.min(product.stock_quantity || 1, value + 1))}>+</button></div></div>
               <div className="purchase-actions"><button type="button" disabled={!product.in_stock} onClick={() => addSelectionToCart()}>Add to cart</button><button type="button" disabled={!product.in_stock} onClick={() => addSelectionToCart(true)}>Buy now</button></div>

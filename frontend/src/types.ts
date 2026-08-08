@@ -10,6 +10,16 @@ export interface Category {
   sort_order: number
 }
 
+export interface ProductSizeMeasurement {
+  id: number
+  size: string
+  garment_bust: string
+  length: string
+  recommended_bust: string
+  pant_length: string
+  sort_order: number
+}
+
 export interface Product {
   id: number
   name: string
@@ -21,6 +31,7 @@ export interface Product {
   primary_image: string
   additional_images: string[]
   available_sizes: string[]
+  size_chart: ProductSizeMeasurement[]
   available_colors: string[]
   stock_quantity: number
   in_stock: boolean

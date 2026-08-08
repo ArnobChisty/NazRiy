@@ -41,7 +41,7 @@ const Navbar = ({ activePage = 'home' }: NavbarProps) => {
         // Older database records used a category text value that is not a
         // category slug. Keep the client working while the navigation is
         // managed from Django admin.
-        if (link.label.trim().toLowerCase() === 'women' && /[?&]category=womens?(%20|\+|\s|-)?clothing/i.test(link.url)) {
+        if (link.label.trim().toLowerCase() === 'women' && link.url.startsWith('/products')) {
           return { ...link, url: '/products?view=women' }
         }
         return link

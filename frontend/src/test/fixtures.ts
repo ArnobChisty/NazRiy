@@ -20,6 +20,7 @@ export const product: Product = {
   primary_image: '',
   additional_images: [],
   available_sizes: ['M'],
+  size_chart: [{ id: 1, size: 'M', garment_bust: '40.0', length: '32.0', recommended_bust: '35-38', pant_length: '38.0', sort_order: 1 }],
   available_colors: ['Red'],
   stock_quantity: 4,
   in_stock: true,
