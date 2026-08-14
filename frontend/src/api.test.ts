@@ -87,4 +87,57 @@ describe('API client', () => {
       message: 'The NazRiy API is unavailable.', status: 503,
     })
   })
+
+  it('deduplicates in-flight public requests and reuses a fresh session cache', async () => {
+    let resolveFetch: ((response: Response) => void) | undefined
+    const fetchMock = vi.fn().mockReturnValue(new Promise<Response>((resolve) => { resolveFetch = resolve }))
+    vi.stubGlobal('fetch', fetchMock)
+
+    const first = getCategories()
+    const second = getCategories()
+    expect(fetchMock).toHaveBeenCalledTimes(1)
+
+    resolveFetch?.(jsonResponse([{ id: 1, name: 'Women', slug: 'women' }]))
+    await expect(first).resolves.toEqual([{ id: 1, name: 'Women', slug: 'women' }])
+    await expect(second).resolves.toEqual([{ id: 1, name: 'Women', slug: 'women' }])
+
+    await expect(getCategories()).resolves.toEqual([{ id: 1, name: 'Women', slug: 'women' }])
+    expect(fetchMock).toHaveBeenCalledTimes(1)
+  })
+
+  it('replaces expired and malformed cached responses', async () => {
+    const fetchMock = vi.fn().mockImplementation(() => Promise.resolve(jsonResponse([])))
+    vi.stubGlobal('fetch', fetchMock)
+    sessionStorage.setItem('nazriy-api:/navigation-links/', JSON.stringify({ expires: 0, data: [{ id: 99 }] }))
+
+    await expect(getNavigationLinks()).resolves.toEqual([])
+    expect(fetchMock).toHaveBeenCalledTimes(1)
+
+    sessionStorage.setItem('nazriy-api:/top-products/', '{not-json')
+    await expect(getTopProducts()).resolves.toEqual([])
+    expect(fetchMock).toHaveBeenCalledTimes(2)
+  })
+
+  it('warms unique remote media origins returned by the API', async () => {
+    const fetchMock = vi.fn().mockResolvedValue(jsonResponse({
+      id: 1,
+      image: 'https://cdn.example.com/products/dress.webp',
+      gallery: [
+        'https://cdn.example.com/products/detail.webp',
+        'https://images.example.org/products/back.webp',
+        '/media/local.webp',
+      ],
+    }))
+    vi.stubGlobal('fetch', fetchMock)
+
+    await getProduct('dress')
+
+    const origins = Array.from(document.head.querySelectorAll<HTMLLinkElement>('link[rel="preconnect"]'))
+      .map(link => link.href)
+    expect(origins).toEqual(expect.arrayContaining([
+      'https://cdn.example.com/',
+      'https://images.example.org/',
+    ]))
+    expect(origins.filter(origin => origin === 'https://cdn.example.com/')).toHaveLength(1)
+  })
 })
