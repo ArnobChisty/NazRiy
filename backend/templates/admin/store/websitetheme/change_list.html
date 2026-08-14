@@ -1,0 +1,30 @@
+{% extends "admin/change_list.html" %}
+
+{% block content %}
+  <section class="nz-theme-switcher" aria-labelledby="nz-theme-switcher-title">
+    <div class="nz-theme-switcher__heading">
+      <div>
+        <p class="nz-theme-switcher__eyebrow">Storefront appearance</p>
+        <h2 id="nz-theme-switcher-title">Choose the website theme</h2>
+        <p>Changes are published to the customer website immediately.</p>
+      </div>
+      <span class="nz-theme-switcher__status">Current: {{ active_theme|title }}</span>
+    </div>
+    <div class="nz-theme-options">
+      {% for value, label in theme_choices %}
+        <form method="post" action="{% url 'admin:store_websitetheme_set_theme' value %}">
+          {% csrf_token %}
+          <button class="nz-theme-option nz-theme-option--{{ value }}{% if value == active_theme %} is-active{% endif %}" type="submit" {% if value == active_theme %}disabled aria-current="true"{% endif %}>
+            <span class="nz-theme-option__preview" aria-hidden="true"></span>
+            <span class="nz-theme-option__copy">
+              <strong>{{ label }}</strong>
+              <small>{% if value == active_theme %}Currently active{% else %}Apply this theme{% endif %}</small>
+            </span>
+            <span class="nz-theme-option__check" aria-hidden="true">{% if value == active_theme %}&#10003;{% else %}&rarr;{% endif %}</span>
+          </button>
+        </form>
+      {% endfor %}
+    </div>
+  </section>
+  {{ block.super }}
+{% endblock %}

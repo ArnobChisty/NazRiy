@@ -1,0 +1,10 @@
+/* Skip layout and paint work for below-the-fold sections until they approach
+   the viewport. Intrinsic sizes keep the scrollbar stable while content is deferred. */
+.home-collection,.home-login-section,.noir-vision,.noir-newsletter,footer{content-visibility:auto;contain-intrinsic-size:auto 760px}
+.catalog-card-image,.category-tile,.editorial-gallery-card{contain:layout paint}
+img{max-width:100%}
+.route-loading{min-height:70vh;background:linear-gradient(110deg,var(--theme-page,#f7f5ef) 30%,var(--theme-surface,#fff) 48%,var(--theme-page,#f7f5ef) 66%);background-size:240% 100%;animation:route-loading 1.2s ease-in-out infinite}
+@keyframes route-loading{to{background-position:-240% 0}}
+.reliable-image { transition: opacity .24s ease; }
+.reliable-image-loading { opacity: 0; }
+.reliable-image-ready { opacity: 1; }

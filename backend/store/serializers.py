@@ -1,6 +1,7 @@
 from rest_framework import serializers
 
-from .models import Category, NavigationLink, Product, ProductSizeMeasurement, TopProduct
+from .media_urls import serialized_media_url
+from .models import Category, DiscountCampaign, NavigationLink, Product, ProductSizeMeasurement, TopProduct
 
 
 class CategorySerializer(serializers.ModelSerializer):
@@ -8,6 +9,10 @@ class CategorySerializer(serializers.ModelSerializer):
     image = serializers.SerializerMethodField()
 
     def get_image(self, obj):
+        # Product cards only need category text. Avoid a duplicate signed URL
+        # (and the fallback product query) in compact catalogue responses.
+        if self.context.get('compact'):
+            return ''
         if not obj.image:
             product = obj.products.exclude(primary_image='').first()
             if not product or not product.primary_image:
@@ -15,8 +20,7 @@ class CategorySerializer(serializers.ModelSerializer):
             image = product.primary_image
         else:
             image = obj.image
-        request = self.context.get('request')
-        return request.build_absolute_uri(image.url) if request else image.url
+        return serialized_media_url(image, self.context)
 
     class Meta:
         model = Category
@@ -37,19 +41,23 @@ class ProductSerializer(serializers.ModelSerializer):
     in_stock = serializers.BooleanField(read_only=True)
     primary_image = serializers.SerializerMethodField()
     additional_images = serializers.SerializerMethodField()
-    size_chart = ProductSizeMeasurementSerializer(many=True, read_only=True)
+    size_chart = serializers.SerializerMethodField()
 
     def _absolute_url(self, file_field):
-        if not file_field:
-            return ""
-        request = self.context.get("request")
-        return request.build_absolute_uri(file_field.url) if request else file_field.url
+        return serialized_media_url(file_field, self.context)
 
     def get_primary_image(self, obj):
         return self._absolute_url(obj.primary_image)
 
     def get_additional_images(self, obj):
+        if self.context.get('compact'):
+            return []
         return [self._absolute_url(item.image) for item in obj.images.all()]
+
+    def get_size_chart(self, obj):
+        if self.context.get('compact'):
+            return []
+        return ProductSizeMeasurementSerializer(obj.size_chart.all(), many=True).data
 
     class Meta:
         model = Product
@@ -69,8 +77,7 @@ class TopProductSerializer(serializers.ModelSerializer):
         image = obj.showcase_image or obj.product.primary_image
         if not image:
             return ""
-        request = self.context.get("request")
-        return request.build_absolute_uri(image.url) if request else image.url
+        return serialized_media_url(image, self.context)
 
     class Meta:
         model = TopProduct
@@ -86,3 +93,23 @@ class NavigationLinkSerializer(serializers.ModelSerializer):
     class Meta:
         model = NavigationLink
         fields = ("id", "label", "url", "sort_order", "open_in_new_tab")
+
+
+class DiscountCampaignSerializer(serializers.ModelSerializer):
+    image = serializers.SerializerMethodField()
+
+    def get_image(self, obj):
+        if self.context.get('compact'):
+            return ''
+        if not obj.image:
+            return ''
+        return serialized_media_url(obj.image, self.context)
+
+    class Meta:
+        model = DiscountCampaign
+        fields = (
+            'id', 'display_type', 'title', 'message', 'discount_code',
+            'discount_type', 'discount_value', 'minimum_order_amount',
+            'button_label', 'button_link', 'image', 'image_alt', 'theme',
+            'popup_delay_seconds', 'show_once_per_session',
+        )

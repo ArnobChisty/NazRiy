@@ -39,7 +39,7 @@ export default function HomeLogin() {
   }
 
   return <section className="home-login">
-    <div className="home-login-image"><img src="/banners/nazriy-look-1.jpeg" alt="NazRiy apparel campaign"/><span>PRIVATE ACCESS · NAZRIY</span></div>
+    <div className="home-login-image"><img src="/banners/nazriy-look-1.jpeg" alt="NazRiy apparel campaign" loading="lazy" decoding="async"/><span>PRIVATE ACCESS · NAZRIY</span></div>
     <div className="home-login-panel">
       <p className="eyebrow">Private account</p>
       <h2>{user ? 'Welcome' : 'Login'}</h2>

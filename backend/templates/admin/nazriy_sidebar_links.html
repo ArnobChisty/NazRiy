@@ -10,8 +10,7 @@
   <details class="nz-menu-group" {% if '/admin/store/order/' in request.path or '/admin/store/payment/' in request.path or '/admin/store/orderemaillog/' in request.path %}open{% endif %}>
     <summary><span>Sales</span><i aria-hidden="true"></i></summary>
     <div>
-      <a class="{% if '/admin/store/order/' in request.path %}active{% endif %}" href="{% url 'admin:store_order_changelist' %}"><span class="nz-menu-icon" aria-hidden="true">&#9636;</span><span>Orders</span></a>
-      <a class="{% if '/admin/store/payment/' in request.path %}active{% endif %}" href="{% url 'admin:store_payment_changelist' %}"><span class="nz-menu-icon" aria-hidden="true">&#2547;</span><span>Payments</span></a>
+      <a class="{% if '/admin/store/order/' in request.path or '/admin/store/payment/' in request.path %}active{% endif %}" href="{% url 'admin:store_order_changelist' %}"><span class="nz-menu-icon" aria-hidden="true">&#9636;</span><span>Orders &amp; payments</span></a>
       <a class="{% if '/admin/store/orderemaillog/' in request.path %}active{% endif %}" href="{% url 'admin:store_orderemaillog_changelist' %}"><span class="nz-menu-icon" aria-hidden="true">@</span><span>Order emails</span></a>
     </div>
   </details>
@@ -19,25 +18,27 @@
   <details class="nz-menu-group" {% if '/admin/store/product/' in request.path or '/admin/store/category/' in request.path or '/admin/store/topproduct/' in request.path %}open{% endif %}>
     <summary><span>Catalogue</span><i aria-hidden="true"></i></summary>
     <div>
-      <a class="{% if '/admin/store/product/' in request.path %}active{% endif %}" href="{% url 'admin:store_product_changelist' %}"><span class="nz-menu-icon" aria-hidden="true">&#9671;</span><span>Products</span></a>
-      <a class="{% if '/admin/store/category/' in request.path %}active{% endif %}" href="{% url 'admin:store_category_changelist' %}"><span class="nz-menu-icon" aria-hidden="true">&#9678;</span><span>Categories</span></a>
-      <a class="{% if '/admin/store/topproduct/' in request.path %}active{% endif %}" href="{% url 'admin:store_topproduct_changelist' %}"><span class="nz-menu-icon" aria-hidden="true">&#9734;</span><span>Homepage products</span></a>
+      <span class="nz-menu-row"><a class="{% if '/admin/store/product/' in request.path %}active{% endif %}" href="{% url 'admin:store_product_changelist' %}"><span class="nz-menu-icon" aria-hidden="true">&#9671;</span><span>Products</span></a><a class="nz-menu-add" href="{% url 'admin:store_product_add' %}" title="Add product" aria-label="Add product">+</a></span>
+      <span class="nz-menu-row"><a class="{% if '/admin/store/category/' in request.path %}active{% endif %}" href="{% url 'admin:store_category_changelist' %}"><span class="nz-menu-icon" aria-hidden="true">&#9678;</span><span>Categories</span></a><a class="nz-menu-add" href="{% url 'admin:store_category_add' %}" title="Add category" aria-label="Add category">+</a></span>
+      <span class="nz-menu-row"><a class="{% if '/admin/store/topproduct/' in request.path %}active{% endif %}" href="{% url 'admin:store_topproduct_changelist' %}"><span class="nz-menu-icon" aria-hidden="true">&#9734;</span><span>Homepage products</span></a><a class="nz-menu-add" href="{% url 'admin:store_topproduct_add' %}" title="Add homepage product" aria-label="Add homepage product">+</a></span>
     </div>
   </details>
 
-  <details class="nz-menu-group" {% if '/admin/store/banner/' in request.path or '/admin/store/navigationlink/' in request.path %}open{% endif %}>
+  <details class="nz-menu-group" {% if '/admin/store/banner/' in request.path or '/admin/store/discountcampaign/' in request.path or '/admin/store/navigationlink/' in request.path or '/admin/store/websitetheme/' in request.path %}open{% endif %}>
     <summary><span>Storefront</span><i aria-hidden="true"></i></summary>
     <div>
-      <a class="{% if '/admin/store/banner/' in request.path %}active{% endif %}" href="{% url 'admin:store_banner_changelist' %}"><span class="nz-menu-icon" aria-hidden="true">&#9635;</span><span>Hero banners</span></a>
-      <a class="{% if '/admin/store/navigationlink/' in request.path %}active{% endif %}" href="{% url 'admin:store_navigationlink_changelist' %}"><span class="nz-menu-icon" aria-hidden="true">&#8801;</span><span>Navigation menu</span></a>
+      <span class="nz-menu-row"><a class="{% if '/admin/store/banner/' in request.path %}active{% endif %}" href="{% url 'admin:store_banner_changelist' %}"><span class="nz-menu-icon" aria-hidden="true">&#9635;</span><span>Hero banners</span></a><a class="nz-menu-add" href="{% url 'admin:store_banner_add' %}" title="Add hero banner" aria-label="Add hero banner">+</a></span>
+      <span class="nz-menu-row"><a class="{% if '/admin/store/discountcampaign/' in request.path %}active{% endif %}" href="{% url 'admin:store_discountcampaign_changelist' %}"><span class="nz-menu-icon" aria-hidden="true">%</span><span>Discount campaigns</span></a><a class="nz-menu-add" href="{% url 'admin:store_discountcampaign_add' %}" title="Add discount campaign" aria-label="Add discount campaign">+</a></span>
+      <span class="nz-menu-row"><a class="{% if '/admin/store/navigationlink/' in request.path %}active{% endif %}" href="{% url 'admin:store_navigationlink_changelist' %}"><span class="nz-menu-icon" aria-hidden="true">&#8801;</span><span>Navigation menu</span></a><a class="nz-menu-add" href="{% url 'admin:store_navigationlink_add' %}" title="Add menu link" aria-label="Add menu link">+</a></span>
+      <a class="{% if '/admin/store/websitetheme/' in request.path %}active{% endif %}" href="{% url 'admin:store_websitetheme_changelist' %}"><span class="nz-menu-icon" aria-hidden="true">&#9681;</span><span>Website theme</span></a>
     </div>
   </details>
 
   <details class="nz-menu-group" {% if '/admin/auth/' in request.path %}open{% endif %}>
     <summary><span>Customers &amp; access</span><i aria-hidden="true"></i></summary>
     <div>
-      <a class="{% if '/admin/auth/user/' in request.path %}active{% endif %}" href="{% url 'admin:auth_user_changelist' %}"><span class="nz-menu-icon" aria-hidden="true">&#9673;</span><span>Customers</span></a>
-      <a class="{% if '/admin/auth/group/' in request.path %}active{% endif %}" href="{% url 'admin:auth_group_changelist' %}"><span class="nz-menu-icon" aria-hidden="true">&#9817;</span><span>Staff permissions</span></a>
+      <span class="nz-menu-row"><a class="{% if '/admin/auth/user/' in request.path %}active{% endif %}" href="{% url 'admin:auth_user_changelist' %}"><span class="nz-menu-icon" aria-hidden="true">&#9673;</span><span>Customers</span></a><a class="nz-menu-add" href="{% url 'admin:auth_user_add' %}" title="Add customer" aria-label="Add customer">+</a></span>
+      <span class="nz-menu-row"><a class="{% if '/admin/auth/group/' in request.path %}active{% endif %}" href="{% url 'admin:auth_group_changelist' %}"><span class="nz-menu-icon" aria-hidden="true">&#9817;</span><span>Staff permissions</span></a><a class="nz-menu-add" href="{% url 'admin:auth_group_add' %}" title="Add staff group" aria-label="Add staff group">+</a></span>
     </div>
   </details>
 </div>

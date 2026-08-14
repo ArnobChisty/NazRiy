@@ -62,7 +62,10 @@ const Navbar = ({ activePage = 'home', links }: NavbarProps) => {
   return <>
     <a className="skip-link" href="#main-content">Skip to main content</a>
     <header className="navbar noir-navbar">
-      <a className="noir-wordmark" href="/" aria-label="NazRiy home"><img src="/brand/nazriy-logo.jpeg" alt="NazRiy — Luxury in Budget" /></a>
+      <a className="noir-wordmark theme-wordmark" href="/" aria-label="NazRiy home">
+        <img className="theme-logo-dark" src="/brand/nazriy-logo.jpeg" alt="NazRiy — Luxury in Budget" decoding="async" fetchPriority="high" />
+        <img className="theme-logo-light" src="/brand/nazriy-logo-light.png" alt="" aria-hidden="true" decoding="async" />
+      </a>
       <nav className={menuOpen ? 'noir-primary-nav open' : 'noir-primary-nav'} aria-label="Primary navigation">
         {navigationLinks.map(link => <a className={isActiveLink(link) ? 'active' : ''} href={link.url} target={link.open_in_new_tab ? '_blank' : undefined} rel={link.open_in_new_tab ? 'noreferrer' : undefined} key={link.id}>{link.label}</a>)}
       </nav>

@@ -9,7 +9,8 @@ Thank you for shopping with NazRiy. We have received your order and will keep yo
 {% endfor %}
 Subtotal: BDT {{ order.subtotal }}
 Delivery: BDT {{ order.delivery_charge }}
-Total: BDT {{ order.total }}
+{% if order.discount_amount %}Promo {{ order.discount_code }}: -BDT {{ order.discount_amount }}
+{% endif %}Total: BDT {{ order.total }}
 
 Delivery address:
 {{ order.address }}, {{ order.city }} {{ order.postal_code }}

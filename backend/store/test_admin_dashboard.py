@@ -5,6 +5,7 @@ from django.contrib.auth import get_user_model
 from django.test import TestCase, override_settings
 from django.urls import reverse
 
+from .admin import ProductAdminForm
 from .models import Cart, CartItem, Category, Order, OrderItem, Payment, Product
 
 
@@ -71,6 +72,143 @@ class AdminDashboardTests(TestCase):
 
         self.assertEqual(response.status_code, 200)
         self.assertContains(response, reverse('admin-theme-css'))
+
+    def test_orders_page_combines_order_and_payment_operations(self):
+        self.client.force_login(self.admin_user)
+        response = self.client.get(reverse('admin:store_order_changelist'))
+
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, 'Orders &amp; payments')
+        self.assertContains(response, 'Paid revenue')
+        self.assertContains(response, 'Pending payment')
+        self.assertContains(response, 'Cash on delivery')
+        self.assertContains(response, 'Not required')
+        self.assertContains(response, 'Fulfilment')
+        self.assertContains(response, 'Recommended workflow')
+
+    def test_payment_model_is_hidden_from_navigation_but_direct_view_remains_available(self):
+        self.client.force_login(self.admin_user)
+        response = self.client.get(reverse('admin:index'))
+
+        self.assertNotContains(response, f'href="{reverse("admin:store_payment_changelist")}"')
+        self.assertEqual(self.client.get(reverse('admin:store_payment_changelist')).status_code, 200)
+
+    def test_order_workspace_can_verify_bkash_and_progress_fulfilment(self):
+        self.payment.method = 'bkash'
+        self.payment.provider_reference = 'BKASH-ADMIN-1001'
+        self.payment.save()
+        self.client.force_login(self.admin_user)
+        url = reverse('admin:store_order_changelist')
+
+        response = self.client.post(url, {
+            'action': 'verify_bkash_payments',
+            '_selected_action': [self.order.pk],
+            'index': '0',
+        }, follow=True)
+        self.assertEqual(response.status_code, 200)
+        self.payment.refresh_from_db()
+        self.assertEqual(self.payment.status, 'paid')
+
+        self.client.post(url, {
+            'action': 'mark_as_shipped',
+            '_selected_action': [self.order.pk],
+            'index': '0',
+        })
+        self.order.refresh_from_db()
+        self.assertEqual(self.order.status, 'shipped')
+
+        self.client.post(url, {
+            'action': 'mark_as_delivered',
+            '_selected_action': [self.order.pk],
+            'index': '0',
+        })
+        self.order.refresh_from_db()
+        self.assertEqual(self.order.status, 'delivered')
+
+    def test_fulfilment_can_be_progressed_from_the_order_table(self):
+        self.client.force_login(self.admin_user)
+        url = reverse('admin:store_order_changelist')
+
+        response = self.client.get(url)
+        self.assertContains(response, f'value="ship:{self.order.pk}"')
+
+        response = self.client.post(url, {'_quick_fulfilment': f'ship:{self.order.pk}'}, follow=True)
+        self.assertEqual(response.status_code, 200)
+        self.order.refresh_from_db()
+        self.assertEqual(self.order.status, 'shipped')
+        self.assertContains(response, f'value="deliver:{self.order.pk}"')
+
+        self.client.post(url, {'_quick_fulfilment': f'deliver:{self.order.pk}'})
+        self.order.refresh_from_db()
+        self.assertEqual(self.order.status, 'delivered')
+
+    def test_cash_on_delivery_can_be_marked_paid_from_the_order_table(self):
+        self.client.force_login(self.admin_user)
+        url = reverse('admin:store_order_changelist')
+
+        response = self.client.get(url)
+        self.assertContains(response, f'value="collect:{self.order.pk}"')
+
+        response = self.client.post(url, {'_quick_payment': f'collect:{self.order.pk}'}, follow=True)
+        self.assertEqual(response.status_code, 200)
+        self.payment.refresh_from_db()
+        self.assertEqual(self.payment.status, 'paid')
+        self.assertNotContains(response, f'value="collect:{self.order.pk}"')
+
+    def test_bkash_can_be_verified_from_the_order_table(self):
+        self.payment.method = 'bkash'
+        self.payment.provider_reference = 'BKASH-QUICK-2001'
+        self.payment.save()
+        self.client.force_login(self.admin_user)
+        url = reverse('admin:store_order_changelist')
+
+        response = self.client.get(url)
+        self.assertContains(response, f'value="verify:{self.order.pk}"')
+        self.client.post(url, {'_quick_payment': f'verify:{self.order.pk}'})
+
+        self.payment.refresh_from_db()
+        self.assertEqual(self.payment.status, 'paid')
+
+    def test_catalogue_sidebar_has_direct_add_shortcuts(self):
+        self.client.force_login(self.admin_user)
+        response = self.client.get(reverse('admin:store_product_changelist'))
+
+        self.assertContains(response, reverse('admin:store_product_add'))
+        self.assertContains(response, reverse('admin:store_category_add'))
+        self.assertContains(response, reverse('admin:store_topproduct_add'))
+        self.assertContains(response, 'aria-label="Add product"')
+
+    def test_product_form_uses_simple_comma_separated_options(self):
+        product = Product.objects.get(name='NazRiy Test Set')
+        form = ProductAdminForm(data={
+            'category': product.category_id,
+            'name': product.name,
+            'slug': product.slug,
+            'short_description': '',
+            'description': product.description,
+            'price': product.price,
+            'available_sizes': 'S, M, L, M',
+            'available_colors': 'Black, Rose, Ivory',
+            'stock_quantity': product.stock_quantity,
+            'active': True,
+            'featured': False,
+            'tone': product.tone,
+            'shape': product.shape,
+        }, instance=product)
+
+        self.assertTrue(form.is_valid(), form.errors)
+        self.assertEqual(form.cleaned_data['available_sizes'], ['S', 'M', 'L'])
+        self.assertEqual(form.cleaned_data['available_colors'], ['Black', 'Rose', 'Ivory'])
+
+    def test_catalogue_admin_pages_show_business_friendly_fields(self):
+        self.client.force_login(self.admin_user)
+
+        product_response = self.client.get(reverse('admin:store_product_change', args=(Product.objects.get(name='NazRiy Test Set').pk,)))
+        category_response = self.client.get(reverse('admin:store_category_changelist'))
+
+        self.assertContains(product_response, 'No JSON formatting is required')
+        self.assertContains(product_response, 'Add extra product photos in the gallery section below')
+        self.assertContains(category_response, 'Products')
 
     def test_analytics_navigation_targets_dashboard_section(self):
         self.client.force_login(self.admin_user)

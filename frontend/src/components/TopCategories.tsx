@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
 import { getTopProducts } from '../api'
 import type { TopProduct } from '../types'
+import ReliableImage from './ReliableImage'
 
 const fallbackTones = ['forest', 'clay', 'sage', 'sand']
 
@@ -26,7 +27,7 @@ export default function TopCategories({ products, loading = false }: TopCategori
     </div>
     <div className="category-showcase">{topProducts.map((placement, index) =>
       <a className={`category-tile ${fallbackTones[index % fallbackTones.length]}`} href={`/products/${placement.product.slug}`} aria-label={`View ${placement.product.name}`} key={placement.id}>
-        {(placement.image || placement.product.primary_image) && <img src={placement.image || placement.product.primary_image} alt={placement.image_alt || placement.product.name} loading="lazy" decoding="async"/>}
+        {(placement.image || placement.product.primary_image) && <ReliableImage src={placement.image || placement.product.primary_image} alt={placement.image_alt || placement.product.name} loading="lazy" decoding="async"/>}
         <span className="category-shade product-photo-shade" aria-hidden="true"/>
         <span className="noir-product-index">{String(index + 1).padStart(2, '0')}</span>
         <span className="product-photo-link"><strong>{placement.product.name}</strong><small>View product →</small></span>

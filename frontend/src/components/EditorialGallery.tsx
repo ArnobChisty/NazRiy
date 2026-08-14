@@ -1,5 +1,6 @@
 import { useMemo, useState } from 'react'
 import type { Product } from '../types'
+import ReliableImage from './ReliableImage'
 
 export default function EditorialGallery({ products }: { products: Product[] }) {
   const [expanded, setExpanded] = useState(false)
@@ -25,7 +26,7 @@ export default function EditorialGallery({ products }: { products: Product[] }) 
     </div>
     <div className="editorial-gallery-grid">{visible.map(({ product, image, index }, position) =>
       <a className={`editorial-gallery-card editorial-gallery-card-${position % 6}`} href={`/products/${product.slug}`} key={`${product.id}-${index}`} data-reveal>
-        <img src={image} alt={`${product.name} look ${index + 1}`}/>
+        <ReliableImage src={image} alt={`${product.name} look ${index + 1}`} loading="lazy" decoding="async"/>
         <span><small>NAZRIY · {new Date(product.created_at).getFullYear()}</small><strong>{product.name}</strong></span>
       </a>)}
     </div>

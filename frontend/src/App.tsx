@@ -1,18 +1,21 @@
-import { useEffect, useState } from 'react'
+import { lazy, Suspense, useEffect, useState } from 'react'
 import { Analytics } from '@vercel/analytics/react'
 import AuthProvider from './components/AuthProvider'
 import CartProvider from './components/CartProvider'
 import ProtectedRoute from './components/ProtectedRoute'
-import AccountPage from './pages/AccountPage'
-import AuthPage from './pages/AuthPage'
-import CartPage from './pages/CartPage'
+import WebsiteThemeProvider from './components/WebsiteThemeProvider'
+import SitePromotions from './components/SitePromotions'
 import HomePage from './pages/HomePage'
-import OrderDetailPage from './pages/OrderDetailPage'
-import OrdersPage from './pages/OrdersPage'
-import PasswordRecoveryPage from './pages/PasswordRecoveryPage'
-import ProductDetailsPage from './pages/ProductDetailsPage'
-import ProductListingPage from './pages/ProductListingPage'
 import { trackPageView } from './analytics'
+
+const AccountPage = lazy(() => import('./pages/AccountPage'))
+const AuthPage = lazy(() => import('./pages/AuthPage'))
+const CartPage = lazy(() => import('./pages/CartPage'))
+const OrderDetailPage = lazy(() => import('./pages/OrderDetailPage'))
+const OrdersPage = lazy(() => import('./pages/OrdersPage'))
+const PasswordRecoveryPage = lazy(() => import('./pages/PasswordRecoveryPage'))
+const ProductDetailsPage = lazy(() => import('./pages/ProductDetailsPage'))
+const ProductListingPage = lazy(() => import('./pages/ProductListingPage'))
 
 function AppContent() {
   const [path, setPath] = useState(window.location.pathname.replace(/\/$/, '') || '/')
@@ -38,11 +41,14 @@ function AppContent() {
 
 export default function App() {
   return (
-    <AuthProvider>
-      <CartProvider>
-        <AppContent />
-        <Analytics />
-      </CartProvider>
-    </AuthProvider>
+    <WebsiteThemeProvider>
+      <AuthProvider>
+        <CartProvider>
+          <SitePromotions />
+          <Suspense fallback={<main className="route-loading" aria-label="Loading page" aria-busy="true" />}><AppContent /></Suspense>
+          <Analytics />
+        </CartProvider>
+      </AuthProvider>
+    </WebsiteThemeProvider>
   )
 }

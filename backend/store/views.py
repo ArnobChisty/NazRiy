@@ -1,4 +1,5 @@
 from django.conf import settings
+from django.core.cache import cache
 from django.db import connection
 from django.db.models import Case, IntegerField, When
 from django.db.models import Q
@@ -9,9 +10,10 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 
 from .repositories import CategoryRepository, ProductRepository
-from .models import Banner, NavigationLink, Product, TopProduct
+from .cache_keys import HOMEPAGE_CACHE_KEY
+from .models import Banner, DiscountCampaign, NavigationLink, Product, TopProduct, WebsiteTheme
 from .banner_serializers import BannerSerializer
-from .serializers import CategorySerializer, NavigationLinkSerializer, ProductSerializer, TopProductSerializer
+from .serializers import CategorySerializer, DiscountCampaignSerializer, NavigationLinkSerializer, ProductSerializer, TopProductSerializer
 
 
 class PublicCatalogView(APIView):
@@ -68,19 +70,19 @@ class CategoryListView(PublicCatalogView):
 class ProductListView(PublicCatalogView):
     def get(self, request):
         products = ProductRepository.list_products(request.query_params)
-        return Response(ProductSerializer(products, many=True, context={"request": request}).data)
+        return Response(ProductSerializer(products, many=True, context={"request": request, 'compact': True}).data)
 
 
 class FeaturedProductListView(PublicCatalogView):
     def get(self, request):
         products = ProductRepository.featured_products()
-        return Response(ProductSerializer(products, many=True, context={"request": request}).data)
+        return Response(ProductSerializer(products, many=True, context={"request": request, 'compact': True}).data)
 
 
 class TopProductListView(PublicCatalogView):
     def get(self, request):
         placements = TopProduct.objects.filter(active=True, product__active=True).select_related("product__category").prefetch_related("product__images", "product__size_chart")
-        return Response(TopProductSerializer(placements, many=True, context={"request": request}).data)
+        return Response(TopProductSerializer(placements, many=True, context={"request": request, 'compact': True}).data)
 
 
 class NavigationLinkListView(PublicCatalogView):
@@ -88,6 +90,19 @@ class NavigationLinkListView(PublicCatalogView):
     def get(self, request):
         links = NavigationLink.objects.filter(active=True)
         return Response(NavigationLinkSerializer(links, many=True).data)
+
+
+class DiscountCampaignListView(PublicCatalogView):
+    cache_seconds = 30
+
+    def get(self, request):
+        now = timezone.now()
+        campaigns = (
+            DiscountCampaign.objects.filter(active=True)
+            .filter(Q(starts_at__isnull=True) | Q(starts_at__lte=now))
+            .filter(Q(ends_at__isnull=True) | Q(ends_at__gte=now))
+        )
+        return Response(DiscountCampaignSerializer(campaigns, many=True, context={'request': request}).data)
 
 
 class ProductDetailView(PublicCatalogView):
@@ -122,9 +137,14 @@ class ProductAvailabilityView(APIView):
 class HomepageView(PublicCatalogView):
     """Return all database-managed homepage content in one serverless call."""
 
-    cache_seconds = 30
+    cache_seconds = 300
 
     def get(self, request):
+        if not settings.IS_RUNNING_TESTS:
+            cached_homepage = cache.get(HOMEPAGE_CACHE_KEY)
+            if cached_homepage is not None:
+                return Response(cached_homepage)
+
         now = timezone.now()
         banners = (
             Banner.objects.filter(active=True, placement='hero')
@@ -134,17 +154,32 @@ class HomepageView(PublicCatalogView):
         placements = (
             TopProduct.objects.filter(active=True, product__active=True)
             .select_related('product__category')
-            .prefetch_related('product__images', 'product__size_chart')
         )
-        featured = ProductRepository.featured_products()[:8]
+        featured = Product.objects.filter(active=True, featured=True).select_related('category').order_by('-created_at')[:8]
         links = NavigationLink.objects.filter(active=True)
-        context = {'request': request}
-        return Response({
+        context = {'request': request, 'compact': True}
+        homepage = {
+            'site_theme': WebsiteTheme.active_theme(),
             'banners': BannerSerializer(banners, many=True, context=context).data,
             'top_products': TopProductSerializer(placements, many=True, context=context).data,
             'featured_products': ProductSerializer(featured, many=True, context=context).data,
             'navigation_links': NavigationLinkSerializer(links, many=True).data,
-        })
+        }
+        if not settings.IS_RUNNING_TESTS:
+            cache.set(HOMEPAGE_CACHE_KEY, homepage, timeout=self.cache_seconds)
+        return Response(homepage)
+
+
+class WebsiteThemeView(APIView):
+    """Return the single admin-selected public website theme."""
+
+    authentication_classes = []
+    permission_classes = [AllowAny]
+
+    def get(self, request):
+        response = Response({'theme': WebsiteTheme.active_theme()})
+        response['Cache-Control'] = 'no-store, no-cache, must-revalidate, max-age=0'
+        return response
 
 
 class RecommendationListView(APIView):
@@ -171,7 +206,7 @@ class RecommendationListView(APIView):
             size_score=Case(When(available_sizes__icontains=size, then=2) if size else When(stock_quantity__gt=0, then=1), default=0, output_field=IntegerField()),
             color_score=Case(When(available_colors__icontains=color, then=2) if color else When(featured=True, then=1), default=0, output_field=IntegerField()),
         ).order_by("-category_score", "-size_score", "-color_score", "-featured", "-created_at")[:limit]
-        return Response(ProductSerializer(products, many=True, context={"request": request}).data)
+        return Response(ProductSerializer(products, many=True, context={"request": request, 'compact': True}).data)
 
 
 class RelatedProductListView(RecommendationListView):

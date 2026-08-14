@@ -98,7 +98,7 @@ const ProductDetailsPage = ({ slug }: ProductDetailsPageProps) => {
           <div className="product-details-layout">
             <section className="product-gallery" aria-label={`${product.name} images`}>
               <div className={selectedImage ? 'gallery-main zoomable' : 'gallery-main'} onMouseMove={handleZoomMove}>
-                <ProductArtwork product={product} imageUrl={selectedImage} />
+                <ProductArtwork product={product} imageUrl={selectedImage} priority />
                 {selectedImage && <span className="zoom-hint">Hover to zoom</span>}
               </div>
               <div className="gallery-thumbnails">

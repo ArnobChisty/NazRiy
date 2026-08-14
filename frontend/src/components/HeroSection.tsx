@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react'
 import type { Banner } from '../types'
+import ReliableImage from './ReliableImage'
 
 interface HeroSectionProps {
   banners?: Banner[]
@@ -16,6 +17,16 @@ const HeroSection = ({ banners = [], loading = false }: HeroSectionProps) => {
     return () => window.clearInterval(timer)
   }, [paused, banners.length])
 
+  useEffect(() => {
+    if (banners.length < 2) return
+    const next = banners[(active + 1) % banners.length]
+    const timer = window.setTimeout(() => {
+      const image = new Image()
+      image.src = next.desktop_image
+    }, 2500)
+    return () => window.clearTimeout(timer)
+  }, [active, banners])
+
   if (loading || banners.length === 0) {
     return <section className="editorial-hero noir-hero hero-loading" id="top" aria-label="Loading featured NazRiy collection" aria-busy={loading}>
       <div className="hero-loading-copy" aria-hidden="true"><i/><i/><i/><i/></div>
@@ -30,7 +41,7 @@ const HeroSection = ({ banners = [], loading = false }: HeroSectionProps) => {
     <div className="editorial-slides">{banners.map((slide, index) =>
       <article className={`editorial-slide theme-${slide.theme} ${index === currentActive ? 'active' : ''}`} aria-hidden={index !== currentActive} key={slide.id}>
         <div className="noir-hero-brand" aria-hidden="true"><span>NAZ</span><span>RIY</span></div>
-        <picture>{slide.mobile_image && <source media="(max-width: 700px)" srcSet={slide.mobile_image}/>}<img src={slide.desktop_image} alt={slide.image_alt} style={{ objectPosition: slide.object_position }} fetchPriority={index === 0 ? 'high' : 'low'} decoding="async"/></picture>
+        <picture>{index === currentActive && <>{slide.mobile_image && <source media="(max-width: 700px)" srcSet={slide.mobile_image}/>}<ReliableImage src={slide.desktop_image} alt={slide.image_alt} style={{ objectPosition: slide.object_position }} loading="eager" fetchPriority={index === 0 ? 'high' : 'auto'} decoding="async"/></>}</picture>
         <div className="hero-shade"/>
         <div className="editorial-copy">
           <p className="eyebrow">{slide.eyebrow || 'Modern apparel · curated style'}</p>

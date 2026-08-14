@@ -40,6 +40,8 @@ export const order: CustomerOrder = {
   postal_code: '1205',
   subtotal: '2000.00',
   delivery_charge: '0.00',
+  discount_code: '',
+  discount_amount: '0.00',
   total: '2000.00',
   status: 'confirmed',
   status_label: 'Confirmed',

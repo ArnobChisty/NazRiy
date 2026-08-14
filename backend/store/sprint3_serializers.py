@@ -21,8 +21,13 @@ class OrderItemSerializer(serializers.ModelSerializer):
 class OrderSerializer(serializers.ModelSerializer):
     items=OrderItemSerializer(many=True,read_only=True)
     payment=PaymentSerializer(read_only=True)
-    class Meta:model=Order;fields=['id','name','email','phone','address','city','postal_code','subtotal','delivery_charge','total','status','created_at','items','payment']
+    class Meta:model=Order;fields=['id','name','email','phone','address','city','postal_code','subtotal','delivery_charge','discount_code','discount_amount','total','status','created_at','items','payment']
 class CheckoutSerializer(serializers.Serializer):
     name=serializers.CharField();email=serializers.EmailField();phone=serializers.RegexField(r'^[+\d][\d\s-]{7,}$');address=serializers.CharField();city=serializers.CharField();postal_code=serializers.CharField();items=serializers.ListField(child=serializers.DictField(),allow_empty=False)
     payment_method=serializers.ChoiceField(choices=Payment.METHOD_CHOICES,default='bkash')
     idempotency_key=serializers.UUIDField(required=False,default=uuid.uuid4)
+    promo_code=serializers.CharField(required=False,allow_blank=True,max_length=40,trim_whitespace=True,default='')
+
+class PromoValidationSerializer(serializers.Serializer):
+    code=serializers.CharField(max_length=40,trim_whitespace=True)
+    items=serializers.ListField(child=serializers.DictField(),allow_empty=False,max_length=100)

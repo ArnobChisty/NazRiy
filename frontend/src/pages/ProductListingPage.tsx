@@ -42,18 +42,13 @@ const ProductListingPage = () => {
   useEffect(() => {
     let active = true
     getProducts(appliedFilters)
-      .then((data) => { if (active) setProducts(data) })
+      .then((data) => { if (active) { setProducts(data); setFilterProducts(current => current.length ? current : data) } })
       .catch(() => { if (active) setError('We could not load the collection. Make sure the Django server is running, then try again.') })
       .finally(() => { if (active) setLoading(false) })
     return () => { active = false }
   }, [appliedFilters, retryKey])
 
   useEffect(() => { getCategories().then(setCategories).catch(() => undefined) }, [])
-  useEffect(() => {
-    getProducts({ search: '', category: '', min_price: '', max_price: '', size: '', color: '', ordering: 'newest' })
-      .then(setFilterProducts)
-      .catch(() => undefined)
-  }, [])
 
   const sizeOptions = Array.from(new Set(filterProducts.flatMap((product) => product.available_sizes).filter(Boolean))).sort()
   const colorOptions = Array.from(new Set(filterProducts.flatMap((product) => product.available_colors).filter(Boolean))).sort()

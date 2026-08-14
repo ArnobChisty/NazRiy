@@ -28,6 +28,6 @@ class CustomerOrderSerializer(serializers.ModelSerializer):
         model = Order
         fields = [
             'id', 'name', 'email', 'phone', 'address', 'city', 'postal_code',
-            'subtotal', 'delivery_charge', 'total', 'status', 'status_label',
+            'subtotal', 'delivery_charge', 'discount_code', 'discount_amount', 'total', 'status', 'status_label',
             'created_at', 'updated_at', 'items', 'payment',
         ]

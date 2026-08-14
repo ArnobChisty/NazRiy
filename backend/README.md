@@ -60,3 +60,37 @@ Keep S3 access keys only in `backend/.env`; never place them in frontend code or
 - `GET /api/products/featured/`
 - `GET /api/products/<slug>/`
 - Filters: `search`, `category`, `min_price`, `max_price`, `size`, `color`, `ordering`
+
+## Promo codes and discount campaigns
+
+Staff can configure promo codes under **Admin > Storefront > Discount campaigns**. Supported rules are percentage discounts, fixed BDT discounts, and free delivery. Each campaign can define a schedule, minimum order, percentage cap, global usage limit, and per-customer limit.
+
+Customers apply codes in the checkout order summary. `POST /api/discounts/validate/` returns a preview, but checkout always recalculates product prices and revalidates the code inside a database transaction. Never accept a discount amount sent by the frontend.
+
+Applied campaigns are stored on each order with code and amount snapshots. Cancelled orders no longer count against campaign limits. Deployment requires migration `0018_discountcampaign_discount_type_and_more`.
+
+## bKash payments
+
+NazRiy supports two bKash modes:
+
+- **Automated Tokenized Checkout** redirects the customer to bKash and confirms the payment server-side through the callback. This is the production path.
+- **Manual transaction ID verification** remains available as a fallback while merchant API credentials are unavailable.
+
+To enable automated checkout, obtain Tokenized Checkout credentials from bKash Merchant onboarding, then set the `BKASH_GATEWAY_*` values shown in `.env.example`. Start with `BKASH_GATEWAY_ENVIRONMENT=sandbox` and switch `BKASH_GATEWAY_ENABLED=true` only after all four credentials are present.
+
+The callback URL must be publicly reachable by bKash. In production it is:
+
+```text
+https://YOUR_BACKEND_DOMAIN/api/payments/bkash/callback/
+```
+
+Set that exact HTTPS address in `BKASH_GATEWAY_CALLBACK_URL`. A localhost callback cannot receive bKash notifications unless it is exposed through a secure development tunnel. Never put the app secret, API username, or API password in the frontend environment.
+
+After changing payment configuration or applying this code on a server, run:
+
+```powershell
+cd D:\NazRiy\backend
+.\venv\Scripts\python.exe manage.py migrate
+.\venv\Scripts\python.exe manage.py check
+.\venv\Scripts\python.exe manage.py test store.test_bkash_gateway -v 2
+```

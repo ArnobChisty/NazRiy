@@ -30,7 +30,7 @@
     <div class="nz-dashboard">
       <header class="nz-dashboard-header">
         <div><h1>Dashboard</h1><span>Welcome back, {{ request.user.first_name|default:request.user.username }}. Here’s what’s happening with NazRiy.</span></div>
-        <div class="nz-header-actions"><a class="nz-secondary-action" href="{% url 'admin:store_product_add' %}">Add product</a><a class="nz-primary-action" href="{% url 'admin:store_order_changelist' %}">Manage orders</a></div>
+        <div class="nz-header-actions"><a class="nz-secondary-action" href="{% url 'admin:store_product_add' %}">Add product</a><a class="nz-primary-action" href="{% url 'admin:store_order_changelist' %}">Manage orders &amp; payments</a></div>
       </header>
 
       <section class="nz-kpis" aria-label="Key performance indicators">
@@ -74,9 +74,9 @@
         <div class="nz-management-grid">
           <a href="{% url 'admin:store_product_changelist' %}"><i>01</i><strong>Products &amp; stock</strong><span>Add products, update photos, pricing and availability.</span></a>
           <a href="{% url 'admin:store_banner_changelist' %}"><i>02</i><strong>Homepage banners</strong><span>Change hero images, messaging, buttons and schedules.</span></a>
-          <a href="{% url 'admin:store_navigationlink_changelist' %}"><i>03</i><strong>Navigation menu</strong><span>Control storefront links and their display order.</span></a>
-          <a href="{% url 'admin:store_order_changelist' %}"><i>04</i><strong>Orders</strong><span>Confirm, ship, deliver or cancel customer orders.</span></a>
-          <a href="{% url 'admin:store_payment_changelist' %}"><i>05</i><strong>Payments</strong><span>Verify bKash references and review payment status.</span></a>
+          <a href="{% url 'admin:store_discountcampaign_changelist' %}"><i>03</i><strong>Discount campaigns</strong><span>Run announcement banners and scheduled promotional popups.</span></a>
+          <a href="{% url 'admin:store_navigationlink_changelist' %}"><i>04</i><strong>Navigation menu</strong><span>Control storefront links and their display order.</span></a>
+          <a href="{% url 'admin:store_order_changelist' %}"><i>05</i><strong>Orders &amp; payments</strong><span>Verify payments, then ship, deliver or cancel orders.</span></a>
           <a href="{% url 'admin:store_orderemaillog_changelist' %}" class="{% if dashboard.email_failure_count %}needs-attention{% endif %}"><i>06</i><strong>Order emails</strong><span>{{ dashboard.email_sent_count }} sent &middot; {{ dashboard.email_failure_count }} need attention.</span></a>
         </div>
       </section>

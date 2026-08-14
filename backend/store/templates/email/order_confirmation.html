@@ -13,6 +13,7 @@
           {% for item in items %}<tr><td style="padding:14px 0;border-top:1px solid #e9e3da"><strong>{{ item.product_name }}</strong><br><span style="color:#777168;font-size:13px">{% if item.size %}Size: {{ item.size }}{% endif %}{% if item.color %} · Colour: {{ item.color }}{% endif %}</span></td><td align="right" style="padding:14px 0;border-top:1px solid #e9e3da">{{ item.quantity }} × BDT {{ item.unit_price }}</td></tr>{% endfor %}
           <tr><td style="padding:12px 0;border-top:1px solid #e9e3da">Subtotal</td><td align="right" style="padding:12px 0;border-top:1px solid #e9e3da">BDT {{ order.subtotal }}</td></tr>
           <tr><td style="padding:8px 0">Delivery</td><td align="right" style="padding:8px 0">BDT {{ order.delivery_charge }}</td></tr>
+          {% if order.discount_amount %}<tr><td style="padding:8px 0;color:#087a52">Promo {{ order.discount_code }}</td><td align="right" style="padding:8px 0;color:#087a52">-BDT {{ order.discount_amount }}</td></tr>{% endif %}
           <tr><td style="padding:14px 0;border-top:2px solid #171612;font-size:18px"><strong>Total</strong></td><td align="right" style="padding:14px 0;border-top:2px solid #171612;font-size:18px"><strong>BDT {{ order.total }}</strong></td></tr>
         </table>
         <p style="margin:24px 0;color:#5e5a52;line-height:1.6"><strong>Delivery address</strong><br>{{ order.address }}<br>{{ order.city }} {{ order.postal_code }}</p>

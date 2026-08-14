@@ -4,7 +4,8 @@ from urllib.parse import unquote_plus
 from django.conf import settings
 from django.core.exceptions import ValidationError
 from django.db import models
-from django.db.models import F
+from django.db.models import F, Q
+from django.db.models.functions import Lower
 from django.utils.text import slugify
 
 class Category(models.Model):
@@ -81,6 +82,109 @@ class Banner(models.Model):
     class Meta:ordering=['sort_order','id']
     def __str__(self):return f'{self.get_placement_display()}: {self.title}'
 
+
+class DiscountCampaign(models.Model):
+    DISPLAY_CHOICES = [
+        ('announcement', 'Discount announcement banner'),
+        ('popup', 'Discount popup'),
+    ]
+    THEME_CHOICES = [
+        ('forest', 'Forest green'),
+        ('burgundy', 'Burgundy'),
+        ('pink', 'Soft pink'),
+        ('black', 'Black'),
+    ]
+    DISCOUNT_TYPE_CHOICES = [
+        ('percentage', 'Percentage off'),
+        ('fixed', 'Fixed amount off'),
+        ('free_delivery', 'Free delivery'),
+    ]
+
+    name = models.CharField(max_length=100, help_text='Internal name for staff, for example Eid sale 2026.')
+    display_type = models.CharField(max_length=20, choices=DISPLAY_CHOICES, default='announcement')
+    title = models.CharField(max_length=140)
+    message = models.CharField(max_length=280, blank=True)
+    discount_code = models.CharField(max_length=40, blank=True, help_text='Optional code customers can copy, for example EID20.')
+    discount_type = models.CharField(max_length=20, choices=DISCOUNT_TYPE_CHOICES, default='percentage')
+    discount_value = models.DecimalField(max_digits=10, decimal_places=2, default=Decimal('10.00'), help_text='Percentage or fixed BDT amount. Ignored for free delivery.')
+    minimum_order_amount = models.DecimalField(max_digits=10, decimal_places=2, default=Decimal('0.00'))
+    maximum_discount_amount = models.DecimalField(max_digits=10, decimal_places=2, blank=True, null=True, help_text='Optional cap for percentage discounts.')
+    usage_limit = models.PositiveIntegerField(blank=True, null=True, help_text='Maximum successful checkouts across all customers. Leave blank for unlimited.')
+    per_customer_limit = models.PositiveSmallIntegerField(default=1, help_text='Maximum non-cancelled orders per customer.')
+    button_label = models.CharField(max_length=50, blank=True, default='Shop now')
+    button_link = models.CharField(max_length=240, blank=True, default='/products')
+    image = models.FileField(upload_to='discount-campaigns/', blank=True, help_text='Optional. Most useful for popup campaigns.')
+    image_alt = models.CharField(max_length=180, blank=True)
+    theme = models.CharField(max_length=20, choices=THEME_CHOICES, default='burgundy')
+    active = models.BooleanField(default=True)
+    starts_at = models.DateTimeField(blank=True, null=True)
+    ends_at = models.DateTimeField(blank=True, null=True)
+    sort_order = models.PositiveSmallIntegerField(default=0)
+    popup_delay_seconds = models.PositiveSmallIntegerField(default=3, help_text='Only used for popups. Recommended: 3 to 8 seconds.')
+    show_once_per_session = models.BooleanField(default=True, help_text='Prevents the same popup repeatedly interrupting one visitor.')
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        ordering = ['sort_order', '-created_at']
+        verbose_name = 'discount campaign'
+        verbose_name_plural = 'discount campaigns'
+        constraints = [
+            models.UniqueConstraint(
+                Lower('discount_code'),
+                condition=~Q(discount_code=''),
+                name='unique_discount_campaign_code_ci',
+            ),
+        ]
+
+    def clean(self):
+        if self.starts_at and self.ends_at and self.ends_at <= self.starts_at:
+            raise ValidationError({'ends_at': 'The end time must be after the start time.'})
+        self.discount_code = self.discount_code.strip().upper()
+        if self.discount_code:
+            duplicate = type(self).objects.filter(discount_code__iexact=self.discount_code).exclude(pk=self.pk)
+            if duplicate.exists():
+                raise ValidationError({'discount_code': 'This promo code is already used by another campaign.'})
+        if self.discount_type == 'percentage' and not Decimal('0') < self.discount_value <= Decimal('100'):
+            raise ValidationError({'discount_value': 'Percentage discounts must be greater than 0 and no more than 100.'})
+        if self.discount_type == 'fixed' and self.discount_value <= 0:
+            raise ValidationError({'discount_value': 'Fixed discounts must be greater than 0.'})
+        if self.maximum_discount_amount is not None and self.maximum_discount_amount <= 0:
+            raise ValidationError({'maximum_discount_amount': 'The maximum discount must be greater than 0.'})
+
+    def __str__(self):
+        return f'{self.get_display_type_display()}: {self.name}'
+
+
+class WebsiteTheme(models.Model):
+    THEME_CHOICES = [
+        ('dark', 'Dark'),
+        ('white', 'White'),
+        ('pink', 'Pink'),
+    ]
+
+    theme = models.CharField(max_length=12, choices=THEME_CHOICES, default='dark')
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        verbose_name = 'website theme'
+        verbose_name_plural = 'website theme'
+
+    def save(self, *args, **kwargs):
+        # One global record controls the public website. Keeping a fixed key
+        # prevents administrators from accidentally creating conflicting themes.
+        self.pk = 1
+        if type(self).objects.filter(pk=1).exists():
+            kwargs.pop('force_insert', None)
+        super().save(*args, **kwargs)
+
+    @classmethod
+    def active_theme(cls):
+        return cls.objects.filter(pk=1).values_list('theme', flat=True).first() or 'dark'
+
+    def __str__(self):
+        return f'{self.get_theme_display()} website theme'
+
 class Cart(models.Model):
     user=models.OneToOneField(settings.AUTH_USER_MODEL,on_delete=models.CASCADE,related_name='cart'); updated_at=models.DateTimeField(auto_now=True)
     def __str__(self):return f'Cart for {self.user}'
@@ -91,7 +195,7 @@ class CartItem(models.Model):
 
 class Order(models.Model):
     STATUS_CHOICES=[('confirmed','Confirmed'),('shipped','Shipped'),('delivered','Delivered'),('cancelled','Cancelled')]
-    user=models.ForeignKey(settings.AUTH_USER_MODEL,on_delete=models.PROTECT,related_name='orders'); name=models.CharField(max_length=160); email=models.EmailField(); phone=models.CharField(max_length=30); address=models.TextField(); city=models.CharField(max_length=100); postal_code=models.CharField(max_length=20); subtotal=models.DecimalField(max_digits=10,decimal_places=2); delivery_charge=models.DecimalField(max_digits=10,decimal_places=2,default=Decimal('80.00')); total=models.DecimalField(max_digits=10,decimal_places=2); status=models.CharField(max_length=20,choices=STATUS_CHOICES,default='confirmed'); inventory_restored=models.BooleanField(default=False,editable=False); created_at=models.DateTimeField(auto_now_add=True); updated_at=models.DateTimeField(auto_now=True)
+    user=models.ForeignKey(settings.AUTH_USER_MODEL,on_delete=models.PROTECT,related_name='orders'); name=models.CharField(max_length=160); email=models.EmailField(); phone=models.CharField(max_length=30); address=models.TextField(); city=models.CharField(max_length=100); postal_code=models.CharField(max_length=20); subtotal=models.DecimalField(max_digits=10,decimal_places=2); delivery_charge=models.DecimalField(max_digits=10,decimal_places=2,default=Decimal('80.00')); discount_campaign=models.ForeignKey(DiscountCampaign,on_delete=models.SET_NULL,blank=True,null=True,related_name='orders'); discount_code=models.CharField(max_length=40,blank=True); discount_amount=models.DecimalField(max_digits=10,decimal_places=2,default=Decimal('0.00')); total=models.DecimalField(max_digits=10,decimal_places=2); status=models.CharField(max_length=20,choices=STATUS_CHOICES,default='confirmed'); inventory_restored=models.BooleanField(default=False,editable=False); created_at=models.DateTimeField(auto_now_add=True); updated_at=models.DateTimeField(auto_now=True)
     class Meta: ordering=['-created_at']
     def clean(self):
         if not self.pk:return
@@ -149,6 +253,10 @@ class Payment(models.Model):
     idempotency_key = models.UUIDField(default=uuid.uuid4, unique=True, editable=False)
     last_request_id = models.UUIDField(blank=True, null=True, editable=False)
     provider_reference = models.CharField(max_length=80, blank=True, editable=False)
+    provider_payment_id = models.CharField(max_length=120, blank=True, editable=False)
+    provider_invoice = models.CharField(max_length=120, blank=True, editable=False)
+    provider_redirect_url = models.URLField(max_length=1000, blank=True, editable=False)
+    provider_payload = models.JSONField(default=dict, blank=True, editable=False)
     failure_reason = models.CharField(max_length=240, blank=True, editable=False)
     attempts = models.PositiveSmallIntegerField(default=0, editable=False)
     created_at = models.DateTimeField(auto_now_add=True)

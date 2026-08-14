@@ -100,7 +100,7 @@ export default function OrderDetailPage({ orderId }: { orderId: string }) {
             <div className="s4-items">
               {order.items.map((item, index) => (
                 <article key={`${item.product_slug}-${index}`}>
-                  <div>{item.product_image ? <img src={item.product_image} alt="" /> : <span aria-hidden="true">N</span>}</div>
+                  <div>{item.product_image ? <img src={item.product_image} alt="" loading="lazy" decoding="async" /> : <span aria-hidden="true">N</span>}</div>
                   <section>
                     <h3><a href={`/products/${item.product_slug}`}>{item.product_name}</a></h3>
                     <p>{[item.size && `Size: ${item.size}`, item.color && `Colour: ${item.color}`].filter(Boolean).join(' · ') || 'Standard option'}</p>
@@ -126,6 +126,7 @@ export default function OrderDetailPage({ orderId }: { orderId: string }) {
                 <div><dt>Status</dt><dd>{order.payment.status_label}</dd></div>
                 <div><dt>Subtotal</dt><dd>{formatPrice(Number(order.subtotal))}</dd></div>
                 <div><dt>Delivery</dt><dd>{Number(order.delivery_charge) === 0 ? 'Free' : formatPrice(Number(order.delivery_charge))}</dd></div>
+                {Number(order.discount_amount) > 0 && <div><dt>Promo ({order.discount_code})</dt><dd>−{formatPrice(Number(order.discount_amount))}</dd></div>}
                 <div><dt>Total</dt><dd>{formatPrice(Number(order.total))}</dd></div>
               </dl>
             </section>

@@ -526,6 +526,10 @@ body:not(.nazriy-dashboard-page) #nav-sidebar .nz-page-sidebar-head a {
 .nz-menu-group[open] summary i { transform: rotate(225deg); }
 .nz-menu-group > div { display: grid; gap: 3px; padding-bottom: 5px; }
 .nz-menu-group > div a { padding-left: 15px !important; }
+.nz-menu-row { align-items: center; display: grid; grid-template-columns: minmax(0, 1fr) 31px; }
+body:not(.nazriy-dashboard-page) #nav-sidebar .nz-menu-row > a:first-child { min-width: 0; }
+body:not(.nazriy-dashboard-page) #nav-sidebar .nz-menu-row .nz-menu-add { align-items: center; border: 1px solid rgba(113,167,141,.35); border-radius: 7px; color: #71a78d !important; display: flex !important; font-size: 18px; height: 28px; justify-content: center; min-height: 0; padding: 0 !important; width: 28px; }
+body:not(.nazriy-dashboard-page) #nav-sidebar .nz-menu-row .nz-menu-add:hover { background: #168557 !important; border-color: #168557; color: #fff !important; }
 
 .nz-page-sidebar-footer {
   align-items: center;
@@ -777,13 +781,53 @@ body:not(.nazriy-dashboard-page) textarea:focus {
 .nz-payment-status--paid { background: #e8f7ef; color: #087445; }
 .nz-payment-status--failed { background: #feebeb; color: #ae2e2e; }
 .nz-payment-status--cancelled { background: #eef0f1; color: #626b67; }
+.nz-payment-control { align-items: center; display: inline-flex; gap: 7px; }
+.nz-payment-control button { background: transparent; border: 1px solid #9db9aa; border-radius: 999px; color: #087443; cursor: pointer; font: inherit; font-size: 10px; font-weight: 700; line-height: 1; padding: 7px 9px; }
+.nz-payment-control button:hover, .nz-payment-control button:focus-visible { background: #087443; border-color: #087443; color: #fff; outline: none; }
 .nz-payment-reference { color: #274c3d; font-size: 11px; }
 .nz-payment-reference.muted { color: #8a948f; }
 .nz-payment-reference.waiting { color: #986b00; font-weight: 600; }
 .nz-payment-summary-link { font-size: 14px; font-weight: 700; }
+.nz-order-number, .nz-order-customer { color: #09261c; display: block; font-size: 13px; }
+#result_list .field-order_number small, #result_list .field-customer_summary small,
+#result_list .field-created_display small { color: #7b8781; display: block; font-size: 10px; line-height: 1.5; margin-top: 4px; }
+.nz-order-status { align-items: center; border-radius: 999px; display: inline-flex; font-size: 11px; font-weight: 700; gap: 6px; padding: 6px 10px; white-space: nowrap; }
+.nz-order-status i { background: currentColor; border-radius: 50%; height: 6px; width: 6px; }
+.nz-order-status--confirmed { background: #e9f2ff; color: #296aa3; }
+.nz-order-status--shipped { background: #f1ebff; color: #6b45a8; }
+.nz-order-status--delivered { background: #e8f7ef; color: #087445; }
+.nz-order-status--cancelled { background: #feebeb; color: #ae2e2e; }
+.nz-fulfilment-control { align-items: center; display: inline-flex; gap: 7px; }
+.nz-fulfilment-control button { background: transparent; border: 1px solid #9db9aa; border-radius: 999px; color: #087443; cursor: pointer; font: inherit; font-size: 10px; font-weight: 700; line-height: 1; padding: 7px 9px; }
+.nz-fulfilment-control button:hover, .nz-fulfilment-control button:focus-visible { background: #087443; border-color: #087443; color: #fff; outline: none; }
+.nz-order-guide { align-items: center; background: #092c20; border-radius: 10px; color: #d8e8df; display: flex; flex-wrap: wrap; gap: 12px; margin: -8px 0 22px; padding: 13px 17px; }
+.nz-order-guide strong { color: #fff; margin-right: 8px; }
+.nz-order-guide span { align-items: center; display: inline-flex; font-size: 11px; gap: 7px; }
+.nz-order-guide span b { background: #d9ad42; border-radius: 50%; color: #10231a; display: inline-grid; height: 21px; place-items: center; width: 21px; }
+.nz-order-guide i { color: #6e8e7f; font-style: normal; }
 .nz-email-status { border-radius: 999px; display: inline-flex; font-size: 11px; font-weight: 700; padding: 6px 10px; }
 .nz-email-status--sent { background: #e8f7ef; color: #087445; }
 .nz-email-status--failed { background: #feebeb; color: #ae2e2e; }
+.nz-catalogue-thumb { background: #f1f3f2; border: 1px solid #e1e7e4; border-radius: 8px; display: block; height: 52px; object-fit: cover; width: 52px; }
+.nz-catalogue-preview { background: #f3f5f4; border: 1px solid #dce5e0; border-radius: 10px; display: block; max-height: 330px; max-width: min(100%, 420px); object-fit: contain; padding: 6px; }
+.nz-image-placeholder { align-items: center; background: #f0f3f1; border: 1px dashed #c7d2cc; border-radius: 7px; color: #77857e; display: inline-flex; font-size: 10px; height: 50px; justify-content: center; text-align: center; width: 50px; }
+.nz-image-placeholder.large { height: 100px; padding: 12px; width: 190px; }
+.nz-catalogue-price { color: #09261c; white-space: nowrap; }
+.nz-stock-badge { border-radius: 999px; display: inline-flex; font-size: 10px; font-weight: 700; padding: 6px 9px; white-space: nowrap; }
+.nz-stock-badge--healthy { background: #e8f7ef; color: #087445; }
+.nz-stock-badge--low { background: #fff4d8; color: #936600; }
+.nz-stock-badge--out { background: #feebeb; color: #ae2e2e; }
+.nz-banner-thumb { background: #f1f3f2; border: 1px solid #e1e7e4; border-radius: 8px; display: block; height: 52px; object-fit: cover; width: 84px; }
+.nz-banner-preview { background: #f3f5f4; border: 1px solid #dce5e0; border-radius: 10px; display: block; max-height: 340px; max-width: min(100%, 720px); object-fit: contain; padding: 6px; }
+.nz-campaign-state, .nz-display-badge { border-radius: 999px; display: inline-flex; font-size: 10px; font-weight: 700; padding: 6px 9px; white-space: nowrap; }
+.nz-campaign-state--live { background: #e8f7ef; color: #087445; }
+.nz-campaign-state--scheduled { background: #e9f2ff; color: #296aa3; }
+.nz-campaign-state--ended, .nz-campaign-state--inactive { background: #eef0f1; color: #626b67; }
+.nz-display-badge--announcement { background: #edf3f0; color: #365b4c; }
+.nz-display-badge--popup { background: #fff0f6; color: #b3115b; }
+.nz-campaign-swatch { align-items: center; border-radius: 9px; color: #fff; display: inline-flex; font-size: 22px; font-weight: 800; height: 52px; justify-content: center; width: 52px; }
+.nz-campaign-swatch--forest { background: #234b39; }.nz-campaign-swatch--burgundy { background: #7b1f39; }.nz-campaign-swatch--pink { background: #c85783; }.nz-campaign-swatch--black { background: #171513; }
+#result_list .field-customer_offer small { color: #77857e; display: block; font-size: 10px; margin-top: 4px; }
 
 /* Keep tabular values and editable workflow controls readable in every module. */
 body:not(.nazriy-dashboard-page) #result_list tbody td,
@@ -871,4 +915,36 @@ body.login .submit-row input { width: 100%; }
   }
   body:not(.nazriy-dashboard-page) #content { padding: 24px 14px 42px; }
   body.login #container { margin: 8vh 16px 0; min-width: 0; width: calc(100% - 32px); }
+}
+
+/* Direct storefront theme controls. */
+.nz-theme-switcher {
+  margin: 0 0 26px;
+  padding: clamp(20px, 3vw, 32px);
+  border: 1px solid #d9e3de;
+  border-radius: 16px;
+  background: #fff;
+  box-shadow: 0 14px 38px rgba(20, 55, 42, .08);
+}
+.nz-theme-switcher__heading { display: flex; align-items: start; justify-content: space-between; gap: 24px; margin-bottom: 24px; }
+.nz-theme-switcher__heading h2 { margin: 3px 0 6px; color: #102d22; font-size: 24px; }
+.nz-theme-switcher__heading p { margin: 0; color: #61736c; }
+.nz-theme-switcher__eyebrow { color: #20815e !important; text-transform: uppercase; letter-spacing: .13em; font-size: 10px; font-weight: 700; }
+.nz-theme-switcher__status { padding: 8px 12px; border-radius: 999px; background: #e8f4ef; color: #0e6b4c; white-space: nowrap; font-size: 12px; font-weight: 700; }
+.nz-theme-options { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 14px; }
+.nz-theme-options form { margin: 0; }
+.nz-theme-option { width: 100%; min-height: 94px; padding: 14px; display: grid; grid-template-columns: 48px 1fr auto; align-items: center; gap: 13px; border: 1px solid #d7dfdb; border-radius: 12px; background: #fff; color: #233b31; text-align: left; cursor: pointer; transition: border-color .2s, box-shadow .2s, transform .2s; }
+.nz-theme-option:not(:disabled):hover { border-color: #27936a; box-shadow: 0 10px 24px rgba(24, 93, 68, .12); transform: translateY(-2px); }
+.nz-theme-option.is-active { border: 2px solid #18865e; background: #f1faf6; cursor: default; }
+.nz-theme-option__preview { width: 48px; height: 48px; border: 1px solid rgba(20, 40, 32, .16); border-radius: 50%; box-shadow: inset 0 0 0 5px rgba(255, 255, 255, .15); }
+.nz-theme-option--dark .nz-theme-option__preview { background: #151311; }
+.nz-theme-option--white .nz-theme-option__preview { background: #fff; }
+.nz-theme-option--pink .nz-theme-option__preview { background: #f8dce6; }
+.nz-theme-option__copy { display: flex; flex-direction: column; gap: 3px; }
+.nz-theme-option__copy strong { color: inherit; font-size: 15px; }
+.nz-theme-option__copy small { color: #718078; font-size: 11px; }
+.nz-theme-option__check { color: #18865e; font-size: 18px; font-weight: 700; }
+@media (max-width: 800px) {
+  .nz-theme-switcher__heading { flex-direction: column; }
+  .nz-theme-options { grid-template-columns: 1fr; }
 }

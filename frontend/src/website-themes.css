@@ -1,0 +1,236 @@
+/* Admin-selected global themes. Dark remains the default NazRiy identity. */
+:root,
+:root[data-theme='dark'] {
+  --theme-page: #0d0c0b;
+  --theme-surface: #151311;
+  --theme-surface-raised: #201d1a;
+  --theme-text: #f3f0eb;
+  --theme-muted: #a6a09a;
+  --theme-accent: #d6ad55;
+  --theme-accent-text: #0d0c0b;
+  --theme-line: rgba(243, 240, 235, .14);
+  --theme-nav: rgba(13, 12, 11, .94);
+}
+
+:root[data-theme='white'] {
+  --theme-page: #faf9f6;
+  --theme-surface: #ffffff;
+  --theme-surface-raised: #f1eee8;
+  --theme-text: #262421;
+  --theme-muted: #706c66;
+  --theme-accent: #385f4d;
+  --theme-accent-text: #ffffff;
+  --theme-line: rgba(38, 36, 33, .14);
+  --theme-nav: rgba(255, 255, 255, .94);
+}
+
+:root[data-theme='pink'] {
+  --theme-page: #fff7fa;
+  --theme-surface: #fce7ef;
+  --theme-surface-raised: #f7d5e2;
+  --theme-text: #55253a;
+  --theme-muted: #8b6172;
+  --theme-accent: #b63f72;
+  --theme-accent-text: #ffffff;
+  --theme-line: rgba(110, 41, 69, .16);
+  --theme-nav: rgba(255, 247, 250, .95);
+}
+
+:root[data-theme] {
+  --noir: var(--theme-page);
+  --noir-soft: var(--theme-surface);
+  --bone: var(--theme-text);
+  --muted: var(--theme-muted);
+  --gold: var(--theme-accent);
+  --line: var(--theme-line);
+  background: var(--theme-page);
+  color: var(--theme-text);
+}
+
+:root[data-theme] body,
+:root[data-theme] .site-shell,
+:root[data-theme] .catalog-page,
+:root[data-theme] .details-page,
+:root[data-theme] .cart-page,
+:root[data-theme] .account-page,
+:root[data-theme] .orders-page {
+  background: var(--theme-page);
+  color: var(--theme-text);
+  transition: background-color .25s ease, color .25s ease;
+}
+
+:root[data-theme] .noir-navbar { background: var(--theme-nav); }
+:root[data-theme] .catalog-toolbar,
+:root[data-theme] .filters-panel form,
+:root[data-theme] .order-summary,
+:root[data-theme] .product-size-guide,
+:root[data-theme] .noir-newsletter,
+:root[data-theme] .noir-search-panel { background: var(--theme-surface); }
+:root[data-theme] .catalog-card-image,
+:root[data-theme] .gallery-main,
+:root[data-theme] .gallery-thumbnails button,
+:root[data-theme] .product-skeleton,
+:root[data-theme] .page-state,
+:root[data-theme] .cart-item-image { background: var(--theme-surface-raised); }
+
+:root[data-theme]:not([data-theme='dark']) .hero-loading,
+:root[data-theme]:not([data-theme='dark']) .noir-vision {
+  background: linear-gradient(135deg, var(--theme-page), var(--theme-surface));
+}
+:root[data-theme]:not([data-theme='dark']) .noir-hero .hero-shade {
+  background: linear-gradient(90deg, var(--theme-page) 0 35%, color-mix(in srgb, var(--theme-page) 45%, transparent) 58%, transparent);
+}
+:root[data-theme]:not([data-theme='dark']) .noir-hero .editorial-copy > p:not(.eyebrow),
+:root[data-theme]:not([data-theme='dark']) .cart-item-options,
+:root[data-theme]:not([data-theme='dark']) .cart-item-controls small,
+:root[data-theme]:not([data-theme='dark']) .order-summary dl > div { color: var(--theme-muted); }
+:root[data-theme]:not([data-theme='dark']) .order-summary > a:not(.s3-summary-action) { color: var(--theme-muted); }
+
+/* The checkout action is an anchor, not a button. Keep its label at full
+   contrast instead of inheriting the muted secondary-link colour above. */
+:root[data-theme] .order-summary > .s3-summary-action {
+  background: var(--theme-accent);
+  color: var(--theme-accent-text);
+  font-weight: 600;
+}
+:root[data-theme] .order-summary > .s3-summary-action:hover,
+:root[data-theme] .order-summary > .s3-summary-action:focus-visible {
+  background: color-mix(in srgb, var(--theme-accent) 88%, #000);
+  color: var(--theme-accent-text);
+}
+
+:root[data-theme]:not([data-theme='dark']) .cart-page .remove-item {
+  border-bottom-color: color-mix(in srgb, var(--theme-muted) 55%, transparent);
+  color: var(--theme-muted);
+}
+:root[data-theme]:not([data-theme='dark']) .cart-page .remove-item:hover,
+:root[data-theme]:not([data-theme='dark']) .cart-page .remove-item:focus-visible {
+  border-bottom-color: var(--theme-accent);
+  color: var(--theme-accent);
+}
+
+/* Checkout form surfaces previously stayed light in dark mode. */
+:root[data-theme] .s3-delivery-form {
+  border-color: var(--theme-line);
+  background: var(--theme-surface);
+  color: var(--theme-text);
+}
+:root[data-theme] .s3-field-grid label,
+:root[data-theme] .s5-payment-methods legend,
+:root[data-theme] .s5-payment-methods strong,
+:root[data-theme] .s3-login-note {
+  color: var(--theme-text);
+}
+:root[data-theme] .s3-field-grid input,
+:root[data-theme] .s5-bkash-details input {
+  border-color: var(--theme-line);
+  background: var(--theme-surface-raised);
+  color: var(--theme-text);
+  caret-color: var(--theme-accent);
+}
+:root[data-theme] .s3-field-grid input:focus,
+:root[data-theme] .s5-bkash-details input:focus {
+  border-color: var(--theme-accent);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--theme-accent) 22%, transparent);
+}
+:root[data-theme] .s5-payment-methods label {
+  border-color: var(--theme-line);
+  background: var(--theme-surface-raised);
+  color: var(--theme-text);
+}
+:root[data-theme] .s5-payment-methods label:has(input:checked) {
+  border-color: var(--theme-accent);
+  box-shadow: inset 3px 0 0 var(--theme-accent);
+}
+:root[data-theme] .s5-payment-methods label:has(input:disabled) {
+  opacity: .62;
+  cursor: not-allowed;
+}
+:root[data-theme] .s5-payment-methods input { accent-color: var(--theme-accent); }
+:root[data-theme] .s5-payment-methods small,
+:root[data-theme] .s3-login-note { color: var(--theme-muted); }
+:root[data-theme] .s3-login-note a { color: var(--theme-accent); }
+:root[data-theme] .s3-place-order {
+  background: var(--theme-accent);
+  color: var(--theme-accent-text);
+  font-weight: 600;
+}
+:root[data-theme] .s3-place-order:hover:not(:disabled) {
+  background: color-mix(in srgb, var(--theme-accent) 88%, #000);
+}
+:root[data-theme] .s5-bkash-details,
+:root[data-theme] .s5-bkash-notice {
+  border-color: var(--theme-line);
+  background: var(--theme-surface-raised);
+  color: var(--theme-text);
+}
+:root[data-theme] .s5-bkash-details h2 { color: var(--theme-accent); }
+:root[data-theme] .s5-bkash-details ol,
+:root[data-theme] .s5-bkash-details label { color: var(--theme-text); }
+
+:root[data-theme] .apply-button,
+:root[data-theme] .page-state button,
+:root[data-theme] .option-group button.active,
+:root[data-theme] .purchase-actions button,
+:root[data-theme] .order-summary > button,
+:root[data-theme] .noir-hero .editorial-slide .primary-button,
+:root[data-theme] .noir-auth-page .auth-submit {
+  border-color: var(--theme-accent);
+  background: var(--theme-accent);
+  color: var(--theme-accent-text);
+}
+
+:root[data-theme]:not([data-theme='dark']) .catalog-card .favorite-button {
+  background: color-mix(in srgb, var(--theme-surface) 88%, transparent);
+  color: var(--theme-text);
+}
+.theme-logo-light { display: none !important; }
+:root[data-theme='dark'] .theme-logo-dark {
+  /* Black in the source image becomes the navbar background; white lettering remains crisp. */
+  mix-blend-mode: screen;
+  filter: contrast(1.08);
+}
+:root[data-theme='white'] .theme-logo-dark,
+:root[data-theme='pink'] .theme-logo-dark { display: none !important; }
+:root[data-theme='white'] .theme-logo-light,
+:root[data-theme='pink'] .theme-logo-light { display: block !important; }
+
+/* The supplied light logo is a large presentation canvas. Zoom and crop its
+   central wordmark without modifying the client's source artwork. */
+:root[data-theme]:not([data-theme='dark']) .noir-wordmark .theme-logo-light {
+  width: 188%;
+  height: auto;
+  max-width: none;
+  left: -44%;
+  top: -64px;
+  object-fit: contain;
+  mix-blend-mode: multiply;
+  /* Lift the pale canvas to pure white so Multiply reveals the theme beneath it. */
+  filter: contrast(1.16) saturate(1.06);
+}
+:root[data-theme]:not([data-theme='dark']) footer .footer-brand .theme-logo-light {
+  width: 188%;
+  height: auto;
+  max-width: none;
+  left: -44%;
+  top: -93px;
+  object-fit: contain;
+  mix-blend-mode: multiply;
+  filter: contrast(1.16) saturate(1.06);
+}
+:root[data-theme]:not([data-theme='dark']) footer .footer-brand {
+  /* Keep enough of the supplied presentation-canvas logo visible for the
+     complete "Luxury In Budget" line instead of clipping its lower half. */
+  height: 116px;
+}
+:root[data-theme='pink'] .theme-logo-light { mix-blend-mode: multiply; }
+
+@media (max-width: 960px) {
+  :root[data-theme]:not([data-theme='dark']) .noir-wordmark .theme-logo-light {
+    top: -52px;
+  }
+}
+:root[data-theme]:not([data-theme='dark']) footer {
+  background: var(--theme-surface);
+  color: var(--theme-text);
+}

@@ -5,14 +5,19 @@ from .auth_views import (
     PasswordResetRequestView, ProfileView, RegisterView,
 )
 from .banner_views import BannerListView
+from .bkash_gateway_views import BkashGatewayCallbackView, BkashGatewayConfigView, BkashGatewayInitiateView
+from .discount_views import PromoCodeValidationView
 from .sprint3_views import CartItemView, CartView, CheckoutView
 from .sprint4_views import CustomerOrderDetailView, CustomerOrderListView
 from .sprint5_views import BkashPaymentView
-from .views import CategoryListView, FeaturedProductListView, HealthCheckView, HomepageView, NavigationLinkListView, ProductAvailabilityView, ProductDetailView, ProductListView, RecommendationListView, RelatedProductListView, TopProductListView
+from .views import CategoryListView, DiscountCampaignListView, FeaturedProductListView, HealthCheckView, HomepageView, NavigationLinkListView, ProductAvailabilityView, ProductDetailView, ProductListView, RecommendationListView, RelatedProductListView, TopProductListView, WebsiteThemeView
 
 urlpatterns = [
     path('health/', HealthCheckView.as_view(), name='health-check'),
     path('homepage/', HomepageView.as_view(), name='homepage'),
+    path('theme/', WebsiteThemeView.as_view(), name='website-theme'),
+    path('discount-campaigns/', DiscountCampaignListView.as_view(), name='discount-campaigns'),
+    path('discounts/validate/', PromoCodeValidationView.as_view(), name='discount-validate'),
     path('banners/', BannerListView.as_view(), name='banner-list'),
     path('auth/register/', RegisterView.as_view(), name='register'),
     path('auth/login/', LoginView.as_view(), name='login'),
@@ -28,6 +33,9 @@ urlpatterns = [
     path('orders/', CustomerOrderListView.as_view(), name='orders'),
     path('orders/<int:pk>/', CustomerOrderDetailView.as_view(), name='order-detail'),
     path('orders/<int:pk>/payment/', BkashPaymentView.as_view(), name='bkash-payment'),
+    path('orders/<int:pk>/payment/bkash/create/', BkashGatewayInitiateView.as_view(), name='bkash-gateway-create'),
+    path('payments/bkash/config/', BkashGatewayConfigView.as_view(), name='bkash-gateway-config'),
+    path('payments/bkash/callback/', BkashGatewayCallbackView.as_view(), name='bkash-gateway-callback'),
     path('categories/', CategoryListView.as_view(), name='category-list'),
     path('products/', ProductListView.as_view(), name='product-list'),
     path('products/featured/', FeaturedProductListView.as_view(), name='featured-products'),

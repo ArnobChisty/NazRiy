@@ -1,0 +1,21 @@
+{% extends "admin/change_list.html" %}
+
+{% block content_title %}
+  <div class="nz-payment-heading">
+    <div>
+      <p>Sales workspace</p>
+      <h1>Orders &amp; payments</h1>
+      <span>Review payments, process fulfilment, and follow every customer order from one place.</span>
+    </div>
+  </div>
+  <section class="nz-payment-stats" aria-label="Order and payment summary">
+    <article><span>Total orders</span><strong>{{ order_stats.total_orders }}</strong><small>All customer orders</small></article>
+    <article class="paid"><span>Paid revenue</span><strong>{{ order_stats.paid_revenue }}</strong><small>Revenue from verified payments</small></article>
+    <article class="pending"><span>Pending payment</span><strong>{{ order_stats.pending_payments }}</strong><small>Transactions awaiting review or collection</small></article>
+    <article class="attention"><span>To fulfil</span><strong>{{ order_stats.awaiting_fulfilment }}</strong><small>Confirmed or currently shipping</small></article>
+  </section>
+  <aside class="nz-order-guide" aria-label="Order workflow guide">
+    <strong>Recommended workflow</strong>
+    <span><b>1</b> Select the order</span><i>&rarr;</i><span><b>2</b> Verify payment when required</span><i>&rarr;</i><span><b>3</b> Mark shipped</span><i>&rarr;</i><span><b>4</b> Mark delivered</span>
+  </aside>
+{% endblock %}

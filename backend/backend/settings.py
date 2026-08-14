@@ -11,8 +11,14 @@ https://docs.djangoproject.com/en/6.0/ref/settings/
 """
 
 #running command: .\venv\Scripts\Activate.ps1, python manage.py runserver
+# testing commands: cd D:\NazRiy\backend
+# .\venv\Scripts\Activate.ps1
+#python manage.py test -v 2
+# Frontend commands: cd D:\NazRiy\frontend
+#npm.cmd run test -- --run
 
 import os
+import sys
 from pathlib import Path
 
 from django.core.exceptions import ImproperlyConfigured
@@ -60,6 +66,7 @@ INSTALLED_APPS = [
 MIDDLEWARE = [
     'corsheaders.middleware.CorsMiddleware',
     'django.middleware.security.SecurityMiddleware',
+    'django.middleware.gzip.GZipMiddleware',
     'whitenoise.middleware.WhiteNoiseMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
@@ -96,11 +103,19 @@ DB_ENGINE = os.getenv("DB_ENGINE", "postgres").lower()
 if DB_ENGINE not in {"postgres", "postgresql"}:
     raise ImproperlyConfigured("NazRiy requires PostgreSQL. Set DB_ENGINE=postgres.")
 
+IS_RUNNING_TESTS = "test" in sys.argv
+IS_SERVERLESS = bool(os.getenv('VERCEL') or os.getenv('AWS_LAMBDA_FUNCTION_NAME'))
+
 database_options = {
     "connect_timeout": int(os.getenv("DB_CONNECT_TIMEOUT", "10")),
 }
 if os.getenv("DB_SSLMODE"):
     database_options["sslmode"] = os.getenv("DB_SSLMODE")
+
+database_host = os.getenv("DB_HOST", "localhost")
+database_port = os.getenv("DB_PORT", "5432")
+if IS_SERVERLESS and 'pooler.supabase.com' in database_host and database_port == '5432':
+    database_port = '6543'
 
 DATABASES = {
     "default": {
@@ -108,13 +123,21 @@ DATABASES = {
         "NAME": os.getenv("DB_NAME", "nazriy_db"),
         "USER": os.getenv("DB_USER", "postgres"),
         "PASSWORD": os.getenv("DB_PASSWORD", ""),
-        "HOST": os.getenv("DB_HOST", "localhost"),
-        "PORT": os.getenv("DB_PORT", "5432"),
-        "CONN_MAX_AGE": int(os.getenv("DB_CONN_MAX_AGE", "60")),
-        "CONN_HEALTH_CHECKS": True,
+        "HOST": database_host,
+        "PORT": database_port,
+        # Serverless workers must return connections immediately. Holding them
+        # open exhausts Supabase's session pool and makes cold requests stall.
+        "CONN_MAX_AGE": 0 if (IS_RUNNING_TESTS or IS_SERVERLESS) else int(os.getenv("DB_CONN_MAX_AGE", "60")),
+        "CONN_HEALTH_CHECKS": False if IS_RUNNING_TESTS else True,
         "OPTIONS": database_options,
+        "TEST": {
+            "NAME": os.getenv("DB_TEST_NAME", f"test_{os.getenv('DB_NAME', 'nazriy_db')}"),
+        },
     }
 }
+
+if IS_RUNNING_TESTS:
+    TEST_RUNNER = "backend.test_runner.NazRiyTestRunner"
 
 
 # Password validation
@@ -153,6 +176,18 @@ CSRF_TRUSTED_ORIGINS = [origin.strip() for origin in os.getenv('CSRF_TRUSTED_ORI
 AUTH_TOKEN_MAX_AGE = int(os.getenv('AUTH_TOKEN_MAX_AGE', str(60 * 60 * 24 * 30)))
 BKASH_MERCHANT_NUMBER = os.getenv('BKASH_MERCHANT_NUMBER', '')
 FRONTEND_URL = os.getenv('FRONTEND_URL', 'http://127.0.0.1:5173')
+BKASH_GATEWAY_ENABLED = env_bool('BKASH_GATEWAY_ENABLED', False)
+BKASH_GATEWAY_ENVIRONMENT = os.getenv('BKASH_GATEWAY_ENVIRONMENT', 'sandbox').lower()
+BKASH_GATEWAY_BASE_URL = os.getenv(
+    'BKASH_GATEWAY_BASE_URL',
+    'https://tokenized.sandbox.bka.sh/v1.2.0-beta/tokenized/checkout',
+).rstrip('/')
+BKASH_GATEWAY_APP_KEY = os.getenv('BKASH_GATEWAY_APP_KEY', '')
+BKASH_GATEWAY_APP_SECRET = os.getenv('BKASH_GATEWAY_APP_SECRET', '')
+BKASH_GATEWAY_USERNAME = os.getenv('BKASH_GATEWAY_USERNAME', '')
+BKASH_GATEWAY_PASSWORD = os.getenv('BKASH_GATEWAY_PASSWORD', '')
+BKASH_GATEWAY_TIMEOUT = int(os.getenv('BKASH_GATEWAY_TIMEOUT', '15'))
+BKASH_GATEWAY_CALLBACK_URL = os.getenv('BKASH_GATEWAY_CALLBACK_URL', '')
 PASSWORD_RESET_TIMEOUT = int(os.getenv('PASSWORD_RESET_TIMEOUT', '3600'))
 
 EMAIL_BACKEND = os.getenv(
@@ -190,6 +225,7 @@ MEDIA_URL = '/media/'
 MEDIA_ROOT = BASE_DIR / 'media'
 
 USE_SUPABASE_STORAGE = env_bool('USE_SUPABASE_STORAGE', False)
+SUPABASE_STORAGE_URL_EXPIRY = int(os.getenv('SUPABASE_STORAGE_URL_EXPIRY', '86400'))
 STORAGES = {
     'default': {'BACKEND': 'django.core.files.storage.FileSystemStorage'},
     'staticfiles': {
@@ -229,7 +265,12 @@ if USE_SUPABASE_STORAGE:
             'default_acl': None,
             'file_overwrite': False,
             'querystring_auth': env_bool('SUPABASE_STORAGE_QUERYSTRING_AUTH', True),
-            'querystring_expire': int(os.getenv('SUPABASE_STORAGE_URL_EXPIRY', '3600')),
+            'querystring_expire': SUPABASE_STORAGE_URL_EXPIRY,
+            'object_parameters': {
+                # Uploaded media uses versioned object names, so it is safe to
+                # cache aggressively at the browser and CDN edge.
+                'CacheControl': 'public, max-age=31536000, immutable',
+            },
         },
     }
 

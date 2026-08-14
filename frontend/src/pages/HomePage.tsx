@@ -68,7 +68,7 @@ const HomePage = () => {
             <p>NazRiy began with a simple belief: expressive clothing should feel considered, confident, and accessible. Every piece brings together distinctive print, thoughtful detail, and silhouettes made for real life.</p>
             <a href="/products">Explore NazRiy <span>→</span></a>
           </div>
-          <div className="noir-vision-image"><img src="/banners/nazriy-detail.jpeg" alt="NazRiy garment detail"/><span>NAZRIY · EST. 2024</span></div>
+          <div className="noir-vision-image"><img src="/banners/nazriy-detail.jpeg" alt="NazRiy garment detail" loading="lazy" decoding="async"/><span>NAZRIY · EST. 2024</span></div>
         </section>
         <section className="newsletter noir-newsletter" aria-labelledby="newsletter-title" data-reveal>
           <div><p className="eyebrow">Private list</p><h2 id="newsletter-title">Be first to know.</h2><p>New drops, limited pieces, and NazRiy campaign stories—delivered occasionally.</p></div>
@@ -81,7 +81,7 @@ const HomePage = () => {
         </section>
       </main>
       <footer id="contact">
-        <div className="footer-intro"><a className="footer-brand" href="#top" aria-label="NazRiy home"><img src="/brand/nazriy-logo.jpeg" alt="NazRiy — Luxury in Budget" /></a><p>Modern apparel. Curated style.</p></div>
+        <div className="footer-intro"><a className="footer-brand theme-wordmark" href="#top" aria-label="NazRiy home"><img className="theme-logo-dark" src="/brand/nazriy-logo.jpeg" alt="NazRiy — Luxury in Budget" loading="lazy" decoding="async" /><img className="theme-logo-light" src="/brand/nazriy-logo-light.png" alt="" aria-hidden="true" loading="lazy" decoding="async" /></a><p>Modern apparel. Curated style.</p></div>
         <div className="footer-column"><h3>Explore</h3><a href="#top">Home</a><a href="/products">Shop</a><a href="#about">The vision</a></div>
         <div className="footer-column"><h3>Contact</h3><a href="mailto:nazriy.bd@gmail.com">nazriy.bd@gmail.com</a><span>Dhaka, Bangladesh</span></div>
         <div className="footer-column"><h3>Follow</h3><a href="https://www.instagram.com/nazriy.bd?igsh=MXNzNXZ4Nmc3eXVsbw==" target="_blank" rel="noreferrer">Instagram</a><a href="https://www.facebook.com/share/1JNBh2E9qk/" target="_blank" rel="noreferrer">Facebook</a></div>

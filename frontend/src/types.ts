@@ -83,12 +83,44 @@ export interface Banner {
   object_position: string
 }
 
+export interface DiscountCampaign {
+  id: number
+  display_type: 'announcement' | 'popup'
+  title: string
+  message: string
+  discount_code: string
+  discount_type: 'percentage' | 'fixed' | 'free_delivery'
+  discount_value: string
+  minimum_order_amount: string
+  button_label: string
+  button_link: string
+  image: string
+  image_alt: string
+  theme: 'forest' | 'burgundy' | 'pink' | 'black'
+  popup_delay_seconds: number
+  show_once_per_session: boolean
+}
+
+export interface PromoQuote {
+  code: string
+  title: string
+  discount_type: 'percentage' | 'fixed' | 'free_delivery'
+  subtotal: string
+  delivery_charge: string
+  discount_amount: string
+  total: string
+  message: string
+}
+
 export interface HomepageData {
+  site_theme: WebsiteTheme
   banners: Banner[]
   top_products: TopProduct[]
   featured_products: Product[]
   navigation_links: NavigationLink[]
 }
+
+export type WebsiteTheme = 'dark' | 'white' | 'pink'
 
 export interface ProductAvailability {
   id: number
@@ -127,6 +159,8 @@ export interface CustomerOrder {
   postal_code: string
   subtotal: string
   delivery_charge: string
+  discount_code: string
+  discount_amount: string
   total: string
   status: 'confirmed' | 'shipped' | 'delivered' | 'cancelled'
   status_label: string
@@ -147,4 +181,17 @@ export interface PaymentInfo {
   attempts: number
   created_at: string
   updated_at: string
+}
+
+export interface BkashPaymentConfig {
+  mode: 'automated' | 'manual' | 'unavailable'
+  automated: boolean
+  manual: boolean
+  merchant_number: string
+  environment: '' | 'sandbox' | 'production'
+}
+
+export interface BkashGatewayStart {
+  payment: PaymentInfo
+  redirect_url?: string
 }
